@@ -1,133 +1,74 @@
-// import { Button } from '../Button';
-// import logo from '../../assests/careerLine.svg';
-// import './Navbar.scss';
-// import { useTheme } from '../../hooks/useTheme';
-// import { MdLightMode, MdDarkMode } from 'react-icons/md';
-// import { useState, useEffect, useCallback } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
-
-// export const Navbar = () => {
-//   const navigate = useNavigate();
-//   const [scrolled, setScrolled] = useState(false);
-//   const [menuOpen, setMenuOpen] = useState(false);
-//   const { theme, setTheme } = useTheme();
-
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setScrolled(window.scrollY > 20);
-//     };
-
-//     window.addEventListener('scroll', handleScroll);
-//     return () => window.removeEventListener('scroll', handleScroll);
-//   }, []);
-
-//   useEffect(() => {
-//     if (menuOpen) {
-//       document.body.style.overflow = 'hidden';
-//     } else {
-//       document.body.style.overflow = '';
-//     }
-//     return () => {
-//       document.body.style.overflow = '';
-//     };
-//   }, [menuOpen]);
-
-//   const toggleTheme = () => {
-//     setTheme(theme === 'light' ? 'dark' : 'light');
-//   };
-
-//   const toggleMenu = useCallback(() => {
-//     setMenuOpen((prev) => !prev);
-//   }, []);
-
-//   const closeMenu = useCallback(() => {
-//     setMenuOpen(false);
-//   }, []);
-
-//   const handleNavigation = useCallback(
-//     (path: string) => {
-//       navigate(path);
-//       closeMenu();
-//     },
-//     [navigate, closeMenu],
-//   );
-
-//   const getIcon = () => {
-//     if (theme === 'light') return <MdLightMode size={24} />;
-//     return <MdDarkMode size={24} />;
-//   };
-
-//   return (
-//     <>
-//       <nav className={scrolled ? 'scrolled' : ''}>
-//         <div className="logo">
-//           <a href="/">
-//             <img src={logo} alt="careerline logo" />
-//           </a>
-//         </div>
-
-//         <div className="nav-actions desktop-nav">
-//           <Link to="/contact">Contact</Link>
-//           <Button variant="primary" onClick={() => navigate('/question')}>
-//             Take A Test
-//           </Button>
-//           <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-//             {getIcon()}
-//           </button>
-//         </div>
-
-//         <div className="mobile-nav-controls">
-//           <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-//             {getIcon()}
-//           </button>
-//           <button
-//             className={`hamburger ${menuOpen ? 'active' : ''}`}
-//             onClick={toggleMenu}
-//             aria-label="Toggle menu"
-//             aria-expanded={menuOpen}
-//           >
-//             <span className="hamburger-line" />
-//             <span className="hamburger-line" />
-//             <span className="hamburger-line" />
-//           </button>
-//         </div>
-//       </nav>
-
-//       <div className={`mobile-menu-overlay ${menuOpen ? 'active' : ''}`} onClick={closeMenu} />
-
-//       <div className={`mobile-menu ${menuOpen ? 'active' : ''}`}>
-//         <div className="mobile-menu-content">
-//           <Link to="/contact" className="mobile-nav-link" onClick={closeMenu}>
-//             Contact
-//           </Link>
-//           <div className="mobile-menu-divider" />
-//           <div className="mobile-menu-cta">
-//             <Button variant="primary" onClick={() => handleNavigation('/question')}>
-//               Take A Test
-//             </Button>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
+import { useState } from 'react';
 import { Button } from '../Button';
 import './Navbar.scss';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, type To } from 'react-router-dom';
+import indigo from '../../assests/indigo.png';
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleNavigate = (path: To) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
 
   return (
     <nav>
-      <span className="logo">CareerLine AI</span>
+      <div className="logo cursor-pointer flex items-center" onClick={() => handleNavigate('/')}>
+        <img src={indigo} alt="CareerLine logo" />
+      </div>
 
-      <div className="nav-actions">
-        <Button variant="primary" className="nav-cta-btn" onClick={() => navigate('/question')}>
+      <button
+        className="menu-toggle"
+        aria-label="Toggle menu"
+        aria-expanded={isMenuOpen}
+        onClick={() => setIsMenuOpen((prev) => !prev)}
+      >
+        {isMenuOpen ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        )}
+      </button>
+
+      <div className={`nav-actions${isMenuOpen ? ' open' : ''}`}>
+        <Button
+          variant="primary"
+          className="nav-cta-btn"
+          onClick={() => handleNavigate('/question')}
+        >
           Get started
         </Button>
-        <span className="nav-signin" onClick={() => navigate('/sign-in')}>
+
+        <span className="nav-signin" onClick={() => handleNavigate('/sign-in')}>
           Sign in
         </span>
       </div>

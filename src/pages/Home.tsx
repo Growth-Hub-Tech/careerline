@@ -1,8 +1,17 @@
-import { AboutUs, CallToAction, Hero, HowItWorks, Target, WhyChooseUs } from '../components';
+import {
+  AboutUs,
+  CallToAction,
+  Hero,
+  HowItWorks,
+  Target,
+  WhyChooseUs,
+  PathOptions,
+} from '../components';
 
 export const Home = () => (
   <>
     <Hero />
+    <PathOptions />
     <HowItWorks />
     <AboutUs />
     <Target />

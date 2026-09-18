@@ -9,3 +9,4 @@ export * from './PageContainer';
 export * from './Target';
 export * from './WhyChooseUs';
 export * from './QuestionFlow';
+export * from './PathOptions/PathOptions';

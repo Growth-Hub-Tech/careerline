@@ -2,85 +2,63 @@
 @use '../../styles/variables.scss' as *;
 
 .hero {
-  min-height: 700px;
-  background: var(--hero-gradient-color);
-  padding-top: 180px;
-  padding-bottom: 60px;
+  min-height: 270px;
+  background: #4a3f8c;
+  padding-top: 48px;
+  padding-bottom: 48px;
+  position: relative;
+  overflow: hidden;
 
   @include mixins.mobile-only {
     min-height: auto;
-    padding-top: 180px;
-    padding-bottom: 48px;
+    padding-top: 40px;
+    padding-bottom: 40px;
   }
 
   .hero-main {
     @include mixins.flex-center;
     width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
     align-items: center;
-    gap: 48px;
-    position: relative;
+    justify-content: flex-start;
+    // position: relative;
+    height: 280px;
 
     @media screen and (max-width: $medium-breakpoint) {
       flex-direction: column;
-      gap: 40px;
+      padding: 0 16px;
     }
-  }
-
-  .btn-box {
-    display: flex;
-    gap: 16px;
-    margin-top: 40px;
-
-    @media screen and (max-width: $medium-breakpoint) {
-      flex-direction: column;
-      width: 100%;
-    }
-
-    button {
-      @media screen and (max-width: $medium-breakpoint) {
-        width: 100%;
-      }
-    }
-  }
-
-  // Gradient accent for headline highlight — replaces the harsh #ff0000
-  .hero-accent {
-    background: linear-gradient(90deg, var(--button-primary) 0%, #7c3aed 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
   .text-box {
-    // Removed: word-spacing and letter-spacing — dated early-2010s look
-    width: 50%;
+    width: 60%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
 
     @media screen and (max-width: $medium-breakpoint) {
       width: 100%;
     }
   }
 
-  .line-decor {
+  .hero-orb {
     position: absolute;
-    right: 0;
-    bottom: -100%;
-    z-index: -99;
-    pointer-events: none;
+    top: -50px;
+    right: -60px;
+    // left:480px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    // background: rgba(255, 255, 255, 0.08);
+    background: #5c4fa1;
+    z-index: 0;
 
     @include mixins.mobile-only {
       display: none;
-    }
-  }
-
-  .hero-img {
-    height: 100%;
-    width: 50%;
-
-    @media screen and (max-width: $medium-breakpoint) {
-      width: 100%;
     }
   }
 }

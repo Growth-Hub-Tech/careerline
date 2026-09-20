@@ -1,145 +1,88 @@
 import { PageContainer } from '../PageContainer';
-import { MdOutlineRecommend, MdOutlineExplore } from 'react-icons/md';
-import { AiOutlineGlobal } from 'react-icons/ai';
-import { LuArrowUpRight, LuMapPin } from 'react-icons/lu';
-
-const STEPS = ['Pick a path', 'Build skills', 'Land the role'] as const;
+import { LuUsers, LuTarget, LuArrowUpRight, LuFileCheck } from 'react-icons/lu';
 
 interface Reason {
-  readonly icon: React.ReactNode;
-  readonly label: string;
-  readonly description: string;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
 }
 
-const LIST_REASONS: readonly Reason[] = [
+const REASONS: Reason[] = [
   {
-    icon: <MdOutlineRecommend size={19} />,
-    label: 'Personalized to you',
-    description: 'Recommendations based on your skills, interests, and career direction.',
+    icon: <LuUsers size={20} />,
+    title: 'One engine, every audience',
+    body: 'Beginners, organizations, recruiters, and professionals all get tested against the same standard.',
   },
   {
-    icon: <MdOutlineExplore size={19} />,
-    label: 'Know what comes next',
-    description: 'Clear courses, resources, and guidance without the guesswork.',
-  },
-  {
-    icon: <AiOutlineGlobal size={19} />,
-    label: 'Built for opportunity',
-    description: 'Develop skills relevant to both local and global opportunities.',
+    icon: <LuTarget size={20} />,
+    title: 'Benchmarked, not guessed',
+    body: 'Scored against the Global Standard for the role, not a generic aptitude test.',
   },
 ];
 
 export const WhyChooseUs = () => (
-  <section className="relative w-full overflow-hidden bg-[#2e2757] py-24 lg:py-32">
-    {/* Ambient glow */}
-    <div className="pointer-events-none absolute -right-32 top-0 h-[420px] w-[420px] rounded-full bg-[#dda01a]/10 blur-[120px]" />
-
+  <section className="w-full bg-white py-20 lg:py-28">
     <PageContainer>
-      <div className="relative mx-auto w-full max-w-[1280px]">
+      <div className="mx-auto w-full max-w-[1200px] px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <div className="max-w-[650px]">
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#dda01a]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#dda01a]" />
-              Why CareerLine AI
-            </span>
+        <span className="inline-flex items-center rounded-full border border-[#e6e6ef] px-4 py-1.5 text-xs font-medium tracking-wide text-[#6b7280]">
+          WHY CHOOSE US
+        </span>
 
-            <h2 className="mt-5 text-[40px] font-semibold leading-[1.05] tracking-[-0.03em] text-white md:text-[52px] lg:text-[58px]">
-              Your career path,
-              <br />
-              <span className="text-white/45">without the guesswork.</span>
-            </h2>
-          </div>
+        <h2 className="mt-5 text-[34px] font-bold leading-[1.15] tracking-tight text-[#1f2a44] lg:text-[42px]">
+          Why <span className="text-[#4a3f8c]">CareerLine AI</span> is the right choice for you
+        </h2>
 
-          <p className="max-w-[380px] text-[15px] leading-7 text-white/55 lg:pb-1">
-            CareerLine AI helps you understand where you are, what to learn next, and where those
-            skills can take you.
-          </p>
-        </div>
-
-        {/* Main content */}
-        <div className="mt-16 grid gap-5 lg:grid-cols-12">
-          {/* Career path */}
-          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.045] p-7 lg:col-span-7 lg:p-10">
-            <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#dda01a]/[0.07] blur-3xl" />
-
-            <div className="relative">
-              <div className="flex items-center justify-between">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-[#dda01a]">
-                  <LuMapPin size={19} />
-                </div>
-
-                <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/30">
-                  Your journey
-                </span>
+        {/* Bento grid */}
+        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+          {REASONS.map((reason) => (
+            <div key={reason.title} className="rounded-2xl bg-[#f7f7fb] p-7 lg:col-span-1">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e6e6ef] bg-white text-[#4a3f8c]">
+                {reason.icon}
               </div>
 
-              <h3 className="mt-8 text-2xl font-semibold tracking-tight text-white">
-                A clearer way forward.
+              <h3 className="mt-6 text-[19px] font-bold tracking-tight text-[#1f2a44]">
+                {reason.title}
               </h3>
-
-              <p className="mt-3 max-w-[430px] text-sm leading-6 text-white/50">
-                Follow a structured path that connects what you learn to where you want your career
-                to go.
-              </p>
-
-              {/* Steps */}
-              <div className="mt-12">
-                <div className="relative flex justify-between">
-                  <div className="absolute left-3 right-3 top-3.5 h-px bg-white/10" />
-                  <div className="absolute left-3 top-3.5 h-px w-[48%] bg-[#dda01a]" />
-
-                  {STEPS.map((step, i) => (
-                    <div key={step} className="relative z-10 flex flex-col gap-3">
-                      <div
-                        className={[
-                          'flex h-7 w-7 items-center justify-center rounded-full border text-[11px] font-semibold',
-                          i === 0
-                            ? 'border-[#dda01a] bg-[#dda01a] text-[#2e2757]'
-                            : 'border-white/15 bg-[#332c5c] text-white/45',
-                        ].join(' ')}
-                      >
-                        {i + 1}
-                      </div>
-
-                      <span
-                        className={['text-xs', i === 0 ? 'text-white' : 'text-white/40'].join(' ')}
-                      >
-                        {step}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-10 flex items-center gap-2 text-xs font-medium text-[#dda01a]">
-                <span>Start with where you are</span>
-                <LuArrowUpRight size={14} />
-              </div>
+              <p className="mt-3 text-[14px] leading-relaxed text-[#6b7280]">{reason.body}</p>
             </div>
+          ))}
+
+          {/* Dark CTA card, spans both rows on the right */}
+          <div className="flex flex-col justify-between rounded-2xl bg-[#1f2a44] p-8 lg:col-start-3 lg:row-span-2 lg:row-start-1">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 text-[#dda01a]">
+                <LuFileCheck size={20} />
+              </div>
+
+              <h3 className="mt-6 text-[19px] font-bold leading-snug tracking-tight text-white">
+                Get your score
+              </h3>
+              <p className="mt-3 text-[14px] leading-relaxed text-white/60">
+                Take a role-specific test and get a scored report with strengths, weaknesses, and a
+                clear next step.
+              </p>
+            </div>
+
+            <button className="mt-8 inline-flex w-fit items-center gap-2.5 rounded-full bg-[#dda01a] px-7 py-3.5 text-[15px] font-semibold text-[#1f2a44]">
+              Start free test
+              <LuArrowUpRight size={18} />
+            </button>
           </div>
 
-          {/* Reasons */}
-          <div className="lg:col-span-5 lg:pl-8">
-            <div className="divide-y divide-white/10 border-y border-white/10">
-              {LIST_REASONS.map(({ icon, label, description }, index) => (
-                <div key={label} className="group flex gap-5 py-7 first:pt-6 last:pb-6">
-                  <span className="pt-1 text-xs font-medium text-white/20">0{index + 1}</span>
-
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-[#dda01a] transition-colors group-hover:border-[#dda01a]/30">
-                    {icon}
-                  </div>
-
-                  <div>
-                    <h3 className="text-[15px] font-semibold text-white">{label}</h3>
-
-                    <p className="mt-2 max-w-[330px] text-sm leading-6 text-white/45">
-                      {description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+          {/* Wide card, spans first two columns */}
+          <div className="rounded-2xl bg-[#f7f7fb] p-7 lg:col-span-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#e6e6ef] bg-white text-[#4a3f8c]">
+              <LuArrowUpRight size={20} />
             </div>
+
+            <h3 className="mt-6 text-[19px] font-bold tracking-tight text-[#1f2a44]">
+              Every gap has a next step
+            </h3>
+            <p className="mt-3 max-w-[52ch] text-[14px] leading-relaxed text-[#6b7280]">
+              A weakness comes with a matched Incubate programme or partner recommendation, not just
+              a number.
+            </p>
           </div>
         </div>
       </div>

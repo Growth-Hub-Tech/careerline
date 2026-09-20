@@ -1,110 +1,148 @@
-import type { ReactNode } from 'react';
-import {
-  HiOutlineCpuChip,
-  HiOutlineChartBar,
-  HiOutlineUserGroup,
-  HiOutlineRocketLaunch,
-  HiOutlineShieldCheck,
-} from 'react-icons/hi2';
+import { PageContainer } from '../PageContainer';
+import { MdOutlineRecommend, MdOutlineExplore } from 'react-icons/md';
+import { AiOutlineGlobal } from 'react-icons/ai';
+import { LuArrowUpRight, LuMapPin } from 'react-icons/lu';
 
-const ICON_SIZE = 20;
-
-const CONTAINER = 'mx-auto w-full max-w-[1200px] px-6 lg:px-8';
+const STEPS = ['Pick a path', 'Build skills', 'Land the role'] as const;
 
 interface Reason {
+  readonly icon: React.ReactNode;
   readonly label: string;
   readonly description: string;
-  readonly icon: ReactNode;
 }
 
-const REASONS: readonly Reason[] = [
+const LIST_REASONS: readonly Reason[] = [
   {
-    label: 'One engine, four doors',
-    description:
-      'A beginner, an HR lead, a recruiter and a professional all run on the same test. Nothing to stitch together.',
-    icon: <HiOutlineCpuChip size={ICON_SIZE} aria-hidden="true" />,
+    icon: <MdOutlineRecommend size={19} />,
+    label: 'Personalized to you',
+    description: 'Recommendations based on your skills, interests, and career direction.',
   },
   {
-    label: 'Matched to your real constraints',
-    description:
-      'Your time and budget count as much as your interests, so the path you get is one you can finish.',
-    icon: <HiOutlineUserGroup size={ICON_SIZE} aria-hidden="true" />,
+    icon: <MdOutlineExplore size={19} />,
+    label: 'Know what comes next',
+    description: 'Clear courses, resources, and guidance without the guesswork.',
   },
   {
-    label: 'Measured against the role',
-    description:
-      'Scores are benchmarked against what the role genuinely requires, not graded against whoever else took the test.',
-    icon: <HiOutlineChartBar size={ICON_SIZE} aria-hidden="true" />,
+    icon: <AiOutlineGlobal size={19} />,
+    label: 'Built for opportunity',
+    description: 'Develop skills relevant to both local and global opportunities.',
   },
-  {
-    label: 'The loop closes itself',
-    description:
-      'Every gap arrives with the specific programme that closes it, then a re-test to prove it worked.',
-    icon: <HiOutlineRocketLaunch size={ICON_SIZE} aria-hidden="true" />,
-  },
-  {
-    label: 'Built for decisions that matter',
-    description:
-      'Scoring is calibrated for bias, and every result stays a decision-support input — never an automatic pass or fail.',
-    icon: <HiOutlineShieldCheck size={ICON_SIZE} aria-hidden="true" />,
-  },
-] as const;
+];
 
 export const WhyChooseUs = () => (
-  <section className="w-full bg-white py-20 lg:py-28">
-    <div className={CONTAINER}>
-      <div className="grid gap-14 lg:grid-cols-12 lg:gap-20">
-        <div className="lg:col-span-4">
-          <div className="lg:sticky lg:top-28">
-            <h2 className="text-[34px] leading-[1.15] font-bold tracking-tight text-[#1f2a44] lg:text-[38px]">
-              Diagnosis and guidance, not another quiz
+  <section className="relative w-full overflow-hidden bg-[#2e2757] py-24 lg:py-32">
+    {/* Ambient glow */}
+    <div className="pointer-events-none absolute -right-32 top-0 h-[420px] w-[420px] rounded-full bg-[#dda01a]/10 blur-[120px]" />
+
+    <PageContainer>
+      <div className="relative mx-auto w-full max-w-[1280px]">
+        {/* Header */}
+        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+          <div className="max-w-[650px]">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#dda01a]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#dda01a]" />
+              Why CareerLine AI
+            </span>
+
+            <h2 className="mt-5 text-[40px] font-semibold leading-[1.05] tracking-[-0.03em] text-white md:text-[52px] lg:text-[58px]">
+              Your career path,
+              <br />
+              <span className="text-white/45">without the guesswork.</span>
             </h2>
-            <p className="mt-5 max-w-[40ch] text-[15px] leading-relaxed text-[#6b7280]">
-              What path genuinely fits this person, how their skill compares to the standard, and
-              what to do next.
-            </p>
-
-            <div aria-hidden="true" className="mt-8 h-px w-16 bg-[#4a3f8c]/30" />
-
-            <p className="mt-6 max-w-[38ch] text-[13px] leading-relaxed text-[#9ca3af]">
-              One shared skill profile per person, readable by AuxHR and Incubate without
-              re-entering anything.
-            </p>
           </div>
+
+          <p className="max-w-[380px] text-[15px] leading-7 text-white/55 lg:pb-1">
+            CareerLine AI helps you understand where you are, what to learn next, and where those
+            skills can take you.
+          </p>
         </div>
 
-        <ul className="lg:col-span-8">
-          {REASONS.map(({ label, description, icon }, index) => (
-            <li
-              key={label}
-              className="flex items-start gap-4 border-t border-[#e6e7ee] py-7 last:border-b sm:gap-6"
-            >
-              <span
-                aria-hidden="true"
-                className="w-6 shrink-0 pt-2.5 text-[13px] font-semibold text-[#c4c7d2] tabular-nums"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
+        {/* Main content */}
+        <div className="mt-16 grid gap-5 lg:grid-cols-12">
+          {/* Career path */}
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.045] p-7 lg:col-span-7 lg:p-10">
+            <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#dda01a]/[0.07] blur-3xl" />
 
-              <span
-                aria-hidden="true"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f4f3f9] text-[#4a3f8c]"
-              >
-                {icon}
-              </span>
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-[#dda01a]">
+                  <LuMapPin size={19} />
+                </div>
 
-              <div className="min-w-0 pt-1">
-                <h3 className="text-[18px] leading-snug font-semibold tracking-tight text-[#1f2a44]">
-                  {label}
-                </h3>
-                <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-[#6b7280]">
-                  {description}
-                </p>
+                <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/30">
+                  Your journey
+                </span>
               </div>
-            </li>
-          ))}
-        </ul>
+
+              <h3 className="mt-8 text-2xl font-semibold tracking-tight text-white">
+                A clearer way forward.
+              </h3>
+
+              <p className="mt-3 max-w-[430px] text-sm leading-6 text-white/50">
+                Follow a structured path that connects what you learn to where you want your career
+                to go.
+              </p>
+
+              {/* Steps */}
+              <div className="mt-12">
+                <div className="relative flex justify-between">
+                  <div className="absolute left-3 right-3 top-3.5 h-px bg-white/10" />
+                  <div className="absolute left-3 top-3.5 h-px w-[48%] bg-[#dda01a]" />
+
+                  {STEPS.map((step, i) => (
+                    <div key={step} className="relative z-10 flex flex-col gap-3">
+                      <div
+                        className={[
+                          'flex h-7 w-7 items-center justify-center rounded-full border text-[11px] font-semibold',
+                          i === 0
+                            ? 'border-[#dda01a] bg-[#dda01a] text-[#2e2757]'
+                            : 'border-white/15 bg-[#332c5c] text-white/45',
+                        ].join(' ')}
+                      >
+                        {i + 1}
+                      </div>
+
+                      <span
+                        className={['text-xs', i === 0 ? 'text-white' : 'text-white/40'].join(' ')}
+                      >
+                        {step}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-10 flex items-center gap-2 text-xs font-medium text-[#dda01a]">
+                <span>Start with where you are</span>
+                <LuArrowUpRight size={14} />
+              </div>
+            </div>
+          </div>
+
+          {/* Reasons */}
+          <div className="lg:col-span-5 lg:pl-8">
+            <div className="divide-y divide-white/10 border-y border-white/10">
+              {LIST_REASONS.map(({ icon, label, description }, index) => (
+                <div key={label} className="group flex gap-5 py-7 first:pt-6 last:pb-6">
+                  <span className="pt-1 text-xs font-medium text-white/20">0{index + 1}</span>
+
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-[#dda01a] transition-colors group-hover:border-[#dda01a]/30">
+                    {icon}
+                  </div>
+
+                  <div>
+                    <h3 className="text-[15px] font-semibold text-white">{label}</h3>
+
+                    <p className="mt-2 max-w-[330px] text-sm leading-6 text-white/45">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </PageContainer>
   </section>
 );

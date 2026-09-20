@@ -22,7 +22,7 @@ export const Hero = () => (
     {/* .hero-orb — decorative, so it stays hidden from screen readers */}
     <div
       aria-hidden="true"
-      className="absolute -top-[50px] -right-[60px] z-0 hidden h-[260px] w-[260px] rounded-full bg-[#5c4fa1] md:block"
+      className="absolute -top-12.5 -right-15 z-0 hidden h-65 w-65 rounded-full bg-[#5c4fa1] md:block"
     />
   </div>
 );

@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { LuX, LuCheck } from 'react-icons/lu';
-import { PageContainer } from '../PageContainer';
 
 interface Row {
   readonly text: string;
@@ -28,21 +27,21 @@ const RowItem = ({ icon, text }: { icon: ReactNode; text: string }) => (
 );
 
 export const Comparison = () => (
-  <section className="flex h-[884px] w-full items-center bg-[#e5e8fa]">
-    <PageContainer className="flex h-[662px] w-full flex-col justify-center">
+  <section className="flex w-full items-center bg-[#e5e8fa] py-14 sm:py-20 lg:h-[884px] lg:py-0">
+    <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-center px-5 sm:px-6 lg:h-[662px] lg:px-[32px]">
       <div className="mx-auto max-w-[720px] text-center">
-        <h2 className="text-[28px] leading-[1.2] font-bold tracking-tight text-[#1f2a44] lg:text-[34px]">
+        <h2 className="text-[24px] leading-[1.2] font-bold tracking-tight text-[#1f2a44] sm:text-[28px] lg:text-[34px]">
           There are thousands of courses. But which one is right for you?
         </h2>
-        <p className="mt-4 text-[15px] leading-relaxed text-[#5a6270]">
+        <p className="mt-4 text-[14px] leading-relaxed text-[#5a6270] sm:text-[15px]">
           You could spend hours comparing syllabi, watching contradictory YouTube reviews, and
           asking colleagues for opinions—only to end up more overwhelmed. You don&apos;t need
           another generic catalog. You need clear, evidence-backed direction.
         </p>
       </div>
 
-      <div className="mx-auto mt-12 flex flex-col gap-6 sm:flex-row">
-        <div className="flex h-[456px] w-[436px] flex-col rounded-2xl bg-white p-6 sm:p-7">
+      <div className="mx-auto mt-10 flex w-full flex-col items-center gap-5 sm:mt-12 md:flex-row md:items-stretch md:justify-center md:gap-6">
+        <div className="flex w-full max-w-[436px] flex-col rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
           <div className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-500">
               <LuX size={15} />
@@ -60,12 +59,12 @@ export const Comparison = () => (
             ))}
           </ul>
 
-          <div className="mt-6 rounded-lg bg-[#E2E7FF] py-3 text-center text-[13px] font-medium text-[#6b7280]">
+          <div className="mt-6 rounded-lg bg-[#E2E7FF] px-3 py-3 text-center text-[13px] font-medium text-[#6b7280] md:mt-auto">
             Outcome: Weeks wasted, zero momentum
           </div>
         </div>
 
-        <div className="flex h-[456px] w-[436px] flex-col rounded-2xl bg-white p-6 sm:p-7">
+        <div className="flex w-full max-w-[436px] flex-col rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
           <div className="flex items-center gap-2.5">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#3525cd] text-white">
               <LuCheck size={15} />
@@ -83,11 +82,11 @@ export const Comparison = () => (
             ))}
           </ul>
 
-          <div className="mt-6 rounded-lg bg-[#E2DFFF] py-3 text-center text-[13px] font-semibold text-[#063ccd]">
+          <div className="mt-6 rounded-lg bg-[#E2DFFF] px-3 py-3 text-center text-[13px] font-semibold text-[#063ccd] md:mt-auto">
             Outcome: Instant clarity, targeted mastery
           </div>
         </div>
       </div>
-    </PageContainer>
+    </div>
   </section>
 );

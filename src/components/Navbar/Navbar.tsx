@@ -26,7 +26,7 @@ export const Navbar = () => {
 
   return (
     <nav className="w-full border-b border-[#f2f4f7] bg-[#f1f2fc]">
-      <div className="mx-auto flex h-20 w-full max-w-[1440px] items-center justify-between px-6 lg:px-8">
+      <div className="mx-auto flex h-20 w-full max-w-[1280px] items-center justify-between px-5 sm:px-6 lg:px-[32px]">
         <button
           type="button"
           className="text-[17px] font-bold tracking-tight text-[#1f2a44]"
@@ -36,7 +36,7 @@ export const Navbar = () => {
         </button>
 
         {/* Desktop links */}
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {NAV_LINKS.map(({ label, hasDropdown }) => (
             <button
               key={label}
@@ -50,7 +50,7 @@ export const Navbar = () => {
         </div>
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           <button
             type="button"
             className="shrink-0 text-sm font-medium whitespace-nowrap text-gray-600 hover:text-[#063ccd]"
@@ -70,7 +70,7 @@ export const Navbar = () => {
         {/* Mobile toggle */}
         <button
           type="button"
-          className="text-[#1f2a44] md:hidden"
+          className="text-[#1f2a44] lg:hidden"
           aria-label="Toggle menu"
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -81,7 +81,7 @@ export const Navbar = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="flex flex-col gap-4 border-t border-[#f2f4f7] px-6 py-5 md:hidden">
+        <div className="flex flex-col gap-4 border-t border-[#f2f4f7] px-5 py-5 sm:px-6 lg:hidden">
           {NAV_LINKS.map(({ label }) => (
             <button
               key={label}

@@ -8,7 +8,7 @@ export const Hero = () => {
     <section className="flex w-full items-center bg-white py-10 sm:py-14 lg:h-[800px] lg:py-6">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-10 px-5 sm:px-6 lg:flex-row lg:gap-16 lg:px-[32px]">
         <div className="flex w-full flex-col gap-5 lg:w-1/2 lg:gap-6">
-          <h1 className="text-[32px] leading-[1.15] font-bold tracking-tight text-[#1f2a44] sm:text-[36px] lg:text-[46px]">
+          <h1 className="text-[32px] max-w-[560px] leading-[1.15] font-bold tracking-tight text-[#1f2a44] sm:text-[36px] lg:text-[46px]">
             Find the course that fits your future.
           </h1>
 

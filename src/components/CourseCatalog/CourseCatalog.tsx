@@ -97,7 +97,7 @@ export const CourseCatalog = () => {
 
           {/* Tabs */}
           {/* Tabs */}
-          <div className="inline-flex h-12 w-full items-center justify-center gap-1 rounded-xl bg-[#E2E7FF] p-1.5 sm:w-[350px] lg:self-auto">
+          <div className="inline-flex h-12 w-full max-w-[350px] items-center justify-center gap-1 rounded-xl bg-[#E2E7FF] p-1.5  lg:self-auto">
             {TABS.map((tab) => {
               const isActive = activeTab === tab;
 
@@ -133,7 +133,7 @@ export const CourseCatalog = () => {
                   {icon}
                 </span>
 
-                <span className="rounded-full h-6 w-[88.4px] bg-[#EAEDFF] flex justify-center items-center px-[10px] py-[4px] text-[12px] font-medium text-[#464555] sm:px-3.5 sm:text-[12px]">
+                <span className="rounded-full h-6 w-[88.4px] bg-[#EAEDFF] flex justify-center px-[10px] py-[4px] text-[12px] font-medium text-[#464555] sm:px-3.5 sm:text-[12px]">
                   {count}
                 </span>
               </div>

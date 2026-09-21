@@ -40,49 +40,52 @@ export const Comparison = () => (
         </p>
       </div>
 
-      <div className="mx-auto mt-10 flex w-full flex-col items-center gap-5 sm:mt-12 md:flex-row md:items-stretch md:justify-center md:gap-6">
-        <div className="flex w-full max-w-[436px] flex-col rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-500">
-              <LuX size={15} />
-            </span>
-            <h3 className="text-[17px] font-bold text-[#1f2a44]">Without CareerLine</h3>
+      <div className="mx-auto mt-10 flex w-full flex-col  items-center gap-5 sm:mt-12 md:flex-row md:items-stretch md:justify-center md:gap-6">
+        <div className="flex w-full max-w-[436px] justify-between flex-col rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-red-500">
+                <LuX size={15} />
+              </span>
+              <h3 className="text-[17px] font-bold text-[#1f2a44]">Without CareerLine</h3>
+            </div>
+
+            <ul className="mt-5 flex flex-col gap-4">
+              {WITHOUT_ROWS.map((row) => (
+                <RowItem
+                  key={row.text}
+                  icon={<LuX size={16} className="text-red-500" />}
+                  text={row.text}
+                />
+              ))}
+            </ul>
           </div>
 
-          <ul className="mt-5 flex flex-col gap-4">
-            {WITHOUT_ROWS.map((row) => (
-              <RowItem
-                key={row.text}
-                icon={<LuX size={16} className="text-red-500" />}
-                text={row.text}
-              />
-            ))}
-          </ul>
-
-          <div className="mt-6 rounded-lg bg-[#E2E7FF] px-3 py-3 text-center text-[13px] font-medium text-[#6b7280] md:mt-auto">
+          <div className="lg:mb-6 mt-8 rounded-lg bg-[#E2E7FF] px-3 py-3 text-center text-[13px] font-medium text-[#6b7280] md:mt-auto">
             Outcome: Weeks wasted, zero momentum
           </div>
         </div>
 
-        <div className="flex w-full max-w-[436px] flex-col rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#3525cd] text-white">
-              <LuCheck size={15} />
-            </span>
-            <h3 className="text-[17px] font-bold text-[#3525cd]">With Careerline</h3>
+        <div className="flex w-full max-w-[436px] flex-col justify-between rounded-2xl bg-white p-5 sm:p-7 lg:h-[456px]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#3525cd] text-white">
+                <LuCheck size={15} />
+              </span>
+              <h3 className="text-[17px] font-bold text-[#3525cd]">With Careerline</h3>
+            </div>
+
+            <ul className="mt-5 flex flex-col gap-4">
+              {WITH_ROWS.map((row) => (
+                <RowItem
+                  key={row.text}
+                  icon={<LuCheck size={16} className="text-[#063ccd]" />}
+                  text={row.text}
+                />
+              ))}
+            </ul>
           </div>
-
-          <ul className="mt-5 flex flex-col gap-4">
-            {WITH_ROWS.map((row) => (
-              <RowItem
-                key={row.text}
-                icon={<LuCheck size={16} className="text-[#063ccd]" />}
-                text={row.text}
-              />
-            ))}
-          </ul>
-
-          <div className="mt-6 rounded-lg bg-[#E2DFFF] px-3 py-3 text-center text-[13px] font-semibold text-[#063ccd] md:mt-auto">
+          <div className="lg:mb-6 mt-8 rounded-lg bg-[#E2DFFF] px-3 py-3 text-center text-[13px] font-semibold text-[#063ccd] md::mt-auto">
             Outcome: Instant clarity, targeted mastery
           </div>
         </div>

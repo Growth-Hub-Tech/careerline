@@ -133,7 +133,7 @@ export const CourseCatalog = () => {
                   {icon}
                 </span>
 
-                <span className="rounded-full h-6 w-[88.4px] bg-[#EAEDFF] flex justify-center px-[10px] py-[4px] text-[12px] font-medium text-[#464555] sm:px-3.5 sm:text-[12px]">
+                <span className="rounded-full h-6 w-[88.4px] bg-[#EAEDFF] flex items-center justify-center px-[10px] py-[4px] text-[12px] font-medium text-[#464555] sm:px-3.5 sm:text-[12px]">
                   {count}
                 </span>
               </div>

@@ -27,7 +27,7 @@ export const Hero = () => {
             </button>
             <button
               type="button"
-              className="h-12 rounded-full border border-[#1f2a44]/15 bg-transparent px-6 text-sm font-semibold text-[#1f2a44] hover:bg-[#1f2a44]/5"
+              className="h-12 bg-[#E2E7FF] rounded-full border border-[#1f2a44]/15 px-6 text-sm font-semibold text-[#1f2a44] hover:bg-[#1f2a44]/5"
               onClick={() => navigate('/sign-in')}
             >
               Log in

@@ -97,7 +97,7 @@ export const CourseCatalog = () => {
 
           {/* Tabs */}
           {/* Tabs */}
-          <div className="inline-flex w-[350px] h-12 items-center justify-center gap-1 rounded-xl bg-[#E2E7FF] p-1.5 lg:self-auto">
+          <div className="inline-flex h-12 w-full items-center justify-center gap-1 rounded-xl bg-[#E2E7FF] p-1.5 sm:w-[350px] lg:self-auto">
             {TABS.map((tab) => {
               const isActive = activeTab === tab;
 
@@ -107,7 +107,7 @@ export const CourseCatalog = () => {
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   aria-pressed={isActive}
-                  className={`w-full max-w-40.75 h-9 rounded-lg px-5 py-2 font-semibold whitespace-nowrap transition-all duration-200 text-[13px] ${
+                  className={`h-9 w-full max-w-40.75 min-w-0 rounded-lg px-2 py-2 text-[12px] font-semibold whitespace-nowrap transition-all duration-200 sm:px-5 sm:text-[13px] ${
                     isActive
                       ? 'bg-white text-[#3525cd] shadow-[0_2px_8px_rgba(53,37,205,0.10)]'
                       : 'text-[#464555] hover:text-[#1f2a44]'

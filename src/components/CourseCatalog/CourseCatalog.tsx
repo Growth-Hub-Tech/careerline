@@ -96,7 +96,7 @@ export const CourseCatalog = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex w-full max-w-full items-center gap-1 rounded-[12px] bg-[#E2E7FF] p-1.5 sm:max-w-[334px]">
+          <div className="flex w-[333px] h-[48px] items-center gap-1 rounded-[12px] bg-[#E2E7FF] p-1.5 sm:max-w-[334px]">
             {TABS.map((tab) => {
               const isActive = activeTab === tab;
 

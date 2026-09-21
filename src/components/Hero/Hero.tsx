@@ -1,28 +1,50 @@
-import { DisplayText, MediumText } from '../Text';
+import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '../PageContainer';
+import heroImage from '../../assests/hero-team.png';
 
-export const Hero = () => (
-  /* .hero — overflow-hidden is what clips the orb against the top edge */
-  <div className="relative w-full overflow-hidden bg-[#4a3f8c] py-10 md:min-h-70 md:py-12">
-    {/* .hero-main */}
-    <PageContainer className="mx-auto flex h-[280px] w-full max-w-7xl flex-col items-center justify-start px-4 md:flex-row md:px-8">
-      {/* .text-box */}
-      <div className="relative z-1 max-w-175 flex w-full flex-col gap-4 md:w-3/5">
-        <DisplayText weight="bold" variant="white" size="3xl">
-          Get Guidance for Career Path or Measure Skill Level, at a Global Standard.
-        </DisplayText>
+export const Hero = () => {
+  const navigate = useNavigate();
 
-        <MediumText weight="light" variant="white" size="sm">
-          CareerLine AI tells you which career path fits you, tells organizations how their team
-          measures up, and tells recruiters whether a candidate is truly ready.
-        </MediumText>
-      </div>
-    </PageContainer>
+  return (
+    <div className="flex h-[800px] w-full items-center bg-white px-4 py-6">
+      <PageContainer className="mx-auto flex w-full max-w-7xl flex-col items-center gap-10 lg:flex-row lg:gap-16">
+        <div className="flex w-full flex-col gap-6 lg:w-1/2">
+          <h1 className="text-[36px] leading-[1.15] font-bold tracking-tight text-[#1f2a44] lg:text-[46px]">
+            Find the course that fits your future.
+          </h1>
 
-    {/* .hero-orb — decorative, so it stays hidden from screen readers */}
-    <div
-      aria-hidden="true"
-      className="absolute -top-12.5 -right-15 z-0 hidden h-65 w-65 rounded-full bg-[#5c4fa1] md:block"
-    />
-  </div>
-);
+          <p className="max-w-[46ch] text-[15px] leading-relaxed text-[#6b7280] lg:text-[16px]">
+            Not sure what to learn next? Take a short assessment and discover the tech or business
+            course that matches your interests, goals, experience, and career aspirations.
+          </p>
+
+          <div className="mt-2 flex items-center gap-4">
+            <button
+              type="button"
+              className="rounded-full border border-transparent bg-[#1f2a44] px-6 py-3 text-sm font-semibold text-white hover:bg-[#152036]"
+              onClick={() => navigate('/question')}
+            >
+              Find my course
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-[#1f2a44]/15 bg-transparent px-6 py-3 text-sm font-semibold text-[#1f2a44] hover:bg-[#1f2a44]/5"
+              onClick={() => navigate('/sign-in')}
+            >
+              Log in
+            </button>
+          </div>
+        </div>
+
+        <div className="relative w-full lg:w-1/2">
+          <img
+            src={heroImage}
+            alt="Two colleagues reviewing course options together"
+            loading="lazy"
+            className="h-160 w-148 object-cover lg:h-160"
+          />
+        </div>
+      </PageContainer>
+    </div>
+  );
+};

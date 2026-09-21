@@ -1,53 +1,56 @@
-import { BodyText, SmallText } from '../Text';
-import './Footer.scss';
-import logo from '../../assests/careerLine.svg';
 import { PageContainer } from '../PageContainer';
 
-const careerlineLinks = [
-  { label: 'Overview', href: '#' },
-  { label: 'Features', href: '#' },
-  { label: 'Pricing', href: '#' },
-  { label: 'Careers', href: '#' },
-  { label: 'Help', href: '#' },
-  { label: 'Privacy', href: '#' },
-];
+interface LinkGroup {
+  readonly heading: string;
+  readonly links: readonly string[];
+}
 
-const footerLinks = [
-  { label: 'Terms', href: '#' },
-  { label: 'Privacy', href: '#' },
-  { label: 'Cookies', href: '#' },
+const LINK_GROUPS: readonly LinkGroup[] = [
+  { heading: 'Explore', links: ['Career Clusters', 'Course Catalog', 'Skills Assessment'] },
+  { heading: 'Platform', links: ['How It Works', 'Milestone Tracking', 'Methodology'] },
+  { heading: 'Company', links: ['About Us', 'Privacy Policy', 'Terms of Service'] },
 ];
 
 export const Footer = () => (
-  <PageContainer className="footer-container text-white d-flex flex-column justify-center items-center gap-4 text-center">
-    <div className="footer-brand d-flex gap-2 items-center">
-      <img src={logo} alt="CareerLine logo" />
-      <BodyText className="text-xl font-semibold text-white">CareerLine AI</BodyText>
-    </div>
+  <footer className="w-full bg-white pt-16 pb-8">
+    <PageContainer>
+      <div className="mx-auto px-20">
+        <div className="grid gap-10 border-b border-[#e6e7ee] pb-12 sm:grid-cols-2 lg:grid-cols-[auto_auto_auto_auto] lg:gap-x-20">
+          <div className="max-w-[32ch]">
+            <span className="text-[17px] font-bold tracking-tight text-[#1f2a44]">
+              CareerLine AI
+            </span>
+            <p className="mt-3 text-[13px] leading-relaxed text-[#6b7280]">
+              Empowering ambitious minds to navigate modern education and career pathways through
+              rigorous, intelligent recommendations and milestone mapping.
+            </p>
+          </div>
 
-    <div className="footer-links d-flex gap-4 text-sm flex-wrap justify-center">
-      {careerlineLinks.map(({ label, href }) => (
-        <a href={href} key={label} className="text-decoration-none">
-          <SmallText className="text-white">{label}</SmallText>
-        </a>
-      ))}
-    </div>
+          {LINK_GROUPS.map(({ heading, links }) => (
+            <div key={heading}>
+              <h3 className="text-[12px] font-semibold tracking-[0.12em] text-[#1f2a44] uppercase">
+                {heading}
+              </h3>
+              <ul className="mt-4 flex flex-col gap-3">
+                {links.map((label) => (
+                  <li key={label}>
+                    <a href="#" className="text-[13px] text-[#6b7280] hover:text-[#063ccd]">
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-    <hr className="hr-divider" />
-
-    <div className="footer-bottom w-full mt-4 px-6">
-      <BodyText className="text-sm text-white">
-        © {new Date().getFullYear()} CareerLine. All rights reserved.
-      </BodyText>
-      <div className="footer-legal d-flex gap-4">
-        {footerLinks.map(({ label, href }) => (
-          <a href={href} key={label} className="text-decoration-none">
-            <SmallText className="text-white">{label}</SmallText>
-          </a>
-        ))}
+        <p className="mt-6 text-[12px] text-[#9aa1b0]">
+          © {new Date().getFullYear()} Pathfinder Inc. All rights reserved. Precision career
+          navigation.
+        </p>
       </div>
-    </div>
-  </PageContainer>
+    </PageContainer>
+  </footer>
 );
 
 export default Footer;

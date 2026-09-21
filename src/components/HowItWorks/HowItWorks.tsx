@@ -30,7 +30,7 @@ export const HowItWorks = () => (
     <PageContainer>
       <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-16 lg:flex-row lg:items-center lg:gap-24">
         {/* Intro */}
-        <div className="max-w-[440px] shrink-0">
+        <div className="max-w-110 shrink-0">
           <span className="text-sm font-semibold uppercase tracking-[0.16em] text-[#dda01a]">
             How it works
           </span>

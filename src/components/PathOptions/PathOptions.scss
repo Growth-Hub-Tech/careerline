@@ -1,0 +1,115 @@
+@use '../../styles/mixins';
+@use '../../styles/variables.scss' as *;
+
+.path-options {
+  width: 100%;
+  padding: 64px 0;
+  background: #ffffff;
+
+  .path-options-main {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .path-options-title {
+    color: #1a1a2e;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 40px;
+  }
+
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+
+    @media screen and (max-width: $medium-breakpoint) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mixins.mobile-only {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .path-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #eef0f4;
+    border-radius: $radius-xl;
+    overflow: hidden;
+    width: 260px;
+    height: 280px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    .path-card-top {
+      height: 6px;
+      width: 100%;
+    }
+
+    .path-card-body {
+      padding: 24px 24px 48px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .path-card-title {
+      color: #1a1a2e;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .path-card-desc {
+      color: #6b7280;
+      font-size: 11.5px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    &--coral .path-card-top {
+      background: #e2725b;
+    }
+    &--teal .path-card-top {
+      background: #1f9d75;
+    }
+    &--purple .path-card-top {
+      background: #4a3f8c;
+    }
+    &--gold .path-card-top {
+      background: #d99a1b;
+    }
+  }
+
+  .path-card-btn-wrap {
+    padding: 0 24px;
+    margin-bottom: 24px;
+  }
+
+  .path-card-btn {
+    border-radius: $radius-lg;
+    padding: 14px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+
+    &--coral {
+      background: #e2725b;
+    }
+    &--teal {
+      background: #1f9d75;
+    }
+    &--purple {
+      background: #4a3f8c;
+    }
+    &--gold {
+      background: #d99a1b;
+    }
+  }
+}

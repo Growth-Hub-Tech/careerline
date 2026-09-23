@@ -1,58 +1,143 @@
 @use '../../styles/variables.scss' as *;
 
+.header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 64px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  @media (max-width: 640px) {
+    padding: 40px 16px 32px;
+  }
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--button-primary);
+  background: rgba(var(--button-primary-rgb, 0, 65, 255), 0.08);
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 4px;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 20px;
-  padding-bottom: 48px;
+  padding: 0 4px 56px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 .target {
   position: relative;
-  padding: 32px 28px;
+  padding: 28px 24px;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   overflow: hidden;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 16px;
+    border-radius: 18px;
     background: linear-gradient(
       135deg,
-      rgba(var(--button-primary-rgb, 0, 65, 255), 0.04) 0%,
-      transparent 60%
+      rgba(var(--button-primary-rgb, 0, 65, 255), 0.05) 0%,
+      transparent 55%
     );
     pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
   }
 
   &:hover {
     border-color: var(--button-primary);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 65, 255, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 65, 255, 0.1);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .number {
+      opacity: 0.28;
+      transform: scale(1.05);
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 22px 20px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    flex-shrink: 0;
   }
 }
 
 .number {
-  font-size: 52px;
+  font-size: 44px;
   font-weight: 800;
   line-height: 1;
   color: var(--button-primary);
   opacity: 0.18;
   display: block;
   user-select: none;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  @media (max-width: 480px) {
+    font-size: 32px;
+  }
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #6b7280);
+  background: var(--bg-primary, rgba(0, 0, 0, 0.03));
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .label {
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.55;
 }

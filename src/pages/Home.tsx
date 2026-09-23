@@ -1,12 +1,11 @@
-import { AboutUs, CallToAction, Hero, HowItWorks, Target, WhyChooseUs } from '../components';
+import { Hero, Comparison, CourseCatalog, CallToAction, FAQ } from '../components';
 
 export const Home = () => (
   <>
     <Hero />
-    <HowItWorks />
-    <AboutUs />
-    <Target />
-    <WhyChooseUs />
+    <Comparison />
+    <CourseCatalog />
     <CallToAction />
+    <FAQ />
   </>
 );

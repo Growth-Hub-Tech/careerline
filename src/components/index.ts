@@ -1,6 +1,10 @@
 export * from './Navbar';
 export * from './Footer';
 export * from './Hero';
+export * from './Comparison';
+export * from './CourseCatalog';
+export * from './CallToAction';
+export * from './FAQ';
 export * from './Text';
 export * from './Button';
 export * from './HowItWorks';
@@ -9,3 +13,4 @@ export * from './PageContainer';
 export * from './Target';
 export * from './WhyChooseUs';
 export * from './QuestionFlow';
+export * from './PathOptions/PathOptions';

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
 import { Button } from '../Button';
-import indigoLogo from '../../assests/indigo.png';
+// import indigoLogo from '../../assests/Indigo.png';
+import indigoLogo from '../../assests/Indigo.png';
 
 interface NavChild {
   readonly label: string;

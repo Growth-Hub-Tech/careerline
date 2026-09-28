@@ -14,6 +14,21 @@ interface IntakeProps {
 const BORDER = '#dfe1e7';
 const PURPLE = '#4A3F8C';
 
+const pageStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100vh',
+  backgroundColor: '#CBC6E0',
+};
+
+const bodyStyle: CSSProperties = {
+  display: 'flex',
+  flex: 1,
+  gap: 24,
+  boxSizing: 'border-box',
+  padding: '28px 50px 50px 50px',
+};
+
 const wrapperStyle: CSSProperties = {
   border: `1px solid ${BORDER}`,
   borderRadius: 10,
@@ -44,10 +59,10 @@ export const Intake = ({ answers, onAnswer, onComplete, startAt = 0 }: IntakePro
   const handleNext = () => (isLast ? onComplete() : setIndex(index + 1));
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#CBC6E0]">
+    <div style={pageStyle}>
       <BeginnerHeader />
 
-      <div className="flex flex-1 gap-6 p-[50px] pt-7">
+      <div style={bodyStyle}>
         <AssessmentSidebar sections={sections} currentIndex={sectionIndex} />
 
         <main className="flex flex-1 flex-col rounded-lg bg-white px-14 py-10">

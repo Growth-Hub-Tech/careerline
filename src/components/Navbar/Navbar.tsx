@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
 import { Button } from '../Button';
+import indigoLogo from '../../assests/indigo.png';
 
 interface NavChild {
   readonly label: string;
@@ -13,6 +14,8 @@ interface NavItem {
   readonly path?: string;
   readonly children?: readonly NavChild[];
 }
+
+const GET_STARTED_PATH = '/beginner/sign-up';
 
 // Update the paths/children to match your real routes.
 const NAV_ITEMS: readonly NavItem[] = [
@@ -97,14 +100,15 @@ export const Navbar = () => {
       className="sticky top-0 z-50 w-full border-b border-[#e4e7f5] bg-[#f1f2fc]/95 backdrop-blur"
     >
       {/* 3-column grid keeps the links truly centered regardless of logo/actions width */}
-      <div className="mx-auto grid h-20 w-full max-w-[1280px] grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
+      <div className="mx-auto grid h-20 w-full max-w-7xl grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
         {/* Logo */}
         <button
           type="button"
-          className="justify-self-start text-[17px] font-bold tracking-tight text-[#1f2a44]"
+          className="flex items-center gap-2.5 justify-self-start text-[17px] font-bold tracking-tight text-[#1f2a44]"
           onClick={() => go('/')}
         >
-          CareerLine AI
+          <img src={indigoLogo} alt="Indigo" className="h-16 w-auto" />
+          {/* CareerLine AI */}
         </button>
 
         {/* Desktop links */}
@@ -177,9 +181,9 @@ export const Navbar = () => {
           <Button
             variant="primary"
             className="rounded-full bg-[#063ccd] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052fa3]"
-            onClick={() => go('/question')}
+            onClick={() => go(GET_STARTED_PATH)}
           >
-            Take a test
+            Get started
           </Button>
         </div>
 
@@ -264,10 +268,10 @@ export const Navbar = () => {
           <div className="flex flex-col gap-3 border-t border-[#e4e7f5] px-5 py-5 sm:px-6">
             <Button
               variant="primary"
-              className="w-full rounded-full bg-[#063ccd] px-4 py-3 text-sm font-semibold text-white hover:bg-[#052fa3]"
-              onClick={() => go('/question')}
+              className="w-full rounded-full bg-[#4A3F8C] px-4 py-3 text-sm font-semibold text-white hover:bg-[#6f62bd]"
+              onClick={() => go(GET_STARTED_PATH)}
             >
-              Take a test
+              Get started
             </Button>
             <button
               type="button"

@@ -12,12 +12,12 @@ export const CallToAction = () => {
           {/* Top-right gradient blob */}
           <div
             aria-hidden="true"
-            className="absolute -top-24 -right-24 h-[320px] w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
+            className="absolute -top-24 -right-24 h-80 w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
           />
           {/* Bottom-left gradient blob */}
           <div
             aria-hidden="true"
-            className="absolute -bottom-24 -left-24 h-[320px] w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
+            className="absolute -bottom-24 -left-24 h-80 w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
           />
 
           <div className="relative px-8 py-16">
@@ -25,11 +25,13 @@ export const CallToAction = () => {
               Your next chapter
             </span>
 
-            <h2 className="mx-auto mt-4 max-w-[26ch] text-[32px] leading-[1.2] font-bold tracking-tight text-[#1f2a44] lg:text-[38px]">
+            <h2 className="mx-auto mt-4 max-w-134.75 text-[28px] leading-[1.2] font-bold tracking-tight text-[#1f2a44] lg:text-[48px]">
               Still wondering what you should learn?
             </h2>
 
-            <p className="mt-3 text-[15px] text-[#5a6270]">Let&apos;s figure it out together.</p>
+            <p className="mt-3 lg:text-[15px] text-[12px] text-[#5a6270]">
+              Let&apos;s figure it out together.
+            </p>
 
             <button
               type="button"
@@ -41,7 +43,7 @@ export const CallToAction = () => {
             </button>
 
             <p className="mt-4 text-[12px] text-[#8b93a3]">
-              It takes about 3–5 minutes • 100% free • No credit card required
+              It takes about 3-5 minutes • 100% free • No credit card required
             </p>
           </div>
         </div>

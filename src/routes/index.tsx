@@ -7,6 +7,7 @@ import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { SignIn } from '../components/SignIn';
 import { ResetPassword } from '../components/ResetPassword';
 import { SignUp as BeginnerSignUp } from '../features/beginner/auth/SignUp.tsx';
+import { Assessment, ProgrammeDetail } from '../features/beginner/pages';
 import { SignUp as RecruiterSignUp } from '../features/recruiters/auth/SignUp.tsx';
 import { SignUp as OrganizationSignUp } from '../features/organizations/auth/SignUp.tsx';
 
@@ -49,6 +50,14 @@ export const getRoutes = (): RouteObject[] => [
       {
         path: '/beginner/sign-up',
         element: <BeginnerSignUp />,
+      },
+      {
+        path: '/beginner/assessment',
+        element: <Assessment />,
+      },
+      {
+        path: '/beginner/programme',
+        element: <ProgrammeDetail />,
       },
       {
         path: '/recruiter/sign-up',

@@ -37,10 +37,9 @@ export const SignUp = () => {
     resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmit = async (values: SignUpFormValues) => {
+  const onSubmit = async () => {
     // TODO: wire up to the create-account endpoint
-    console.log(values);
-    navigate('/dashboard');
+    navigate('/beginner/assessment');
   };
 
   return (

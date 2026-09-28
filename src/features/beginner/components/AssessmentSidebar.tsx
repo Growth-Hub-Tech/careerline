@@ -13,8 +13,9 @@ const CheckIcon = () => (
 
 export const AssessmentSidebar = ({ sections, currentIndex }: AssessmentSidebarProps) => (
   <aside className="flex w-76 shrink-0 flex-col rounded-lg bg-white p-6">
-    <div className="flex h-12 items-center rounded-xl border border-[#1f2a44] px-4 text-sm font-semibold text-[#1f2a44]">
-      {sections[currentIndex].label}
+    <div className="flex h-12 items-center rounded-xl border border-[#1f2a44] px-4 text-sm font-semibold text-[#4A3F8C]">
+      {/* {sections[currentIndex].label} */}
+      Back To Homepage
     </div>
 
     <ol className="mt-10 flex-1">

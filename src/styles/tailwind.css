@@ -1,1 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 @import 'tailwindcss';
+
+/*
+  Brand color scales + fonts.
+  Defined in @theme so Tailwind generates utilities (bg-indigo-600, font-heading, ...)
+  AND exposes them as CSS variables (var(--color-indigo-600)) on :root.
+  The indigo and amber scales override Tailwind's built-in ones.
+*/
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Indigo — brand purple (button = 600, hover = 700, logo = 800) */
+  --color-indigo-100: #eeecfb;
+  --color-indigo-200: #ddd9f7;
+  --color-indigo-300: #c0baef;
+  --color-indigo-400: #9d94e4;
+  --color-indigo-500: #7b6fdb;
+  --color-indigo-600: #6c5ccf;
+  --color-indigo-700: #5a4bb8;
+  --color-indigo-800: #4a3f8c;
+  --color-indigo-900: #362e66;
+  --color-indigo-950: #221d40;
+
+  /* Amber — brand gold (500 = "AI" in the logo) */
+  --color-amber-100: #fdf3d9;
+  --color-amber-200: #fae6b0;
+  --color-amber-300: #f5d37d;
+  --color-amber-400: #ebba45;
+  --color-amber-500: #d9a21b;
+  --color-amber-600: #b98614;
+  --color-amber-700: #926711;
+  --color-amber-800: #6f4e10;
+  --color-amber-900: #4d370c;
+  --color-amber-950: #2e2107;
+}

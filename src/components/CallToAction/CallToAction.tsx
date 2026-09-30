@@ -1,53 +1,49 @@
 import { useNavigate } from 'react-router-dom';
-import { LuChevronRight } from 'react-icons/lu';
-import { PageContainer } from '../PageContainer';
+import { LuRocket } from 'react-icons/lu';
+import { ArrowButton, Section } from '../Section';
+
+// Update the routes if yours differ.
+const ACTIONS = [
+  { label: "I'm Exploring a Career", to: '/question', variant: 'solid' },
+  { label: 'I Want to Test Skills', to: '/beginner/sign-up', variant: 'dark' },
+  { label: "I'm Hiring", to: '/recruiter/sign-up', variant: 'soft' },
+  { label: 'I Want to Audit Team', to: '/organization/sign-up', variant: 'soft' },
+] as const;
 
 export const CallToAction = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full bg-white py-20 lg:py-24">
-      <PageContainer>
-        <div className="relative mx-auto max-w-225 overflow-hidden rounded-[28px] bg-white text-center shadow-[0_30px_60px_-20px_rgba(31,42,68,0.18)]">
-          {/* Top-right gradient blob */}
-          <div
-            aria-hidden="true"
-            className="absolute -top-24 -right-24 h-80 w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
-          />
-          {/* Bottom-left gradient blob */}
-          <div
-            aria-hidden="true"
-            className="absolute -bottom-24 -left-24 h-80 w-[320px] rounded-full bg-[radial-gradient(circle,rgba(53,37,205,0.18)_0%,rgba(53,37,205,0)_70%)]"
-          />
+    <Section bg="bg-[#fafaff]" className="lg:py-28">
+      <div className="mx-auto max-w-[860px] rounded-3xl bg-white px-5 py-9 text-center shadow-[0_16px_48px_rgba(53,37,205,0.14)] sm:px-10">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e4e2ff] px-3 py-1 text-[10.5px] font-semibold text-[#3525cd]">
+          <LuRocket size={11} />
+          Begin Your Trajectory
+        </span>
 
-          <div className="relative px-8 py-16">
-            <span className="text-[12px] font-semibold tracking-[0.14em] text-[#3525cd] uppercase">
-              Your next chapter
-            </span>
+        <h2 className="font-heading mt-3 text-[28px] leading-[1.15] font-bold tracking-tight text-[#141b34] sm:text-[34px]">
+          Know where you are.
+          <span className="block text-[#4f46e5]">Know where you&apos;re going.</span>
+        </h2>
 
-            <h2 className="mx-auto mt-4 max-w-134.75 text-[28px] leading-[1.2] font-bold tracking-tight text-[#1f2a44] lg:text-[48px]">
-              Still wondering what you should learn?
-            </h2>
+        <p className="mx-auto mt-3 max-w-[46ch] text-[14px] leading-relaxed text-[#525a6b]">
+          Discover your path. Measure your skills. Close your gaps. Start with an objective
+          benchmark today.
+        </p>
 
-            <p className="mt-3 lg:text-[15px] text-[12px] text-[#5a6270]">
-              Let&apos;s figure it out together.
-            </p>
-
-            <button
-              type="button"
-              className="mx-auto mt-8 flex w-fit items-center gap-1.5 rounded-lg bg-[#3525cd] px-6 py-3 text-sm font-semibold text-white hover:bg-[#2a1ea3]"
-              onClick={() => navigate('/question')}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+          {ACTIONS.map(({ label, to, variant }) => (
+            <ArrowButton
+              key={label}
+              variant={variant}
+              onClick={() => navigate(to)}
+              className="h-10 text-[12px]"
             >
-              Find My Course
-              <LuChevronRight size={18} />
-            </button>
-
-            <p className="mt-4 text-[12px] text-[#8b93a3]">
-              It takes about 3-5 minutes • 100% free • No credit card required
-            </p>
-          </div>
+              {label}
+            </ArrowButton>
+          ))}
         </div>
-      </PageContainer>
-    </section>
+      </div>
+    </Section>
   );
 };

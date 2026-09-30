@@ -86,9 +86,9 @@ export const Assessment = () => {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-4 text-center">
         <h1 className="text-2xl font-bold text-[#1f2a44]">{heading}</h1>
-        <p className="max-w-[420px] text-sm text-[#6b7280]">{body}</p>
+        <p className="max-w-105 text-sm text-[#6b7280]">{body}</p>
         {detail && (
-          <p className="max-w-[420px] font-mono text-xs text-[#6b7280] opacity-60">{detail}</p>
+          <p className="max-w-105 font-mono text-xs text-[#6b7280] opacity-60">{detail}</p>
         )}
         <button
           type="button"
@@ -97,7 +97,7 @@ export const Assessment = () => {
             setStartAt(questions.length - 1);
             setPhase('questions');
           }}
-          className="h-11 w-[200px] rounded-lg bg-[#D99A1B] text-sm font-bold text-white transition-colors hover:bg-[#c48b16]"
+          className="h-11 w-50 rounded-lg bg-[#D99A1B] text-sm font-bold text-white transition-colors hover:bg-[#c48b16]"
         >
           Try Again
         </button>

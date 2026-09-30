@@ -66,7 +66,7 @@ export const Intake = ({ answers, onAnswer, onComplete, startAt = 0 }: IntakePro
         <AssessmentSidebar sections={sections} currentIndex={sectionIndex} />
 
         <main className="flex flex-1 flex-col rounded-lg bg-white px-14 py-10">
-          <div className="mx-auto w-full max-w-[848px]">
+          <div className="mx-auto w-full max-w-212">
             <p className="text-xs font-semibold text-[#1f2a44]">
               Question {index + 1} of {questions.length}
             </p>

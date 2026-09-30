@@ -195,7 +195,7 @@ export const Navbar = () => {
           </button>
           <button
             // variant="primary"
-            className="whitespace-nowrap rounded-full bg-[#6C5CCF] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+            className="whitespace-nowrap rounded-full bg-[#D99A1B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
             onClick={() => go(TAKE_TEST_PATH)}
           >
             Take a test

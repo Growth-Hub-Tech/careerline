@@ -1,9 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assests/hero-team.png';
 
-// Update these paths to match your real routes.
-const TEST_SKILLS_PATH = '/question';
-const CAREER_PATH_PATH = '/beginner/sign-up';
+// Update these to match your real route and WhatsApp number (international format, no + or spaces).
+const ASSESSMENT_PATH = '/question';
+const WHATSAPP_URL =
+  'https://wa.me/234XXXXXXXXXX?text=Hi%20CareerLine%20AI%2C%20I%27d%20like%20to%20take%20the%20assessment';
+
+const CTA_BASE =
+  'flex h-12 w-full items-center justify-center rounded-full px-6 text-[15px] font-medium text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -25,21 +29,23 @@ export const Hero = () => {
             and turn skill gaps into actionable next steps.
           </p>
 
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+          {/* Stacked, equal-width CTAs centered in the text column */}
+          <div className="mt-3 flex w-full max-w-[435px] flex-col gap-5 self-center lg:gap-[30px]">
             <button
               type="button"
-              className="h-12 rounded-full border-2 border-slate-100 bg-white px-6 text-[15px] font-medium text-[#1a1a2e] transition-colors hover:bg-[#f7f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
-              onClick={() => navigate(TEST_SKILLS_PATH)}
+              className={`${CTA_BASE} bg-amber-500 hover:bg-amber-600 focus-visible:outline-amber-500`}
+              onClick={() => navigate(ASSESSMENT_PATH)}
             >
-              Test Your Skills
+              Start your Free Assessment
             </button>
-            <button
-              type="button"
-              className="h-12 rounded-full bg-[#6C5CCF] px-6 text-[15px] font-medium text-white transition-colors hover:bg-[#5a4bb8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
-              onClick={() => navigate(CAREER_PATH_PATH)}
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${CTA_BASE} bg-[#0e8f6e] hover:bg-[#0b7a5e] focus-visible:outline-[#0e8f6e]`}
             >
-              Discover Your Career Path
-            </button>
+              Prefer Whatsapp? Take assessment here
+            </a>
           </div>
         </div>
 

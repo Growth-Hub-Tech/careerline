@@ -35,7 +35,7 @@ export const Hero = () => {
             </button>
             <button
               type="button"
-              className="h-[50px] w-[275px] rounded-full bg-[#6C5CCF] px-6 py-4 items-center justify-center flex text-[15px] font-medium text-white transition-colors hover:bg-[#5a4bb8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              className="h-12.5 w-68.75 rounded-full bg-[#6C5CCF] px-6 py-4 items-center justify-center flex text-[15px] font-medium text-white transition-colors hover:bg-[#5a4bb8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
               onClick={() => navigate(CAREER_PATH_PATH)}
             >
               Discover Your Career Path

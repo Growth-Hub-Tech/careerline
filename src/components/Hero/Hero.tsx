@@ -28,14 +28,14 @@ export const Hero = () => {
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
             <button
               type="button"
-              className="h-[50px] rounded-full border-2 border-solid border-[#d3d7e4] bg-white px-6 text-[15px] font-medium text-[#1a1a2e] transition-colors hover:bg-[#f7f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              className="h-[50px] rounded-full border border-solid border-[#d3d7e4] bg-white px-6 text-[15px] font-medium text-[#1a1a2e] transition-colors hover:bg-[#f7f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
               onClick={() => navigate(TEST_SKILLS_PATH)}
             >
               Test Your Skills
             </button>
             <button
               type="button"
-              className="h-12.5 w-68.75 rounded-full bg-[#6C5CCF] px-6 py-4 items-center justify-center flex text-[15px] font-medium text-white transition-colors hover:bg-[#5a4bb8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              className="h-[50px] w-[275px] rounded-full bg-[#6C5CCF] px-6 py-4 items-center justify-center flex text-[15px] font-medium text-white transition-colors hover:bg-[#5a4bb8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
               onClick={() => navigate(CAREER_PATH_PATH)}
             >
               Discover Your Career Path

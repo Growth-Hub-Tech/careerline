@@ -37,10 +37,8 @@ export const SignUp = () => {
     resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmit = async (values: SignUpFormValues) => {
-    // TODO: wire up to the create-account endpoint
-    console.log(values);
-    navigate('/dashboard');
+  const onSubmit = async () => {
+    navigate('/beginner/assessment');
   };
 
   return (
@@ -51,7 +49,7 @@ export const SignUp = () => {
         Save your results and track your progress every time you test yourself.
       </p>
 
-      <div className="mt-8 w-[464px] max-w-full rounded-xl bg-[#eff0f4] p-8">
+      <div className="mt-8 w-116 max-w-full rounded-xl bg-[#eff0f4] p-8">
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           {/* Full name */}
           <div className="mb-4">

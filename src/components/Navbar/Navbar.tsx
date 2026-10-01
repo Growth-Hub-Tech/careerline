@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
-import { Button } from '../Button';
+// import { Button } from '../Button';
 
 interface NavChild {
   readonly label: string;
@@ -14,28 +14,43 @@ interface NavItem {
   readonly children?: readonly NavChild[];
 }
 
-// Update the paths/children to match your real routes.
+const TAKE_TEST_PATH = '/beginner/sign-up';
+
+// Update the paths to match your real routes.
+// To turn any item into a dropdown, give it a `children` array instead of a `path`.
 const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Home', path: '/' },
-  {
-    label: 'Products',
-    children: [
-      { label: 'Skill tests', path: '/products/skill-tests' },
-      { label: 'Career paths', path: '/products/career-paths' },
-    ],
-  },
-  {
-    label: 'Resources',
-    children: [
-      { label: 'Blog', path: '/resources/blog' },
-      { label: 'Guides', path: '/resources/guides' },
-    ],
-  },
-  { label: 'Pricing', path: '/pricing' },
+  { label: 'For Individuals', path: '/individuals' },
+  { label: 'For Organizations', path: '/organizations' },
+  { label: 'For Recruiters', path: '/recruiters' },
+  { label: 'How it works', path: '/how-it-works' },
 ];
 
 const linkBase =
-  'flex items-center gap-1 rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#063ccd]';
+  'flex items-center gap-1 rounded-md text-[15px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]';
+
+const LogoMark = () => (
+  <svg
+    width="30"
+    height="30"
+    viewBox="0 0 32 32"
+    fill="none"
+    aria-hidden="true"
+    className="shrink-0"
+  >
+    {/* Open "C" arc */}
+    <path d="M24 9.5A10 10 0 1 0 24 22.5" stroke="#4A3F8C" strokeWidth="3" strokeLinecap="round" />
+    {/* Check mark */}
+    <path
+      d="M11.5 16.5l4 4L26 8"
+      stroke="#4A3F8C"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Gold spark */}
+    <circle cx="27" cy="5.5" r="1.8" fill="#D9A21B" />
+  </svg>
+);
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -94,24 +109,28 @@ export const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="sticky top-0 z-50 w-full border-b border-[#e4e7f5] bg-[#f1f2fc]/95 backdrop-blur"
+      className="sticky top-0 z-50 w-full border-b border-[#eceef4] bg-white/95 backdrop-blur"
     >
       {/* 3-column grid keeps the links truly centered regardless of logo/actions width */}
-      <div className="mx-auto grid h-20 w-full max-w-[1280px] grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
+      <div className="mx-auto grid h-20 w-full max-w-7xl grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
         {/* Logo */}
         <button
           type="button"
-          className="justify-self-start text-[17px] font-bold tracking-tight text-[#1f2a44]"
+          className="flex items-center gap-2.5 justify-self-start rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
           onClick={() => go('/')}
+          aria-label="CareerLine AI home"
         >
-          CareerLine AI
+          <LogoMark />
+          <span className="font-serif text-[17px] font-bold tracking-tight text-[#4A3F8C]">
+            CareerLine <span className="text-[#D9A21B]">AI</span>
+          </span>
         </button>
 
         {/* Desktop links */}
-        <ul className="hidden items-center gap-8 lg:flex">
+        <ul className="hidden items-center gap-10 lg:flex">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item);
-            const colour = active ? 'text-[#063ccd]' : 'text-gray-600 hover:text-[#063ccd]';
+            const colour = active ? 'text-[#6C5CCF]' : 'text-[#4A4560] hover:text-[#6C5CCF]';
 
             if (!item.children) {
               return (
@@ -146,12 +165,12 @@ export const Navbar = () => {
                 </button>
 
                 {open && (
-                  <ul className="absolute left-1/2 top-full mt-3 min-w-48 -translate-x-1/2 rounded-xl border border-[#e4e7f5] bg-white p-2 shadow-lg">
+                  <ul className="absolute left-1/2 top-full mt-3 min-w-48 -translate-x-1/2 rounded-xl border border-[#eceef4] bg-white p-2 shadow-lg">
                     {item.children.map((child) => (
                       <li key={child.path}>
                         <button
                           type="button"
-                          className="w-full rounded-lg px-3 py-2 text-left text-sm text-gray-700 hover:bg-[#f1f2fc] hover:text-[#063ccd]"
+                          className="w-full rounded-lg px-3 py-2 text-left text-sm text-[#4A4560] hover:bg-[#f4f2fc] hover:text-[#6C5CCF]"
                           onClick={() => go(child.path)}
                         >
                           {child.label}
@@ -169,24 +188,24 @@ export const Navbar = () => {
         <div className="hidden items-center justify-self-end gap-6 lg:flex">
           <button
             type="button"
-            className={`${linkBase} whitespace-nowrap text-gray-600 hover:text-[#063ccd]`}
+            className={`${linkBase} whitespace-nowrap text-[#1a1a2e] hover:text-[#6C5CCF]`}
             onClick={() => go('/sign-in')}
           >
             Log in
           </button>
-          <Button
-            variant="primary"
-            className="rounded-full bg-[#063ccd] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052fa3]"
-            onClick={() => go('/question')}
+          <button
+            // variant="primary"
+            className="whitespace-nowrap rounded-full bg-[#D99A1B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+            onClick={() => go(TAKE_TEST_PATH)}
           >
             Take a test
-          </Button>
+          </button>
         </div>
 
         {/* Mobile toggle */}
         <button
           type="button"
-          className="justify-self-end rounded-md p-1 text-[#1f2a44] lg:hidden"
+          className="justify-self-end rounded-md p-1 text-[#4A3F8C] lg:hidden"
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
@@ -200,7 +219,7 @@ export const Navbar = () => {
       {isMenuOpen && (
         <div
           id="mobile-menu"
-          className="flex h-[calc(100dvh-5rem)] flex-col border-t border-[#e4e7f5] bg-[#f1f2fc] lg:hidden"
+          className="flex h-[calc(100dvh-5rem)] flex-col border-t border-[#eceef4] bg-white lg:hidden"
         >
           <ul className="flex-1 overflow-y-auto px-5 py-2 sm:px-6">
             {NAV_ITEMS.map((item) => {
@@ -208,11 +227,11 @@ export const Navbar = () => {
 
               if (!item.children) {
                 return (
-                  <li key={item.label} className="border-b border-[#e4e7f5]">
+                  <li key={item.label} className="border-b border-[#eceef4]">
                     <button
                       type="button"
                       className={`w-full py-4 text-left text-base font-medium ${
-                        active ? 'text-[#063ccd]' : 'text-[#1f2a44]'
+                        active ? 'text-[#6C5CCF]' : 'text-[#4A4560]'
                       }`}
                       aria-current={active ? 'page' : undefined}
                       onClick={() => item.path && go(item.path)}
@@ -225,11 +244,11 @@ export const Navbar = () => {
 
               const open = openDropdown === item.label;
               return (
-                <li key={item.label} className="border-b border-[#e4e7f5]">
+                <li key={item.label} className="border-b border-[#eceef4]">
                   <button
                     type="button"
                     className={`flex w-full items-center justify-between py-4 text-left text-base font-medium ${
-                      active ? 'text-[#063ccd]' : 'text-[#1f2a44]'
+                      active ? 'text-[#6C5CCF]' : 'text-[#4A4560]'
                     }`}
                     aria-expanded={open}
                     onClick={() => toggleDropdown(item.label)}
@@ -247,7 +266,7 @@ export const Navbar = () => {
                         <li key={child.path}>
                           <button
                             type="button"
-                            className="w-full py-2.5 text-left text-sm text-gray-600 hover:text-[#063ccd]"
+                            className="w-full py-2.5 text-left text-sm text-[#4A4560] hover:text-[#6C5CCF]"
                             onClick={() => go(child.path)}
                           >
                             {child.label}
@@ -261,17 +280,17 @@ export const Navbar = () => {
             })}
           </ul>
 
-          <div className="flex flex-col gap-3 border-t border-[#e4e7f5] px-5 py-5 sm:px-6">
-            <Button
-              variant="primary"
-              className="w-full rounded-full bg-[#063ccd] px-4 py-3 text-sm font-semibold text-white hover:bg-[#052fa3]"
-              onClick={() => go('/question')}
+          <div className="flex flex-col gap-3 border-t border-[#eceef4] px-5 py-5 sm:px-6">
+            <button
+              // variant="primary"
+              className="w-full rounded-full bg-[#6C5CCF] px-4 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+              onClick={() => go(TAKE_TEST_PATH)}
             >
               Take a test
-            </Button>
+            </button>
             <button
               type="button"
-              className="w-full rounded-full border border-[#c9cff0] px-4 py-3 text-sm font-semibold text-[#1f2a44] hover:border-[#063ccd] hover:text-[#063ccd]"
+              className="w-full rounded-full border border-[#d9d5f0] px-4 py-3 text-sm font-semibold text-[#1a1a2e] hover:border-[#6C5CCF] hover:text-[#6C5CCF]"
               onClick={() => go('/sign-in')}
             >
               Log in

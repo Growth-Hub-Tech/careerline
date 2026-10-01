@@ -13,7 +13,6 @@ import { Integrity } from '../components/Integrity';
 import { FAQ } from '../components/FAQ';
 import { CallToAction } from '../components/CallToAction';
 
-// Footer stays in MainLayout, so it is not rendered here.
 export const Home = () => (
   <>
     <Hero />

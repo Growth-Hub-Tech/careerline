@@ -110,10 +110,16 @@ export const CareerDiscovery = () => {
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggle(key, option)}
-                        className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                        style={{
+                          paddingLeft: on ? 14 : 10,
+                          paddingRight: on ? 14 : 10,
+                          paddingTop: 4,
+                          paddingBottom: 4,
+                        }}
+                        className={`inline-flex items-center rounded-md text-[11px] font-medium transition-colors ${
                           on
-                            ? 'bg-[#3525cd] text-white'
-                            : 'bg-[#eceefb] text-[#464555] hover:bg-[#e0e3f8]'
+                            ? 'gap-1.5 bg-[#3525cd] text-white'
+                            : 'gap-1 bg-[#eceefb] text-[#464555] hover:bg-[#e0e3f8]'
                         }`}
                       >
                         {option}

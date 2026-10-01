@@ -28,7 +28,7 @@ export const Hero = () => {
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
             <button
               type="button"
-              className="h-[50px] rounded-full border border-solid border-[#d3d7e4] bg-white px-6 text-[15px] font-medium text-[#1a1a2e] transition-colors hover:bg-[#f7f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              className="h-[50px] rounded-full border-2 border-solid border-[#d3d7e4] bg-white px-6 text-[15px] font-medium text-[#1a1a2e] transition-colors hover:bg-[#f7f7fb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
               onClick={() => navigate(TEST_SKILLS_PATH)}
             >
               Test Your Skills

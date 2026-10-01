@@ -55,7 +55,7 @@ export const Workforce = () => {
         lead="CareerLine AI helps organizations assess employees according to the roles they actually perform—not simply the titles they hold. Uncover systemic blind spots before they impact product releases."
       />
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,4.5fr)] lg:items-end lg:gap-10">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,6fr)_minmax(0,4.5fr)] lg:items-start lg:gap-10">
         <div className={`p-5 sm:p-6 ${CARD}`}>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
@@ -72,7 +72,10 @@ export const Workforce = () => {
           </div>
 
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-110 border-separate border-spacing-y-1.5 text-[11px]">
+            <table
+              className="w-full min-w-110 border-separate text-[11px]"
+              style={{ borderSpacing: 12 }}
+            >
               <thead>
                 <tr className="text-[10.5px] font-semibold text-[#464555]">
                   <th className="pb-1 text-left font-semibold">Competency Axis</th>
@@ -93,7 +96,7 @@ export const Workforce = () => {
                       {axis}
                     </th>
                     {cells.map((value, i) => (
-                      <td key={COLUMNS[i]} className="px-0.5">
+                      <td key={COLUMNS[i]}>
                         <div
                           className={`rounded-md py-2 text-center text-[11px] font-semibold ${CELL[levelOf(value)]}`}
                         >

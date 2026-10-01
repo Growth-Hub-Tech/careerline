@@ -57,6 +57,18 @@ const ALTERNATIVES = [
   },
 ] as const;
 
+const PANEL_STYLE = {
+  padding: 20,
+  backgroundColor: '#f3f4fd',
+  borderRadius: 16,
+} as const;
+
+const BOX_STYLE = {
+  padding: 16,
+  backgroundColor: '#ffffff',
+  borderRadius: 12,
+} as const;
+
 export const CareerDiscovery = () => {
   // Chips toggle so the demo feels alive; all groups are multi-select.
   const [selected, setSelected] = useState<Record<string, readonly string[]>>(() =>
@@ -145,7 +157,7 @@ export const CareerDiscovery = () => {
 
         {/* Result */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl bg-[#f3f4fd] p-4 shadow-[0_4px_24px_rgba(53,37,205,0.06)] sm:p-5">
+          <div style={PANEL_STYLE} className="shadow-[0_4px_24px_rgba(53,37,205,0.06)]">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="text-[10.5px] font-bold tracking-[0.08em] text-[#3525cd] uppercase">
@@ -157,13 +169,16 @@ export const CareerDiscovery = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-heading text-[22px] font-bold text-[#3525cd]">92%</span>
-                <span className="rounded-md bg-[#3525cd] px-2 py-1 text-[10.5px] font-semibold text-white">
+                <span
+                  style={{ padding: '4px 10px' }}
+                  className="rounded-md bg-[#3525cd] text-[10.5px] font-semibold text-white"
+                >
                   Optimal Fit
                 </span>
               </div>
             </div>
 
-            <div className="mt-3 rounded-xl bg-white p-3.5">
+            <div style={{ ...BOX_STYLE, marginTop: 16 }}>
               <p className="text-[10.5px] font-semibold text-[#5a6270]">Why it fits</p>
               <p className="mt-1 text-[13px] leading-relaxed text-[#1f2a44]">
                 High visual intuition combined with structured problem solving matches your
@@ -171,14 +186,14 @@ export const CareerDiscovery = () => {
               </p>
             </div>
 
-            <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
-              <div className="rounded-xl bg-white p-3.5">
+            <div className="grid gap-2.5 sm:grid-cols-2" style={{ marginTop: 10 }}>
+              <div style={BOX_STYLE}>
                 <p className="text-[10.5px] font-semibold text-[#3525cd]">Relevant Strengths</p>
                 <p className="mt-1 text-[12px] leading-relaxed text-[#5a6270]">
                   Empathy, prototyping, fast mental models.
                 </p>
               </div>
-              <div className="rounded-xl bg-white p-3.5">
+              <div style={BOX_STYLE}>
                 <p className="text-[10.5px] font-semibold text-[#5a6270]">Development Areas</p>
                 <p className="mt-1 text-[12px] leading-relaxed text-[#5a6270]">
                   Quantitative metric tracking &amp; business case formulation.
@@ -186,7 +201,10 @@ export const CareerDiscovery = () => {
               </div>
             </div>
 
-            <div className="mt-2.5 flex items-center justify-between rounded-xl bg-white p-3.5">
+            <div
+              style={{ ...BOX_STYLE, marginTop: 10 }}
+              className="flex items-center justify-between gap-3"
+            >
               <div>
                 <p className="text-[10.5px] font-semibold text-[#5a6270]">
                   Matched Learning Programme
@@ -195,7 +213,10 @@ export const CareerDiscovery = () => {
                   Applied Interaction Architecture
                 </p>
               </div>
-              <span className="rounded-md bg-[#eceefb] px-2 py-1 text-[10.5px] font-semibold text-[#3525cd]">
+              <span
+                style={{ padding: '4px 10px' }}
+                className="shrink-0 rounded-md bg-[#eceefb] text-[10.5px] font-semibold text-[#3525cd]"
+              >
                 12 Wks
               </span>
             </div>

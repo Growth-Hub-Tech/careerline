@@ -1,5 +1,5 @@
-import { LuTrendingUp } from 'react-icons/lu';
 import { Container } from '../Section';
+import logo from '../../assests/careerline.png';
 
 interface LinkGroup {
   readonly heading: string;
@@ -44,14 +44,12 @@ export const Footer = () => (
     <Container>
       <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[1.1fr_1fr_1fr_1fr_1fr]">
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1c1f4a] text-white">
-              <LuTrendingUp size={16} />
-            </span>
-            <span className="font-heading text-[15px] font-semibold text-[#141b34]">
-              CareerLine AI
-            </span>
-          </div>
+          <img
+            src={logo}
+            alt="CareerLine AI"
+            decoding="async"
+            className="h-10 w-auto object-contain [image-rendering:-webkit-optimized-contrast]"
+          />
           <p className="mt-3 text-[12px] text-[#5a6270]">Discover. Assess. Develop.</p>
         </div>
 

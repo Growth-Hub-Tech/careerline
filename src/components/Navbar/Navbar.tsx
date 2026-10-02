@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
-// import { Button } from '../Button';
+import logo from '../../assests/careerline.png';
 
 interface NavChild {
   readonly label: string;
@@ -16,8 +16,6 @@ interface NavItem {
 
 const TAKE_TEST_PATH = '/beginner/sign-up';
 
-// Update the paths to match your real routes.
-// To turn any item into a dropdown, give it a `children` array instead of a `path`.
 const NAV_ITEMS: readonly NavItem[] = [
   { label: 'For Individuals', path: '/individuals' },
   { label: 'For Organizations', path: '/organizations' },
@@ -28,30 +26,6 @@ const NAV_ITEMS: readonly NavItem[] = [
 const linkBase =
   'flex items-center gap-1 rounded-md text-[15px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]';
 
-const LogoMark = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 32 32"
-    fill="none"
-    aria-hidden="true"
-    className="shrink-0"
-  >
-    {/* Open "C" arc */}
-    <path d="M24 9.5A10 10 0 1 0 24 22.5" stroke="#4A3F8C" strokeWidth="3" strokeLinecap="round" />
-    {/* Check mark */}
-    <path
-      d="M11.5 16.5l4 4L26 8"
-      stroke="#4A3F8C"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    {/* Gold spark */}
-    <circle cx="27" cy="5.5" r="1.8" fill="#D9A21B" />
-  </svg>
-);
-
 export const Navbar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -59,13 +33,11 @@ export const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
 
-  // Close everything when the route changes
   useEffect(() => {
     setIsMenuOpen(false);
     setOpenDropdown(null);
   }, [pathname]);
 
-  // Close desktop dropdown on outside click or Escape
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
@@ -86,7 +58,6 @@ export const Navbar = () => {
     };
   }, []);
 
-  // Prevent background scroll while the mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     return () => {
@@ -111,22 +82,21 @@ export const Navbar = () => {
       ref={navRef}
       className="sticky top-0 z-50 w-full border-b border-[#eceef4] bg-white/95 backdrop-blur"
     >
-      {/* 3-column grid keeps the links truly centered regardless of logo/actions width */}
       <div className="mx-auto grid h-20 w-full max-w-7xl grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
-        {/* Logo */}
         <button
           type="button"
-          className="flex items-center gap-2.5 justify-self-start rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+          className="flex h-full items-center justify-self-start self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
           onClick={() => go('/')}
           aria-label="CareerLine AI home"
         >
-          <LogoMark />
-          <span className="font-serif text-[17px] font-bold tracking-tight text-[#4A3F8C]">
-            CareerLine <span className="text-[#D9A21B]">AI</span>
-          </span>
+          <img
+            src={logo}
+            alt="CareerLine AI"
+            decoding="async"
+            className="block h-8 w-auto object-contain object-center [image-rendering:-webkit-optimized-contrast]"
+          />
         </button>
 
-        {/* Desktop links */}
         <ul className="hidden items-center gap-10 lg:flex">
           {NAV_ITEMS.map((item) => {
             const active = isActive(item);
@@ -184,7 +154,6 @@ export const Navbar = () => {
           })}
         </ul>
 
-        {/* Desktop actions */}
         <div className="hidden items-center justify-self-end gap-6 lg:flex">
           <button
             type="button"
@@ -194,7 +163,6 @@ export const Navbar = () => {
             Log in
           </button>
           <button
-            // variant="primary"
             className="whitespace-nowrap rounded-full bg-[#D99A1B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
             onClick={() => go(TAKE_TEST_PATH)}
           >
@@ -202,7 +170,6 @@ export const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile toggle */}
         <button
           type="button"
           className="justify-self-end rounded-md p-1 text-[#4A3F8C] lg:hidden"
@@ -215,7 +182,6 @@ export const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile menu: links on top, actions pinned at the bottom */}
       {isMenuOpen && (
         <div
           id="mobile-menu"
@@ -248,7 +214,7 @@ export const Navbar = () => {
                   <button
                     type="button"
                     className={`flex w-full items-center justify-between py-4 text-left text-base font-medium ${
-                      active ? 'text-[#6C5CCF]' : 'text-[#4A4560]'
+                      active ? 'text-indigo-600' : 'text-[#4A4560]'
                     }`}
                     aria-expanded={open}
                     onClick={() => toggleDropdown(item.label)}
@@ -282,8 +248,7 @@ export const Navbar = () => {
 
           <div className="flex flex-col gap-3 border-t border-[#eceef4] px-5 py-5 sm:px-6">
             <button
-              // variant="primary"
-              className="w-full rounded-full bg-[#6C5CCF] px-4 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+              className="w-full rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
               onClick={() => go(TAKE_TEST_PATH)}
             >
               Take a test

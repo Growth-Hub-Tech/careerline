@@ -36,6 +36,7 @@ interface SectionHeaderProps {
   readonly lead?: ReactNode;
   readonly center?: boolean;
   readonly accentClass?: string;
+  readonly leadClassName?: string;
 }
 
 export const SectionHeader = ({
@@ -45,6 +46,7 @@ export const SectionHeader = ({
   lead,
   center = false,
   accentClass = 'text-[#4f46e5]',
+  leadClassName = 'max-w-[62ch]',
 }: SectionHeaderProps) => (
   <div className={center ? 'mx-auto text-center' : ''}>
     <span className="block text-[11px] font-bold tracking-[0.12em] text-[#3525cd] uppercase">
@@ -56,7 +58,7 @@ export const SectionHeader = ({
     </h2>
     {lead && (
       <p
-        className={`mt-4 max-w-[62ch] text-[15px] leading-relaxed text-[#525a6b] sm:text-[17px] ${
+        className={`mt-4 text-[15px] leading-relaxed text-[#525a6b] sm:text-[18px] ${leadClassName} ${
           center ? 'mx-auto' : ''
         }`}
       >

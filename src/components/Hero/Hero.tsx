@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import heroImage from '../../assests/hero-team.png';
 
-// Update these paths to match your real routes.
-const TEST_SKILLS_PATH = '/question';
+// const TEST_SKILLS_PATH = '/question';
+const TEST_SKILLS_PATH = '/beginner/sign-up';
 const CAREER_PATH_PATH = '/beginner/sign-up';
 
 export const Hero = () => {

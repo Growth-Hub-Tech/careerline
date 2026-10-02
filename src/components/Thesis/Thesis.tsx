@@ -26,16 +26,35 @@ const PILLARS: readonly Pillar[] = [
   },
 ];
 
+const LEAD = (
+  <>
+    <span className="lg:block">
+      A job title doesn't always tell the whole story. A CV doesn't always show what someone can
+      actually do.
+    </span>{' '}
+    <span className="lg:block">
+      And a personality quiz shouldn't decide someone's entire career. CareerLine AI brings together
+      career discovery,
+    </span>{' '}
+    <span className="lg:block">
+      skill assessment, benchmarking, and actionable recommendations to help people and
+      organizations make better-informed
+    </span>{' '}
+    <span className="lg:block">decisions about talent.</span>
+  </>
+);
+
 export const Thesis = () => (
   <Section>
     <SectionHeader
       center
       eyebrow="The CareerLine AI Thesis"
       title="Your career deserves more than guesswork."
-      lead="A job title doesn't always tell the whole story. A CV doesn't always show what someone can actually do. And a personality quiz shouldn't decide someone's entire career. CareerLine AI brings together career discovery, skill assessment, benchmarking, and actionable recommendations to help people and organizations make better-informed decisions about talent."
+      leadClassName="max-w-[62ch] lg:max-w-none"
+      lead={LEAD}
     />
 
-    <div className="mx-auto mt-10 grid max-w-[1000px] gap-4 md:grid-cols-3">
+    <div className="mx-auto mt-10 grid max-w-250 gap-4 md:grid-cols-3">
       {PILLARS.map(({ icon, title, text }) => (
         <div key={title} className="rounded-2xl bg-[#f7f7fd] p-5">
           <span className="text-[#4f46e5]">{icon}</span>

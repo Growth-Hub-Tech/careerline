@@ -19,7 +19,7 @@ const GAPS = [
 ] as const;
 
 export const Diagnostic = () => (
-  <Section bg="bg-[#f3f4fe]">
+  <Section bg="bg-amber-50">
     <SectionHeader
       center
       eyebrow="Prescriptive Intelligence"

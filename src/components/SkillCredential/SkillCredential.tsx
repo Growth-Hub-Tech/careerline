@@ -12,7 +12,7 @@ export const SkillCredential = () => {
   const navigate = useNavigate();
 
   return (
-    <Section bg="bg-[#fafaff]">
+    <Section bg="bg-indigo-50">
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
         {/* Credential card */}
         <div className="order-2 overflow-hidden rounded-3xl bg-white shadow-[0_16px_48px_rgba(53,37,205,0.12)] lg:order-1">

@@ -54,7 +54,7 @@ export const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <Section id="faq" bg="bg-[#eeeffd]">
+    <Section id="faq" bg="bg-indigo-100">
       <SectionHeader
         center
         eyebrow="Answers & Details"

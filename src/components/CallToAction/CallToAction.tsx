@@ -14,7 +14,7 @@ export const CallToAction = () => {
   const navigate = useNavigate();
 
   return (
-    <Section bg="bg-[#fafaff]" className="lg:py-28">
+    <Section bg="bg-indigo-50" className="lg:py-28">
       <div className="mx-auto max-w-[860px] rounded-3xl bg-white px-5 py-9 text-center shadow-[0_16px_48px_rgba(53,37,205,0.14)] sm:px-10">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e4e2ff] px-3 py-1 text-[10.5px] font-semibold text-[#3525cd]">
           <LuRocket size={11} />

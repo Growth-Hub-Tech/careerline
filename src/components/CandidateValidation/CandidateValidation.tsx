@@ -13,7 +13,7 @@ export const CandidateValidation = () => {
   const navigate = useNavigate();
 
   return (
-    <Section id="for-recruiters" bg="bg-[#f7f7fd]">
+    <Section id="for-recruiters" bg="bg-teal-50">
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div>
           <SectionHeader

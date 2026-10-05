@@ -27,7 +27,7 @@ const PRINCIPLES: readonly Principle[] = [
 ];
 
 export const Integrity = () => (
-  <Section bg="bg-[#fafaff]">
+  <Section bg="bg-[#FAF8FF]">
     <SectionHeader
       eyebrow="Algorithmic Integrity"
       title="AI should support decisions—not make them for you."

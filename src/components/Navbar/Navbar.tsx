@@ -80,7 +80,7 @@ export const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="sticky top-0 z-50 w-full border-b border-[#eceef4] bg-white/95 backdrop-blur"
+      className="sticky top-0 z-50 w-full border-b-2 border-[#F2F4F7] bg-white/95 backdrop-blur"
     >
       <div className="mx-auto grid h-20 w-full max-w-7xl grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
         <button
@@ -163,7 +163,7 @@ export const Navbar = () => {
             Log in
           </button>
           <button
-            className="whitespace-nowrap rounded-full bg-[#D99A1B] px-5 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+            className="whitespace-nowrap rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
             onClick={() => go(TAKE_TEST_PATH)}
           >
             Take a test
@@ -248,7 +248,7 @@ export const Navbar = () => {
 
           <div className="flex flex-col gap-3 border-t border-[#eceef4] px-5 py-5 sm:px-6">
             <button
-              className="w-full rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-[#5a4bb8]"
+              className="w-full rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
               onClick={() => go(TAKE_TEST_PATH)}
             >
               Take a test

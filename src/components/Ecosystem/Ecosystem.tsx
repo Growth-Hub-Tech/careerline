@@ -22,7 +22,7 @@ const PHASES = [
 ] as const;
 
 export const Ecosystem = () => (
-  <Section bg="bg-[#f3f4fe]">
+  <Section bg="bg-terracotta-50">
     <SectionHeader
       eyebrow="The Connected Talent Ecosystem"
       title="From discovery to development."

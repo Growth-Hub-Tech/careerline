@@ -9,7 +9,7 @@ export const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="flex w-full items-center bg-white py-10 sm:py-14 lg:h-[800px] lg:py-6">
+    <section className="flex w-full items-cent  er bg-white py-10 sm:py-14 lg:h-[800px] lg:py-6">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-5 sm:px-6 lg:flex-row lg:gap-16 lg:px-[32px]">
         <div className="flex w-full flex-col gap-6 lg:w-1/2 lg:gap-7">
           <h1 className="text-[34px] leading-[1.15] font-bold tracking-tight text-[#2b2a3a] sm:text-[40px] lg:text-[50px]">

@@ -1,4 +1,3 @@
-import { Container } from '../Section';
 import logo from '../../assests/careerline.png';
 
 interface LinkGroup {
@@ -25,43 +24,34 @@ const LINK_GROUPS: readonly LinkGroup[] = [
     links: ['Candidate Skill Validation', 'Role Standards', 'Verified Reports'],
   },
   {
-    heading: 'Platform & Company',
-    links: [
-      'How It Works',
-      'Responsible AI',
-      'Methodology',
-      'Resources',
-      'Help Center',
-      'Privacy',
-      'Terms',
-      'Contact',
-    ],
+    heading: 'Company',
+    links: ['How It Works', 'Help Center', 'Privacy', 'Terms', 'Contact'],
   },
 ];
 
 export const Footer = () => (
-  <footer className="w-full border-t border-[#eceef4] bg-white pt-12 pb-8 sm:pt-16">
-    <Container>
+  <footer className="w-full bg-white pt-12 pb-8 sm:pt-16">
+    <div className="mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8">
       <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-[1.1fr_1fr_1fr_1fr_1fr]">
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
           <img
             src={logo}
             alt="CareerLine AI"
             decoding="async"
-            className="h-10 w-auto object-contain [image-rendering:-webkit-optimized-contrast]"
+            className="h-10 w-auto object-contain"
           />
-          <p className="mt-3 text-[12px] text-[#5a6270]">Discover. Assess. Develop.</p>
+          <p className="mt-3 text-[12px] text-[#2f3347]">Discover. Assess. Develop.</p>
         </div>
 
         {LINK_GROUPS.map(({ heading, links }) => (
           <div key={heading}>
-            <h3 className="font-heading text-[14px] font-semibold text-[#141b34]">{heading}</h3>
-            <ul className="mt-3 flex flex-col gap-2">
+            <h3 className="font-serif text-[15px] font-semibold text-[#1f2230]">{heading}</h3>
+            <ul className="mt-4 flex flex-col gap-3">
               {links.map((label) => (
                 <li key={label}>
                   <a
                     href="#"
-                    className="text-[11.5px] text-[#5a6270] transition-colors hover:text-[#3525cd]"
+                    className="text-[12px] text-[#4b5568] transition-colors hover:text-[#6C5CCF]"
                   >
                     {label}
                   </a>
@@ -72,11 +62,16 @@ export const Footer = () => (
         ))}
       </div>
 
-      <p className="mt-10 text-[11px] text-[#5a6270]">
-        © {new Date().getFullYear()} CareerLine AI. All rights reserved. Precision career
-        intelligence &amp; skill benchmarking.
-      </p>
-    </Container>
+      <div className="mt-14 flex flex-col gap-2 text-[12px] text-[#2f3347] sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          © {new Date().getFullYear()} CareerLine AI. All rights reserved. Precision career
+          intelligence &amp; skill benchmarking.
+        </p>
+        <p>
+          Powered by <span className="font-semibold text-[#3525cd]">Salesplat</span>
+        </p>
+      </div>
+    </div>
   </footer>
 );
 

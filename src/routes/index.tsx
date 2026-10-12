@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 import { MainLayout } from './MainLayout/MainLayout.tsx';
 import { MinimalLayout } from './MinimalLayout/MinimalLayout.tsx';
+import { NoFooterLayout } from './NoFooterLayout/NoFooterLayout.tsx';
 import { Home, Question, Contact } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 // import { NotFound } from '../components/NotFound';
@@ -22,13 +23,6 @@ export const getRoutes = (): RouteObject[] => [
       {
         path: '/contact',
         element: <Contact />,
-      },
-      // Catch-all, kept last so the fallback reads where you expect it.
-      // React Router ranks by specificity, not array order, so every concrete
-      // path above still wins over this one.
-      {
-        path: '*',
-        element: <NotFound />,
       },
     ],
   },
@@ -66,6 +60,19 @@ export const getRoutes = (): RouteObject[] => [
       {
         path: '/organization/sign-up',
         element: <OrganizationSignUp />,
+      },
+    ],
+  },
+  {
+    // Navbar stays, Footer is left out so the 404 page ends cleanly.
+    element: <NoFooterLayout />,
+    children: [
+      // Catch-all, kept last so the fallback reads where you expect it.
+      // React Router ranks by specificity, not array order, so every concrete
+      // path above still wins over this one.
+      {
+        path: '*',
+        element: <NotFound />,
       },
     ],
   },

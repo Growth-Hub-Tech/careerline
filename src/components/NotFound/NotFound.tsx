@@ -4,7 +4,7 @@ export const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-[70vh] w-full flex-col items-center justify-center bg-[#f1f2f6] px-4 py-16">
+    <div className="flex w-full flex-1 flex-col items-center justify-center bg-[#f1f2f6] px-4 py-16">
       {/* The 404 is decorative — the <h1> below carries the real meaning, so
           screen readers announce "Page not found" and not "four zero four". */}
       <span aria-hidden="true" className="text-[64px] leading-none font-bold text-[#4a3f8c]">

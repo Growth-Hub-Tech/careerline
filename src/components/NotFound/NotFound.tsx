@@ -4,14 +4,17 @@ export const NotFound = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center bg-[#f1f2f6] px-4 py-16">
-      {/* The 404 is decorative — the <h1> below carries the real meaning, so
-          screen readers announce "Page not found" and not "four zero four". */}
-      <span aria-hidden="true" className="text-[64px] leading-none font-bold text-[#4a3f8c]">
+    <div className="flex w-full flex-1 flex-col items-center justify-center bg-[#f1f2f6] px-5 py-12 sm:px-4 sm:py-16">
+      <span
+        aria-hidden="true"
+        className="font-heading text-[48px] leading-none font-bold text-[#4a3f8c] sm:text-[64px]"
+      >
         404
       </span>
 
-      <h1 className="mt-4 text-center text-[28px] font-bold text-[#1f2a44]">Page not found</h1>
+      <h1 className="mt-4 text-center font-heading text-[24px] font-bold text-[#1f2a44] sm:text-[28px]">
+        Page not found
+      </h1>
 
       <p className="mt-2 max-w-[440px] text-center text-sm text-[#6b7280]">
         We couldn't find that page. Try the homepage, or get in touch if you followed a link from
@@ -26,8 +29,6 @@ export const NotFound = () => {
           Go to homepage
         </Link>
 
-        {/* navigate(-1) is the browser's own back step. It's a button, not a
-            link, because it performs an action rather than pointing at a URL. */}
         <button
           type="button"
           onClick={() => navigate(-1)}

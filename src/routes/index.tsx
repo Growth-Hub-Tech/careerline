@@ -4,13 +4,13 @@ import { MinimalLayout } from './MinimalLayout/MinimalLayout.tsx';
 import { NoFooterLayout } from './NoFooterLayout/NoFooterLayout.tsx';
 import { Home, Question, Contact } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
-// import { NotFound } from '../components/NotFound';
 import { SignIn } from '../components/SignIn';
 import { ResetPassword } from '../components/ResetPassword';
 import { SignUp as BeginnerSignUp } from '../features/beginner/auth/SignUp.tsx';
 import { Assessment, ProgrammeDetail } from '../features/beginner/pages';
 import { SignUp as RecruiterSignUp } from '../features/recruiters/auth/SignUp.tsx';
 import { SignUp as OrganizationSignUp } from '../features/organizations/auth/SignUp.tsx';
+import { SignUp as SelfTestSignUp } from '../features/self-test/auth/SignUp.tsx';
 
 export const getRoutes = (): RouteObject[] => [
   {
@@ -42,6 +42,10 @@ export const getRoutes = (): RouteObject[] => [
         element: <ResetPassword />,
       },
       {
+        path: '/self-test/sign-up',
+        element: <SelfTestSignUp />,
+      },
+      {
         path: '/beginner/sign-up',
         element: <BeginnerSignUp />,
       },
@@ -64,12 +68,8 @@ export const getRoutes = (): RouteObject[] => [
     ],
   },
   {
-    // Navbar stays, Footer is left out so the 404 page ends cleanly.
     element: <NoFooterLayout />,
     children: [
-      // Catch-all, kept last so the fallback reads where you expect it.
-      // React Router ranks by specificity, not array order, so every concrete
-      // path above still wins over this one.
       {
         path: '*',
         element: <NotFound />,

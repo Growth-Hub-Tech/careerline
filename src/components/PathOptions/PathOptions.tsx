@@ -31,7 +31,7 @@ const PATHS: readonly PathOption[] = [
     title: 'Test your skills',
     description: 'Take a skill test on your own and download a shareable report.',
     cta: 'Take a Test',
-    path: '/self-test',
+    path: '/self-test/sign-up',
     tags: ['Independent Professionals', 'Freelancers'],
     icon: LuPuzzle,
     iconWrap: 'bg-[#f8efc8] text-[#8a4a12]',
@@ -65,19 +65,19 @@ export const PathOptions = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full bg-[#2d2d39] px-5 py-16 sm:px-6 lg:py-24">
+    <section className="w-full bg-[#2d2d39] px-5 py-12 sm:px-6 sm:py-16 lg:py-24">
       <div className="mx-auto w-full max-w-7xl lg:px-8">
         <div className="mx-auto max-w-[760px] text-center">
-          <h2 className="font-serif text-[28px] leading-[1.25] font-bold text-white sm:text-[36px]">
+          <h2 className="font-heading text-[24px] leading-[1.25] font-bold text-white sm:text-[32px] lg:text-[36px]">
             Get Guidance for Career Path or Measure Skill Level, at a Global Standard.
           </h2>
-          <p className="mt-5 text-[15px] leading-relaxed text-[#e6e7f2]">
+          <p className="mt-4 text-[14px] leading-relaxed text-[#e6e7f2] sm:mt-5 sm:text-[15px]">
             CareerLine AI tells you which career path fits you, tells organizations how their team
             measures up, and tells recruiters whether a candidate is truly ready.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
           {PATHS.map(
             ({ key, title, description, cta, path, tags, icon: Icon, iconWrap, button }) => (
               <div key={key} className="flex flex-col rounded-2xl bg-white p-5">
@@ -86,7 +86,7 @@ export const PathOptions = () => {
                 >
                   <Icon size={22} />
                 </span>
-                <h3 className="mt-4 text-center font-serif text-[20px] font-semibold text-[#1f2230]">
+                <h3 className="mt-4 text-center font-heading text-[20px] font-bold text-[#1f2230]">
                   {title}
                 </h3>
                 <p className="mt-3 text-center text-[13px] leading-relaxed text-[#5a6278]">

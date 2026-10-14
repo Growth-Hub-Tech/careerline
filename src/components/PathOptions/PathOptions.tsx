@@ -65,62 +65,64 @@ export const PathOptions = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="w-full bg-[#2d2d39] px-5 py-12 sm:px-6 sm:py-16 lg:py-24">
-      <div className="mx-auto w-full max-w-7xl lg:px-8">
-        <div className="mx-auto max-w-[760px] text-center">
-          <h2 className="font-heading text-[24px] leading-[1.25] font-bold text-white sm:text-[32px] lg:text-[36px]">
-            Get Guidance for Career Path or Measure Skill Level, at a Global Standard.
-          </h2>
-          <p className="mt-4 text-[14px] leading-relaxed text-[#e6e7f2] sm:mt-5 sm:text-[15px]">
-            CareerLine AI tells you which career path fits you, tells organizations how their team
-            measures up, and tells recruiters whether a candidate is truly ready.
-          </p>
-        </div>
+    <section className="w-full bg-[#2d2d39] py-12 sm:py-16 lg:py-24">
+      <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1280px]">
+          <div className="mx-auto max-w-[760px] text-center">
+            <h2 className="font-heading text-[24px] leading-[1.25] font-bold text-white sm:text-[32px] lg:text-[36px]">
+              Get Guidance for Career Path or Measure Skill Level, at a Global Standard.
+            </h2>
+            <p className="mt-4 text-[14px] leading-relaxed text-[#e6e7f2] sm:mt-5 sm:text-[15px]">
+              CareerLine AI tells you which career path fits you, tells organizations how their team
+              measures up, and tells recruiters whether a candidate is truly ready.
+            </p>
+          </div>
 
-        <div className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
-          {PATHS.map(
-            ({ key, title, description, cta, path, tags, icon: Icon, iconWrap, button }) => (
-              <div key={key} className="flex flex-col rounded-2xl bg-white p-5">
-                <span
-                  className={`mx-auto flex h-12 w-12 items-center justify-center rounded-xl ${iconWrap}`}
-                >
-                  <Icon size={22} />
-                </span>
-                <h3 className="mt-4 text-center font-heading text-[20px] font-bold text-[#1f2230]">
-                  {title}
-                </h3>
-                <p className="mt-3 text-center text-[13px] leading-relaxed text-[#5a6278]">
-                  {description}
-                </p>
+          <div className="mt-10 grid gap-5 sm:mt-14 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
+            {PATHS.map(
+              ({ key, title, description, cta, path, tags, icon: Icon, iconWrap, button }) => (
+                <div key={key} className="flex flex-col rounded-2xl bg-white p-5">
+                  <span
+                    className={`mx-auto flex h-12 w-12 items-center justify-center rounded-xl ${iconWrap}`}
+                  >
+                    <Icon size={22} />
+                  </span>
+                  <h3 className="mt-4 text-center font-heading text-[20px] font-bold text-[#1f2230]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-center text-[13px] leading-relaxed text-[#5a6278]">
+                    {description}
+                  </p>
 
-                <div className="mt-5 flex items-center gap-3 text-[11px] text-[#5a6278]">
-                  <span className="h-px flex-1 bg-[#e3e5ee]" />
-                  for
-                  <span className="h-px flex-1 bg-[#e3e5ee]" />
+                  <div className="mt-5 flex items-center gap-3 text-[11px] text-[#5a6278]">
+                    <span className="h-px flex-1 bg-[#e3e5ee]" />
+                    for
+                    <span className="h-px flex-1 bg-[#e3e5ee]" />
+                  </div>
+
+                  <ul className="mt-4 flex flex-1 flex-wrap content-start justify-center gap-2">
+                    {tags.map((tag) => (
+                      <li
+                        key={tag}
+                        className="rounded-full bg-[#eef0f5] px-3 py-1 text-[12px] font-medium text-[#2f3347]"
+                      >
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate(path)}
+                    className={`mt-6 flex h-11 w-full items-center justify-between rounded-full px-4 text-[14px] font-medium text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF] ${button}`}
+                  >
+                    {cta}
+                    <LuArrowUpRight size={16} />
+                  </button>
                 </div>
-
-                <ul className="mt-4 flex flex-1 flex-wrap content-start justify-center gap-2">
-                  {tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="rounded-full bg-[#eef0f5] px-3 py-1 text-[12px] font-medium text-[#2f3347]"
-                    >
-                      {tag}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  type="button"
-                  onClick={() => navigate(path)}
-                  className={`mt-6 flex h-11 w-full items-center justify-between rounded-full px-4 text-[14px] font-medium text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF] ${button}`}
-                >
-                  {cta}
-                  <LuArrowUpRight size={16} />
-                </button>
-              </div>
-            ),
-          )}
+              ),
+            )}
+          </div>
         </div>
       </div>
     </section>

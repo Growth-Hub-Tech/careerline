@@ -82,104 +82,106 @@ export const Navbar = () => {
       ref={navRef}
       className="sticky top-0 z-50 w-full border-b-2 border-[#F2F4F7] bg-white/95 backdrop-blur"
     >
-      <div className="mx-auto grid h-20 w-full max-w-7xl grid-cols-[1fr_auto] items-center px-5 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:px-8">
-        <button
-          type="button"
-          className="flex h-full items-center justify-self-start self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
-          onClick={() => go('/')}
-          aria-label="CareerLine AI home"
-        >
-          <img
-            src={logo}
-            alt="CareerLine AI"
-            decoding="async"
-            className="block h-8 w-auto object-contain object-center [image-rendering:-webkit-optimized-contrast]"
-          />
-        </button>
+      <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto grid h-20 w-full max-w-[1280px] grid-cols-[1fr_auto] items-center lg:grid-cols-[1fr_auto_1fr]">
+          <button
+            type="button"
+            className="flex h-full items-center justify-self-start self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+            onClick={() => go('/')}
+            aria-label="CareerLine AI home"
+          >
+            <img
+              src={logo}
+              alt="CareerLine AI"
+              decoding="async"
+              className="block h-8 w-auto object-contain object-center [image-rendering:-webkit-optimized-contrast]"
+            />
+          </button>
 
-        <ul className="hidden items-center gap-10 lg:flex">
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item);
-            const colour = active ? 'text-[#6C5CCF]' : 'text-[#4A4560] hover:text-[#6C5CCF]';
+          <ul className="hidden items-center gap-10 lg:flex">
+            {NAV_ITEMS.map((item) => {
+              const active = isActive(item);
+              const colour = active ? 'text-[#6C5CCF]' : 'text-[#4A4560] hover:text-[#6C5CCF]';
 
-            if (!item.children) {
+              if (!item.children) {
+                return (
+                  <li key={item.label}>
+                    <button
+                      type="button"
+                      className={`${linkBase} ${colour}`}
+                      aria-current={active ? 'page' : undefined}
+                      onClick={() => item.path && go(item.path)}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                );
+              }
+
+              const open = openDropdown === item.label;
               return (
-                <li key={item.label}>
+                <li key={item.label} className="relative">
                   <button
                     type="button"
                     className={`${linkBase} ${colour}`}
-                    aria-current={active ? 'page' : undefined}
-                    onClick={() => item.path && go(item.path)}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    onClick={() => toggleDropdown(item.label)}
                   >
                     {item.label}
+                    <LuChevronDown
+                      size={14}
+                      className={`transition-transform ${open ? 'rotate-180' : ''}`}
+                    />
                   </button>
+
+                  {open && (
+                    <ul className="absolute left-1/2 top-full mt-3 min-w-48 -translate-x-1/2 rounded-xl border border-[#eceef4] bg-white p-2 shadow-lg">
+                      {item.children.map((child) => (
+                        <li key={child.path}>
+                          <button
+                            type="button"
+                            className="w-full rounded-lg px-3 py-2 text-left text-sm text-[#4A4560] hover:bg-[#f4f2fc] hover:text-[#6C5CCF]"
+                            onClick={() => go(child.path)}
+                          >
+                            {child.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               );
-            }
+            })}
+          </ul>
 
-            const open = openDropdown === item.label;
-            return (
-              <li key={item.label} className="relative">
-                <button
-                  type="button"
-                  className={`${linkBase} ${colour}`}
-                  aria-haspopup="true"
-                  aria-expanded={open}
-                  onClick={() => toggleDropdown(item.label)}
-                >
-                  {item.label}
-                  <LuChevronDown
-                    size={14}
-                    className={`transition-transform ${open ? 'rotate-180' : ''}`}
-                  />
-                </button>
+          <div className="hidden items-center justify-self-end gap-6 lg:flex">
+            <button
+              type="button"
+              className={`${linkBase} whitespace-nowrap text-[#1a1a2e] hover:text-[#6C5CCF]`}
+              onClick={() => go('/sign-in')}
+            >
+              Log in
+            </button>
+            <button
+              className="whitespace-nowrap rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
+              onClick={() => go(TAKE_TEST_PATH)}
+            >
+              Take a test
+            </button>
+          </div>
 
-                {open && (
-                  <ul className="absolute left-1/2 top-full mt-3 min-w-48 -translate-x-1/2 rounded-xl border border-[#eceef4] bg-white p-2 shadow-lg">
-                    {item.children.map((child) => (
-                      <li key={child.path}>
-                        <button
-                          type="button"
-                          className="w-full rounded-lg px-3 py-2 text-left text-sm text-[#4A4560] hover:bg-[#f4f2fc] hover:text-[#6C5CCF]"
-                          onClick={() => go(child.path)}
-                        >
-                          {child.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-
-        <div className="hidden items-center justify-self-end gap-6 lg:flex">
           <button
             type="button"
-            className={`${linkBase} whitespace-nowrap text-[#1a1a2e] hover:text-[#6C5CCF]`}
-            onClick={() => go('/sign-in')}
+            className="justify-self-end rounded-md p-1 text-[#4A3F8C] lg:hidden"
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
           >
-            Log in
-          </button>
-          <button
-            className="whitespace-nowrap rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
-            onClick={() => go(TAKE_TEST_PATH)}
-          >
-            Take a test
+            {isMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
           </button>
         </div>
-
-        <button
-          type="button"
-          className="justify-self-end rounded-md p-1 text-[#4A3F8C] lg:hidden"
-          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-        >
-          {isMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
-        </button>
       </div>
 
       {isMenuOpen && (

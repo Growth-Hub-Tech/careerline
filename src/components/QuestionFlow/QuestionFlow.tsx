@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Button, PageTitleText, BodyText, HeadingText, MediumText } from '../index';
+import { PageTitleText, BodyText, HeadingText, MediumText } from '../index';
 import { apiService } from '../../services/api';
 import type { ServerQuestion } from '../../types/api';
 import './QuestionFlow.scss';
+import { Button } from '../Button';
 
 interface QuestionFlowProps {
   onComplete: (answers: Record<string, string>) => void;

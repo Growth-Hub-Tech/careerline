@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { QuestionFlow, Loading, Recommendation } from '../components';
-import { BodyText, HeadingText, SmallText, Button } from '../components';
+import { BodyText, HeadingText, SmallText } from '../components';
 import { apiService, ApiError } from '../services/api';
 import { mapAnswers } from '../utils/mapAnswers';
 import type { RecommendationItem } from '../types/api';
+import { Button } from '../components/Button';
 
 type QuestionPageState = 'question' | 'loading' | 'recommendation' | 'error';
 

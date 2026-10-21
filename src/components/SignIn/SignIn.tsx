@@ -1,91 +1,44 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Link } from 'react-router-dom';
+import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
-import { Link, useNavigate } from 'react-router-dom';
-import './SignIn.scss';
 
-const signInSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
+export const SignIn = () => (
+  <SplitAuthLayout>
+    <AuthTitle>Welcome Back</AuthTitle>
+    <p className="mt-3 text-[16px] text-slate-700">Welcome back! Please enter your details.</p>
 
-type SignInFormValues = z.infer<typeof signInSchema>;
-
-export const SignIn = () => {
-  const navigate = useNavigate();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignInFormValues>({
-    resolver: zodResolver(signInSchema),
-  });
-
-  const onSubmit = async (values: SignInFormValues) => {
-    // TODO: wire up to auth endpoint
-    console.log(values);
-    navigate('/dashboard');
-  };
-
-  return (
-    <div className="signin-page">
-      <div className="signin-card">
-        <span className="signin-logo">CareerLine AI</span>
-        <h1 className="signin-title">Welcome back</h1>
-        <p className="signin-subtitle">Sign in to continue to your dashboard.</p>
-
-        <form className="signin-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="signin-field">
-            <label htmlFor="email" className="signin-label">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              className="signin-input"
-              {...register('email')}
-            />
-            {errors.email && <span className="signin-error">{errors.email.message}</span>}
-          </div>
-
-          <div className="signin-field">
-            <label htmlFor="password" className="signin-label">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              className="signin-input"
-              {...register('password')}
-            />
-            {errors.password && <span className="signin-error">{errors.password.message}</span>}
-          </div>
-
-          <div className="signin-forgot-row">
-            <Link to="/forgot-password" className="signin-forgot-link">
-              Forgot your password?
-            </Link>
-          </div>
-
-          <Button
-            type="submit"
-            variant="primary"
-            className="signin-submit-btn"
-            disabled={isSubmitting}
-            isLoading={isSubmitting}
-          >
-            Sign in
-          </Button>
-        </form>
-
-        <p className="signin-footer">
-          New to CareerLine AI? Choose your path from the homepage to create an account.
-        </p>
+    <div className="mt-10 flex flex-col">
+      <div className="flex flex-col gap-5">
+        <TextField label="Email" type="email" autoComplete="email" placeholder="Enter your email" />
+        <TextField
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Enter your password"
+        />
       </div>
+
+      <div className="mt-6 flex items-center justify-between gap-4">
+        <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium text-slate-700">
+          <input
+            type="checkbox"
+            className="size-4 cursor-pointer rounded border-slate-300 accent-indigo-600"
+          />
+          Remember me
+        </label>
+        <Link
+          to={AUTH_PATHS.forgotPassword}
+          className="rounded text-[14px] font-semibold text-indigo-700 hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Forgot password
+        </Link>
+      </div>
+
+      <Button className="mt-6">Sign in</Button>
     </div>
-  );
-};
+
+    <div className="mt-10 text-center">
+      <DashedLink to={AUTH_PATHS.signUp}>Create your account instead</DashedLink>
+    </div>
+  </SplitAuthLayout>
+);

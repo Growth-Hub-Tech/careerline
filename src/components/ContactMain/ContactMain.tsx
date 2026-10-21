@@ -4,8 +4,8 @@ import { IoChatbubbleOutline } from 'react-icons/io5';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { LuPhone } from 'react-icons/lu';
 import ContactForm from '../ContactForm/ContactForm';
-import { PageContainer } from '../PageContainer';
 import { config } from '../../config';
+import { Container } from '../Section';
 
 const ICON_SIZE = 18;
 
@@ -60,7 +60,7 @@ const CHANNELS: readonly Channel[] = [
 
 export const ContactMain = () => (
   <section className="w-full bg-[#f7f7fb] py-20">
-    <PageContainer>
+    <Container>
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
           <h1 className="text-[32px] leading-tight font-bold tracking-tight text-[#1f2a44]">
@@ -115,6 +115,6 @@ export const ContactMain = () => (
           </div>
         </div>
       </div>
-    </PageContainer>
+    </Container>
   </section>
 );

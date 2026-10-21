@@ -4,76 +4,24 @@ import { MinimalLayout } from './MinimalLayout/MinimalLayout.tsx';
 import { NoFooterLayout } from './NoFooterLayout/NoFooterLayout.tsx';
 import { Home, Question, Contact } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
-import { SignIn } from '../components/SignIn';
-import { ResetPassword } from '../components/ResetPassword';
-import { SignUp as BeginnerSignUp } from '../features/beginner/auth/SignUp.tsx';
-import { Assessment, ProgrammeDetail } from '../features/beginner/pages';
-import { SignUp as RecruiterSignUp } from '../features/recruiters/auth/SignUp.tsx';
-import { SignUp as OrganizationSignUp } from '../features/organizations/auth/SignUp.tsx';
-import { SignUp as SelfTestSignUp } from '../features/self-test/auth/SignUp.tsx';
+import { authRoutes } from '../authRoutes';
 
 export const getRoutes = (): RouteObject[] => [
   {
     element: <MainLayout />,
     children: [
-      {
-        path: '/',
-        element: <Home />,
-      },
-      {
-        path: '/contact',
-        element: <Contact />,
-      },
+      { path: '/', element: <Home /> },
+      { path: '/contact', element: <Contact /> },
     ],
   },
   {
     element: <MinimalLayout />,
-    children: [
-      {
-        path: '/question',
-        element: <Question />,
-      },
-      {
-        path: '/sign-in',
-        element: <SignIn />,
-      },
-      {
-        path: '/forgot-password',
-        element: <ResetPassword />,
-      },
-      {
-        path: '/self-test/sign-up',
-        element: <SelfTestSignUp />,
-      },
-      {
-        path: '/beginner/sign-up',
-        element: <BeginnerSignUp />,
-      },
-      {
-        path: '/beginner/assessment',
-        element: <Assessment />,
-      },
-      {
-        path: '/beginner/programme',
-        element: <ProgrammeDetail />,
-      },
-      {
-        path: '/recruiter/sign-up',
-        element: <RecruiterSignUp />,
-      },
-      {
-        path: '/organization/sign-up',
-        element: <OrganizationSignUp />,
-      },
-    ],
+    children: [{ path: '/question', element: <Question /> }],
   },
+  // Auth screens have their own header, so they sit outside the layouts
+  ...authRoutes,
   {
     element: <NoFooterLayout />,
-    children: [
-      {
-        path: '*',
-        element: <NotFound />,
-      },
-    ],
+    children: [{ path: '*', element: <NotFound /> }],
   },
 ];

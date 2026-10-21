@@ -14,7 +14,7 @@ interface NavItem {
   readonly children?: readonly NavChild[];
 }
 
-const TAKE_TEST_PATH = '/beginner/sign-up';
+const TAKE_TEST_PATH = '/sign-up';
 
 const NAV_ITEMS: readonly NavItem[] = [
   { label: 'For Individuals', path: '/individuals' },
@@ -94,7 +94,7 @@ export const Navbar = () => {
               src={logo}
               alt="CareerLine AI"
               decoding="async"
-              className="block h-8 w-auto object-contain object-center [image-rendering:-webkit-optimized-contrast]"
+              className="block h-5 w-auto max-w-full object-contain object-center [image-rendering:-webkit-optimized-contrast] min-[400px]:h-6 sm:h-8"
             />
           </button>
 
@@ -171,16 +171,26 @@ export const Navbar = () => {
             </button>
           </div>
 
-          <button
-            type="button"
-            className="justify-self-end rounded-md p-1 text-[#4A3F8C] lg:hidden"
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-          >
-            {isMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
-          </button>
+          {/* Mobile: Take a test + hamburger sit together in the header */}
+          <div className="flex items-center justify-self-end gap-2 lg:hidden">
+            <button
+              type="button"
+              className="whitespace-nowrap rounded-xl bg-[#6C5CCF] h-[30px] px-4 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#5B4CBF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              onClick={() => go(TAKE_TEST_PATH)}
+            >
+              Take a test
+            </button>
+            <button
+              type="button"
+              className="rounded-md p-1 text-[#1a1a2e]"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+            >
+              {isMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -250,14 +260,8 @@ export const Navbar = () => {
 
           <div className="flex flex-col gap-3 border-t border-[#eceef4] px-5 py-5 sm:px-6">
             <button
-              className="w-full rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
-              onClick={() => go(TAKE_TEST_PATH)}
-            >
-              Take a test
-            </button>
-            <button
               type="button"
-              className="w-full rounded-full border border-[#d9d5f0] px-4 py-3 text-sm font-semibold text-[#1a1a2e] hover:border-[#6C5CCF] hover:text-[#6C5CCF]"
+              className="w-full rounded-lg border border-[#d9d5f0] px-4 py-3 text-sm font-semibold text-[#1a1a2e] hover:border-[#6C5CCF] hover:text-[#6C5CCF]"
               onClick={() => go('/sign-in')}
             >
               Log in

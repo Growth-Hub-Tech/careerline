@@ -8,10 +8,10 @@ interface Intent {
 }
 
 const INTENTS: readonly Intent[] = [
-  { label: 'test myself', path: '/self-test/sign-up' },
-  { label: 'discover my career path', path: '/beginner/sign-up' },
-  { label: 'test a candidate', path: '/recruiter/sign-up' },
-  { label: 'audit my team', path: '/organization/sign-up' },
+  { label: 'test myself', path: '/sign-up' },
+  { label: 'discover my career path', path: '/sign-up' },
+  { label: 'test a candidate', path: '/sign-up' },
+  { label: 'audit my team', path: '/sign-up' },
 ];
 
 const CONTINUE_PATH = '/question';

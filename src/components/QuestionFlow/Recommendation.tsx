@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { PageTitleText, BodyText, HeadingText, SmallText, Button } from '../index';
+import { PageTitleText, BodyText, HeadingText, SmallText } from '../index';
 import { apiService } from '../../services/api';
 import type { RecommendationItem } from '../../types/api';
 import './Recommendation.scss';
+import { Button } from '../Button';
 
 interface RecommendationProps {
   items: RecommendationItem[];

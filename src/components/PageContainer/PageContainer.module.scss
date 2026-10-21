@@ -1,7 +1,0 @@
-@use '../../styles/variables.scss' as *;
-.container {
-  padding: 0 80px;
-  @media screen and (max-width: $small-breakpoint) {
-    padding: 0 16px;
-  }
-}

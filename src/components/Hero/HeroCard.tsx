@@ -14,7 +14,7 @@ const INTENTS: readonly Intent[] = [
   { label: 'audit my team', path: '/sign-up' },
 ];
 
-const CONTINUE_PATH = '/question';
+const CONTINUE_PATH = '/sign-in';
 
 export const HeroCard = () => {
   const navigate = useNavigate();

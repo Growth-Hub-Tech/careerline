@@ -1,15 +1,6 @@
 export * from './Navbar';
 export * from './Footer';
 export * from './Hero';
-// export * from './Comparison';
-// export * from './CourseCatalog';
-// export * from './CallToAction';
-export * from './FAQ';
-export * from './Text';
-// export * from './HowItWorks';
-// export * from './Target';
-// export * from './WhyChooseUs';
-export * from './QuestionFlow';
 export * from './PathOptions/PathOptions';
 export * from './Auth';
 export * from './SignIn';

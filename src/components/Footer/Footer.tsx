@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import logo from '../../assests/careerline.png';
 
 interface LinkGroup {
@@ -49,12 +50,18 @@ export const Footer = () => (
             <ul className="mt-3 flex flex-col gap-3 sm:mt-4">
               {links.map((label) => (
                 <li key={label}>
-                  <a
-                    href="#"
-                    className="inline-block py-0.5 text-[13px] break-words text-[#4b5568] transition-colors hover:text-[#6C5CCF] sm:text-[12px]"
-                  >
-                    {label}
-                  </a>
+                  {label === 'Contact' ? (
+                    <Link
+                      to="/contact"
+                      className="inline-block py-0.5 text-[13px] break-words text-[#4b5568] transition-colors hover:text-[#6C5CCF] sm:text-[12px]"
+                    >
+                      {label}
+                    </Link>
+                  ) : (
+                    <span className="inline-block py-0.5 text-[13px] break-words text-[#4b5568] sm:text-[12px]">
+                      {label}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

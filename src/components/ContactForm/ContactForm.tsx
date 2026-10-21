@@ -92,9 +92,7 @@ const ContactForm = () => {
 
         <div className="checkbox d-flex items-start gap-2 my-4">
           <input id="privacy" type="checkbox" {...register('privacy')} />
-          <label htmlFor="privacy">
-            You agree to our <a href="#">friendly privacy policy</a>.
-          </label>
+          <label htmlFor="privacy">You agree to our privacy policy.</label>
         </div>
         {errors.privacy && (
           <span className="error-message checkbox-error">{errors.privacy.message}</span>

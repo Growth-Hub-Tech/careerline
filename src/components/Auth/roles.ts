@@ -9,7 +9,7 @@ export interface Role {
   readonly description: string;
   readonly icon: IconType;
   readonly iconClass: string;
-  /** Where Continue on the role picker goes. */
+  /** Where Continue on the role picker goes when no role-specific area exists yet. */
   readonly nextPath: string;
 }
 
@@ -20,7 +20,7 @@ export const ROLES: readonly Role[] = [
     description: 'Take a short assessment and get a ranked list of tech paths that fit you.',
     icon: LuCompass,
     iconClass: 'bg-terracotta-100 text-terracotta-800',
-    nextPath: '/question',
+    nextPath: '/sign-in',
   },
   {
     key: 'self-test',
@@ -28,7 +28,7 @@ export const ROLES: readonly Role[] = [
     description: 'Take a skill test on your own and download a shareable report.',
     icon: LuPuzzle,
     iconClass: 'bg-amber-100 text-amber-800',
-    nextPath: '/dashboard',
+    nextPath: '/sign-in',
   },
   {
     key: 'recruiter',
@@ -36,7 +36,7 @@ export const ROLES: readonly Role[] = [
     description: "Verify a candidate's real skill level before you make an offer.",
     icon: LuSearchCheck,
     iconClass: 'bg-indigo-100 text-indigo-900',
-    nextPath: '/dashboard',
+    nextPath: '/sign-in',
   },
   {
     key: 'organization',
@@ -44,7 +44,7 @@ export const ROLES: readonly Role[] = [
     description: 'Test your staff against the Global Standard for their roles and titles.',
     icon: LuBadgeCheck,
     iconClass: 'bg-teal-100 text-teal-800',
-    nextPath: '/dashboard',
+    nextPath: '/sign-in',
   },
 ];
 

@@ -49,11 +49,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/dashboard',
-    title: 'Dashboard',
-    description: 'Your assessments, results and next steps in one place.',
-  },
-  {
     path: '/assessment',
     title: 'Career assessment',
     description: 'Answer a short set of questions about you, your goals and your time.',

@@ -28,3 +28,4 @@ export * from './PlaceholderPage';
 export * from './ErrorPage';
 export * from './ErrorBoundary';
 export * from './NoAccess';
+export * from './AppShell';

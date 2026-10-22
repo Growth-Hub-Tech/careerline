@@ -1,7 +1,8 @@
 import type { RouteObject } from 'react-router-dom';
 import { MainLayout } from './MainLayout/MainLayout.tsx';
 import { NoFooterLayout } from './NoFooterLayout/NoFooterLayout.tsx';
-import { Home, Contact } from '../pages';
+import { AppLayout } from './AppLayout/AppLayout.tsx';
+import { Home, Contact, Dashboard } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
 import { PlaceholderPage } from '../components/PlaceholderPage';
@@ -24,9 +25,12 @@ export const getRoutes = (): RouteObject[] => [
   },
   ...authRoutes,
   {
+    element: <AppLayout />,
+    children: [{ path: '/dashboard', element: <Dashboard /> }, ...APP_PLACEHOLDERS.map(toRoute)],
+  },
+  {
     element: <NoFooterLayout />,
     children: [
-      ...APP_PLACEHOLDERS.map(toRoute),
       { path: '/no-access', element: <NoAccess /> },
       { path: '*', element: <NotFound /> },
     ],

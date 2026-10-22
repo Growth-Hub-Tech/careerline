@@ -30,7 +30,7 @@ export const Button = ({
     type={type}
     disabled={disabled || isLoading}
     aria-busy={isLoading || undefined}
-    className={`inline-flex h-12 items-center justify-center gap-2 rounded-lg px-4 text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${border === 'solid' ? 'border! border-solid! border-slate-200!' : ''} ${fullWidth ? 'w-full' : ''} ${className}`}
+    className={`inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-[16px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${border === 'solid' ? 'border border-slate-200' : ''} ${fullWidth ? 'w-full' : ''} ${className}`}
     {...rest}
   >
     {isLoading && (

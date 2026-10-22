@@ -1,9 +1,14 @@
-import { BrowserRouter, useRoutes } from 'react-router-dom';
+import { BrowserRouter, useLocation, useRoutes } from 'react-router-dom';
 import { getRoutes } from './routes';
 import { ThemeProvider } from './hooks/useTheme';
-import './styles/index.scss';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-const AppRoutes = () => useRoutes(getRoutes());
+const AppRoutes = () => {
+  const { pathname } = useLocation();
+  const element = useRoutes(getRoutes());
+
+  return <ErrorBoundary resetKey={pathname}>{element}</ErrorBoundary>;
+};
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

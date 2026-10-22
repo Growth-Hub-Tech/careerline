@@ -1,7 +1,10 @@
-import './ContactForm.scss';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Button } from '../Button';
+import { Checkbox } from '../Checkbox';
+import { TextField } from '../TextField';
+import { Textarea } from '../Textarea';
 
 const contactFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -39,74 +42,45 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="contact-form">
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="row">
-          <div className="field">
-            <label htmlFor="firstName">First name</label>
-            <input
-              id="firstName"
-              type="text"
-              placeholder="First name"
-              {...register('firstName')}
-              className={errors.firstName ? 'error' : ''}
-            />
-            {errors.firstName && <span className="error-message">{errors.firstName.message}</span>}
-          </div>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <TextField
+          label="First name"
+          placeholder="First name"
+          autoComplete="given-name"
+          error={errors.firstName?.message}
+          {...register('firstName')}
+        />
+        <TextField
+          label="Last name"
+          placeholder="Last name"
+          autoComplete="family-name"
+          error={errors.lastName?.message}
+          {...register('lastName')}
+        />
+      </div>
 
-          <div className="field">
-            <label htmlFor="lastName">Last name</label>
-            <input
-              id="lastName"
-              type="text"
-              placeholder="Last name"
-              {...register('lastName')}
-              className={errors.lastName ? 'error' : ''}
-            />
-            {errors.lastName && <span className="error-message">{errors.lastName.message}</span>}
-          </div>
-        </div>
+      <TextField
+        label="Email"
+        type="email"
+        placeholder="you@company.com"
+        autoComplete="email"
+        error={errors.email?.message}
+        {...register('email')}
+      />
 
-        <div className="field">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="you@company.com"
-            {...register('email')}
-            className={errors.email ? 'error' : ''}
-          />
-          {errors.email && <span className="error-message">{errors.email.message}</span>}
-        </div>
+      <Textarea label="Message" error={errors.message?.message} {...register('message')} />
 
-        <div className="field">
-          <label htmlFor="message">Message</label>
-          <textarea
-            id="message"
-            rows={5}
-            {...register('message')}
-            className={errors.message ? 'error' : ''}
-          />
-          {errors.message && <span className="error-message">{errors.message.message}</span>}
-        </div>
+      <Checkbox
+        label="You agree to our privacy policy."
+        error={errors.privacy?.message}
+        {...register('privacy')}
+      />
 
-        <div className="checkbox d-flex items-start gap-2 my-4">
-          <input id="privacy" type="checkbox" {...register('privacy')} />
-          <label htmlFor="privacy">You agree to our privacy policy.</label>
-        </div>
-        {errors.privacy && (
-          <span className="error-message checkbox-error">{errors.privacy.message}</span>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="p-3 rounded-lg font-medium cursor-pointer border-0"
-        >
-          {isSubmitting ? 'Sending...' : 'Send message'}
-        </button>
-      </form>
-    </div>
+      <Button type="submit" fullWidth={false} isLoading={isSubmitting} className="sm:self-start">
+        {isSubmitting ? 'Sending...' : 'Send message'}
+      </Button>
+    </form>
   );
 };
 

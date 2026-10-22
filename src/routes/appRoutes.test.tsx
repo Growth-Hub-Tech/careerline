@@ -28,7 +28,7 @@ describe('app routes', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Tasks' })).toBeInTheDocument();
   });
 
-  it.each(['/', '/pricing', '/sign-in', '/no-access', '/not-a-page'])(
+  it.each(['/', '/pricing', '/sign-in', '/no-access', '/not-a-page', '/assessment'])(
     'keeps %s outside the app shell',
     (address) => {
       renderAt(address);

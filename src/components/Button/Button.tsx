@@ -1,11 +1,12 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'transparent';
+type ButtonVariant = 'primary' | 'secondary' | 'transparent' | 'accent';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
   secondary: 'bg-slate-950 text-white hover:bg-slate-800',
   transparent: 'bg-transparent text-slate-950 hover:bg-gray-50',
+  accent: 'bg-amber-500 text-slate-950 hover:bg-amber-600',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

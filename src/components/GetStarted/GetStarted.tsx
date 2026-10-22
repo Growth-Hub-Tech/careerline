@@ -18,9 +18,9 @@ export const GetStarted = () => {
       <AuthHeader />
 
       <main className="flex flex-1 justify-center px-5 py-12 sm:px-8 sm:py-16 lg:py-[120px]">
-        <form className="w-full max-w-[432px]" onSubmit={onSubmit}>
+        <form className="w-full max-w-108" onSubmit={onSubmit}>
           <fieldset>
-            <legend className="max-w-[300px] font-heading text-[24px] leading-[1.25] font-bold text-slate-950 sm:text-[26px]">
+            <legend className="max-w-75 font-heading text-[24px] leading-tight font-bold text-slate-950 sm:text-[26px]">
               How are you planning to use Careerline?
             </legend>
 

@@ -19,4 +19,10 @@ describe('Button', () => {
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-busy', 'true');
   });
+
+  it('has an accent variant in the brand amber', () => {
+    render(<Button variant="accent">Go</Button>);
+
+    expect(screen.getByRole('button', { name: 'Go' })).toHaveClass('bg-amber-500');
+  });
 });

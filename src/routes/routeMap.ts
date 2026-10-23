@@ -49,16 +49,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/assessment/results',
-    title: 'Your career path results',
-    description: 'Your top recommended career paths, ranked with the reasons behind each.',
-  },
-  {
-    path: '/programmes/:programmeId',
-    title: 'Recommended programme',
-    description: 'The programme matched to your top recommendation and why it fits.',
-  },
-  {
     path: '/tests',
     title: 'Skill tests',
     description: 'Choose a skill area and take a test on your own.',

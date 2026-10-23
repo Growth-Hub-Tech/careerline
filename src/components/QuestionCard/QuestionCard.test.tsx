@@ -32,6 +32,16 @@ describe('QuestionCard', () => {
     expect(bar).toHaveAttribute('aria-valuemax', '5');
   });
 
+  it('reassures that there are no wrong answers', () => {
+    setup();
+
+    expect(
+      screen.getByText(
+        'There are no right or wrong answers here. Choose the option that resonates most with you.',
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('shows the question as a level 2 heading', () => {
     setup();
 
@@ -106,18 +116,18 @@ describe('QuestionCard', () => {
     expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
   });
 
-  it('offers See my results instead of Next on the last question', async () => {
+  it('offers Generate Result instead of Next on the last question', async () => {
     const { onNext } = setup({ isLast: true, value: 'learn' });
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'See my results' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Generate Result' }));
 
     expect(onNext).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps See my results disabled until the last question is answered', () => {
+  it('keeps Generate Result disabled until the last question is answered', () => {
     setup({ isLast: true });
 
-    expect(screen.getByRole('button', { name: 'See my results' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Generate Result' })).toBeDisabled();
   });
 });

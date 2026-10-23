@@ -14,6 +14,9 @@ describe('Dashboard', () => {
     setup();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Welcome, Skye!' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Take your first step to knowing your ideal career path'),
+    ).toBeInTheDocument();
   });
 
   it('invites them to start the assessment', () => {
@@ -26,6 +29,14 @@ describe('Dashboard', () => {
       'href',
       '/assessment',
     );
+  });
+
+  it('explains the test', () => {
+    setup();
+
+    expect(
+      screen.getByText(/An AI powered career clarity test - answer a few questions/),
+    ).toBeInTheDocument();
   });
 
   it.each(['Your Top 3 Strengths', 'Roles That Match You', 'Explore Your Path'])(

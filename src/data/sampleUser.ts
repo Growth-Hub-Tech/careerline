@@ -1,4 +1,4 @@
 export const SAMPLE_USER = {
   name: 'Skye Favour',
-  role: 'Beginner',
+  role: 'Web Designer',
 } as const;

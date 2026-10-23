@@ -25,4 +25,10 @@ describe('Button', () => {
 
     expect(screen.getByRole('button', { name: 'Go' })).toHaveClass('bg-amber-500');
   });
+
+  it('has a deep variant in the darker brand indigo', () => {
+    render(<Button variant="deep">Go</Button>);
+
+    expect(screen.getByRole('button', { name: 'Go' })).toHaveClass('bg-indigo-800');
+  });
 });

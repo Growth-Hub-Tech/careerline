@@ -20,7 +20,7 @@ export const ROLES: readonly Role[] = [
     description: 'Take a short assessment and get a ranked list of tech paths that fit you.',
     icon: LuCompass,
     iconClass: 'bg-terracotta-100 text-terracotta-800',
-    nextPath: '/sign-in',
+    nextPath: '/dashboard',
   },
   {
     key: 'self-test',

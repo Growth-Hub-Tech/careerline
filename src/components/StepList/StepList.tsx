@@ -8,9 +8,9 @@ export interface Step {
 type StepStatus = 'complete' | 'current' | 'upcoming';
 
 const MARKERS: Record<StepStatus, string> = {
-  complete: 'border-indigo-600 bg-indigo-600 text-white',
-  current: 'border-indigo-600 bg-white',
-  upcoming: 'border-slate-300 bg-white',
+  complete: 'border-teal-600 bg-teal-600 text-white',
+  current: 'border-indigo-800 bg-indigo-800',
+  upcoming: 'border-indigo-200 bg-white',
 };
 
 const TITLES: Record<StepStatus, string> = {
@@ -30,7 +30,7 @@ export const StepList = ({ steps, currentId, className = '' }: StepListProps) =>
 
   return (
     <nav aria-label="Assessment steps" className={className}>
-      <ol className="flex flex-col gap-5">
+      <ol className="flex flex-col">
         {steps.map((step, index) => {
           const status: StepStatus =
             index < currentIndex ? 'complete' : index === currentIndex ? 'current' : 'upcoming';
@@ -40,16 +40,17 @@ export const StepList = ({ steps, currentId, className = '' }: StepListProps) =>
               key={step.id}
               data-status={status}
               aria-current={status === 'current' ? 'step' : undefined}
-              className="flex items-center gap-3 text-[15px]"
+              className="flex gap-3"
             >
-              <span
-                aria-hidden="true"
-                className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${MARKERS[status]}`}
-              >
-                {status === 'complete' && <LuCheck size={14} />}
-                {status === 'current' && <span className="size-2.5 rounded-full bg-indigo-600" />}
-              </span>
-              <span className={TITLES[status]}>{step.title}</span>
+              <div aria-hidden="true" className="flex flex-col items-center">
+                <span
+                  className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${MARKERS[status]}`}
+                >
+                  {status === 'complete' && <LuCheck size={14} />}
+                </span>
+                {index < steps.length - 1 && <span className="my-1 h-10 w-0.5 bg-indigo-200" />}
+              </div>
+              <span className={`pt-0.5 text-[13px] ${TITLES[status]}`}>{step.title}</span>
               {status === 'complete' && <span className="sr-only">completed</span>}
             </li>
           );

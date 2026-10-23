@@ -37,7 +37,7 @@ export const QuestionCard = ({
   return (
     <section
       aria-labelledby={headingId}
-      className="flex w-full flex-col gap-6 rounded-2xl bg-white p-6 sm:p-8"
+      className="flex w-full flex-col gap-6 rounded-xl bg-white p-6 sm:p-10"
     >
       <ProgressBar
         label={`Question ${questionNumber} of ${questionCount}`}
@@ -45,29 +45,38 @@ export const QuestionCard = ({
         max={questionCount}
         variant="amber"
         size="sm"
+        className="max-w-[480px]"
       />
+
+      <p className="text-[13px] text-slate-600">
+        There are no right or wrong answers here. Choose the option that resonates most with you.
+      </p>
 
       <h2
         id={headingId}
-        className="font-heading text-[22px] leading-[1.3] font-bold text-slate-950 sm:text-[26px]"
+        className="text-[24px] leading-[1.3] font-bold text-slate-800 sm:text-[26px]"
       >
         {text}
       </h2>
 
-      <div role="radiogroup" aria-labelledby={headingId} className="flex flex-col gap-3">
+      <div
+        role="radiogroup"
+        aria-labelledby={headingId}
+        className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 sm:p-6"
+      >
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3.5 transition-colors hover:bg-gray-50 has-checked:border-indigo-600 has-checked:bg-indigo-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-indigo-600"
+            className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50 has-checked:border-indigo-800 has-checked:bg-indigo-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-indigo-600"
           >
-            <span className="text-[15px] text-slate-800">{option.label}</span>
+            <span className="text-[17px] text-slate-800">{option.label}</span>
             <input
               type="radio"
               name={groupId}
               value={option.value}
               checked={value === option.value}
               onChange={() => onChange(option.value)}
-              className="size-4 shrink-0 cursor-pointer accent-indigo-600"
+              className="size-5 shrink-0 cursor-pointer accent-indigo-800"
             />
           </label>
         ))}
@@ -75,28 +84,26 @@ export const QuestionCard = ({
 
       <div className="flex items-center justify-between gap-3 pt-2">
         {onBack ? (
-          <Button variant="transparent" border="solid" fullWidth={false} onClick={onBack}>
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex h-11 min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-full border border-indigo-800 bg-white px-6 text-[16px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
             <LuArrowLeft size={18} aria-hidden="true" />
             Back
-          </Button>
+          </button>
         ) : (
           <span />
         )}
 
         <Button
-          variant={isLast ? 'accent' : 'primary'}
+          variant={isLast ? 'accent' : 'deep'}
           fullWidth={false}
           disabled={!value}
           onClick={onNext}
         >
-          {isLast ? (
-            'See my results'
-          ) : (
-            <>
-              Next
-              <LuArrowRight size={18} aria-hidden="true" />
-            </>
-          )}
+          {isLast ? 'Generate Result' : 'Next'}
+          <LuArrowRight size={18} aria-hidden="true" />
         </Button>
       </div>
     </section>

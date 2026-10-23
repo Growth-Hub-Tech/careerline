@@ -10,10 +10,10 @@ export interface AssessmentQuestion {
 
 export const SAMPLE_SECTIONS: readonly Step[] = [
   { id: 'personality', title: 'Personality' },
+  { id: 'background', title: 'Background' },
+  { id: 'experience', title: 'Work Experience' },
+  { id: 'interests', title: 'Interests' },
   { id: 'goals', title: 'Goals' },
-  { id: 'time', title: 'Time' },
-  { id: 'budget', title: 'Budget' },
-  { id: 'experience', title: 'Experience' },
 ];
 
 export const SAMPLE_QUESTIONS: readonly AssessmentQuestion[] = [
@@ -30,6 +30,42 @@ export const SAMPLE_QUESTIONS: readonly AssessmentQuestion[] = [
     ],
   },
   {
+    id: 'education',
+    sectionId: 'background',
+    text: 'What best describes your education so far?',
+    options: [
+      { value: 'secondary', label: 'Secondary school' },
+      { value: 'diploma', label: 'Diploma or certificate' },
+      { value: 'bachelors', label: "Bachelor's degree" },
+      { value: 'postgraduate', label: 'Postgraduate degree' },
+      { value: 'self-taught', label: 'Self-taught' },
+    ],
+  },
+  {
+    id: 'work-history',
+    sectionId: 'experience',
+    text: 'How would you describe your work experience so far?',
+    options: [
+      { value: 'none', label: 'None yet' },
+      { value: 'internship', label: 'Internships or volunteering' },
+      { value: '1-3', label: '1 to 3 years' },
+      { value: '4-7', label: '4 to 7 years' },
+      { value: '7-plus', label: 'More than 7 years' },
+    ],
+  },
+  {
+    id: 'curiosity',
+    sectionId: 'interests',
+    text: 'Which of these would you most enjoy learning about?',
+    options: [
+      { value: 'users', label: 'How people use products' },
+      { value: 'data', label: 'Patterns hidden in data' },
+      { value: 'software', label: 'How software gets built' },
+      { value: 'business', label: 'How businesses grow' },
+      { value: 'security', label: 'How systems are protected' },
+    ],
+  },
+  {
     id: 'career-want',
     sectionId: 'goals',
     text: 'What do you want most from a new career?',
@@ -39,42 +75,6 @@ export const SAMPLE_QUESTIONS: readonly AssessmentQuestion[] = [
       { value: 'flexible', label: 'Flexibility to work from anywhere' },
       { value: 'lead', label: 'A chance to lead a team' },
       { value: 'growth', label: 'Growth I can measure each year' },
-    ],
-  },
-  {
-    id: 'weekly-hours',
-    sectionId: 'time',
-    text: 'How many hours a week can you commit to learning?',
-    options: [
-      { value: 'under-3', label: 'Under 3 hours' },
-      { value: '3-5', label: '3 to 5 hours' },
-      { value: '6-10', label: '6 to 10 hours' },
-      { value: '11-20', label: '11 to 20 hours' },
-      { value: 'over-20', label: 'More than 20 hours' },
-    ],
-  },
-  {
-    id: 'training-budget',
-    sectionId: 'budget',
-    text: 'How much can you invest in training before you start earning?',
-    options: [
-      { value: 'free', label: 'Free options only' },
-      { value: 'small', label: 'A small amount' },
-      { value: 'moderate', label: 'A moderate amount' },
-      { value: 'significant', label: 'A significant amount' },
-      { value: 'unsure', label: 'Not sure yet' },
-    ],
-  },
-  {
-    id: 'current-skills',
-    sectionId: 'experience',
-    text: 'How would you describe your current tech skills?',
-    options: [
-      { value: 'none', label: 'None yet' },
-      { value: 'explored', label: "I've explored a little" },
-      { value: 'course', label: "I've completed a course" },
-      { value: 'projects', label: "I've built small projects" },
-      { value: 'working', label: 'I already work in tech' },
     ],
   },
 ];

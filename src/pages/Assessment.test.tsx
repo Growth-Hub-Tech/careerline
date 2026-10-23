@@ -9,7 +9,7 @@ const setup = () =>
     <MemoryRouter initialEntries={['/assessment']}>
       <Routes>
         <Route path="/assessment" element={<Assessment />} />
-        <Route path="/assessment/results" element={<p>Results page</p>} />
+        <Route path="/assessment/processing" element={<p>Processing page</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -35,6 +35,18 @@ describe('Assessment', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows the beginner path banner', () => {
+    setup();
+
+    expect(screen.getByRole('banner')).toHaveTextContent('Beginner path');
+  });
+
+  it('centres the assessment vertically', () => {
+    setup();
+
+    expect(screen.getByRole('main')).toHaveClass('flex-1', 'items-center', 'justify-center');
+  });
+
   it('starts on the first question', () => {
     setup();
 
@@ -49,7 +61,13 @@ describe('Assessment', () => {
   it('links back to the homepage', () => {
     setup();
 
-    expect(screen.getByRole('link', { name: 'Back to Homepage' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Back To Homepage' })).toHaveAttribute('href', '/');
+  });
+
+  it('reminds people to be honest', () => {
+    setup();
+
+    expect(screen.getByText('Tip: Be honest for best results')).toBeInTheDocument();
   });
 
   it('cannot move on until the question is answered', async () => {
@@ -69,7 +87,7 @@ describe('Assessment', () => {
     expect(
       screen.getByRole('heading', { level: 2, name: SAMPLE_QUESTIONS[1].text }),
     ).toBeInTheDocument();
-    expect(steps().getByText('Goals').closest('li')).toHaveAttribute('aria-current', 'step');
+    expect(steps().getByText('Background').closest('li')).toHaveAttribute('aria-current', 'step');
     expect(steps().getByText('Personality').closest('li')).toHaveAttribute(
       'data-status',
       'complete',
@@ -105,21 +123,21 @@ describe('Assessment', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
-  it('offers See my results on the last question', async () => {
+  it('offers Generate Result on the last question', async () => {
     setup();
     await goToLastQuestion();
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'See my results' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Generate Result' })).toBeDisabled();
   });
 
-  it('goes to the results page after the last answer', async () => {
+  it('goes to the matching screen after the last answer', async () => {
     setup();
     await goToLastQuestion();
     await answerFirstOption();
 
-    await userEvent.click(screen.getByRole('button', { name: 'See my results' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Generate Result' }));
 
-    expect(screen.getByText('Results page')).toBeInTheDocument();
+    expect(screen.getByText('Processing page')).toBeInTheDocument();
   });
 });

@@ -87,4 +87,17 @@ describe('PageLoader', () => {
     rerender(<PageLoader title="Loading" fullScreen />);
     expect(screen.getByRole('status')).toHaveClass('min-h-dvh');
   });
+
+  it('defaults to the light variant', () => {
+    render(<PageLoader title="Loading" />);
+
+    expect(screen.getByRole('status')).toHaveAttribute('data-variant', 'light');
+  });
+
+  it('supports a brand variant with a larger ring', () => {
+    render(<PageLoader title="Loading" variant="brand" />);
+
+    expect(screen.getByRole('status')).toHaveAttribute('data-variant', 'brand');
+    expect(screen.getByTestId('spinner-ring')).toHaveAttribute('data-size', 'xl');
+  });
 });

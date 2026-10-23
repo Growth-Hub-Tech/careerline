@@ -7,17 +7,18 @@ import { SAMPLE_USER } from '../data/sampleUser';
 const FEATURES = [
   {
     title: 'Your Top 3 Strengths',
-    description: 'See the traits and skills you naturally lean on.',
+    description: 'CareerLine AI helps discover what naturally excel at through quick AI analysis',
     icon: <LuSparkles size={22} />,
   },
   {
     title: 'Roles That Match You',
-    description: 'Find tech roles that fit your answers, not just trends.',
+    description: 'Get tech role recommendations tailored to your interests, passion and style',
     icon: <LuBriefcase size={22} />,
   },
   {
     title: 'Explore Your Path',
-    description: 'Get a ranked path with a programme to start learning.',
+    description:
+      'Start your learning journey with any of our recommended tech courses complete with learning resources and career insights.',
     icon: <LuCompass size={22} />,
   },
 ] as const;
@@ -32,7 +33,7 @@ export const Dashboard = () => {
           Welcome, {firstName}!
         </h1>
         <p className="mt-2 text-[15px] text-slate-600">
-          Take the first step toward the right tech career.
+          Take your first step to knowing your ideal career path
         </p>
       </div>
 
@@ -40,9 +41,9 @@ export const Dashboard = () => {
         <h2 className="max-w-[28ch] font-heading text-[22px] leading-[1.25] font-bold text-slate-950 sm:text-[26px]">
           Not sure where to start? Find your path in just 10 minutes.
         </h2>
-        <p className="max-w-[52ch] text-[14px] leading-[1.55] text-slate-600">
-          Answer a short set of questions about you, your goals and your time, and get a ranked list
-          of paths that fit.
+        <p className="max-w-[60ch] text-[14px] leading-[1.55] text-slate-600">
+          An AI powered career clarity test - answer a few questions to uncover your strengths,
+          matching roles and learning path tailored just for you.
         </p>
         <Link to="/assessment" className={PRIMARY_ACTION}>
           Take Assessment Test

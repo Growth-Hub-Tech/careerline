@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { getRoutes } from './index';
+import { signInAs } from '../test/session';
 
 const Routes = () => useRoutes(getRoutes());
 
@@ -14,6 +15,8 @@ const renderAt = (address: string) =>
 const shellNav = () => screen.queryByRole('navigation', { name: 'Main' });
 
 describe('beginner flow routes', () => {
+  beforeEach(() => signInAs());
+
   it('serves the matching screen outside the app shell', () => {
     renderAt('/assessment/processing');
 

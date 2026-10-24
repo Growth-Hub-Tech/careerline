@@ -1,46 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import type { IconType } from 'react-icons';
-import {
-  LuBell,
-  LuChartColumn,
-  LuClipboardCheck,
-  LuHouse,
-  LuLayoutDashboard,
-  LuLifeBuoy,
-  LuListTodo,
-  LuMenu,
-  LuSettings,
-  LuUsers,
-  LuX,
-} from 'react-icons/lu';
+import { LuBell, LuMenu, LuX } from 'react-icons/lu';
 import logo from '../../assests/careerline.png';
+import type { NavEntry, UserNavigation } from './navigation';
 
 interface ShellUser {
   readonly name: string;
   readonly role: string;
 }
-
-interface NavEntry {
-  readonly label: string;
-  readonly path: string;
-  readonly icon: IconType;
-  readonly end?: boolean;
-}
-
-const MAIN_NAV: readonly NavEntry[] = [
-  { label: 'Home', path: '/', icon: LuHouse, end: true },
-  { label: 'Dashboard', path: '/dashboard', icon: LuLayoutDashboard },
-  { label: 'Assessment', path: '/assessment', icon: LuClipboardCheck },
-  { label: 'Tasks', path: '/tasks', icon: LuListTodo },
-  { label: 'Reporting', path: '/reports', icon: LuChartColumn },
-  { label: 'Users', path: '/users', icon: LuUsers },
-];
-
-const FOOTER_NAV: readonly NavEntry[] = [
-  { label: 'Support', path: '/support', icon: LuLifeBuoy },
-  { label: 'Settings', path: '/settings', icon: LuSettings },
-];
 
 const getInitials = (name: string) =>
   name
@@ -76,10 +43,11 @@ const NavItem = ({ entry, onNavigate }: { entry: NavEntry; onNavigate: () => voi
 
 interface AppShellProps {
   readonly user: ShellUser;
+  readonly navigation: UserNavigation;
   readonly children: ReactNode;
 }
 
-export const AppShell = ({ user, children }: AppShellProps) => {
+export const AppShell = ({ user, navigation, children }: AppShellProps) => {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -166,12 +134,12 @@ export const AppShell = ({ user, children }: AppShellProps) => {
             className="flex flex-1 flex-col justify-between overflow-y-auto p-4"
           >
             <ul className="flex flex-col gap-1">
-              {MAIN_NAV.map((entry) => (
+              {navigation.main.map((entry) => (
                 <NavItem key={entry.path} entry={entry} onNavigate={close} />
               ))}
             </ul>
             <ul className="flex flex-col gap-1">
-              {FOOTER_NAV.map((entry) => (
+              {navigation.footer.map((entry) => (
                 <NavItem key={entry.path} entry={entry} onNavigate={close} />
               ))}
             </ul>

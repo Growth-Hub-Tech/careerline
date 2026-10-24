@@ -1,16 +1,20 @@
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthHeader, ROLES } from '../Auth';
+import { createDevSession, useSession } from '../../lib/session';
 import { Button } from '../Button';
 
 export const GetStarted = () => {
   const navigate = useNavigate();
+  const { signIn } = useSession();
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const chosen = new FormData(e.currentTarget).get('role');
     const role = ROLES.find((r) => r.key === chosen);
-    if (role) navigate(role.nextPath);
+    if (!role) return;
+    if (import.meta.env.DEV) signIn(createDevSession(role.key));
+    navigate(role.nextPath);
   };
 
   return (

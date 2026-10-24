@@ -18,7 +18,7 @@ const NAV_LINKS: readonly [string, string][] = [
 const setup = (address = '/dashboard') =>
   render(
     <MemoryRouter initialEntries={[address]}>
-      <AppShell user={USER} navigation={NAV_BY_TYPE.beginner}>
+      <AppShell user={USER} navigation={NAV_BY_TYPE.beginner} onSignOut={vi.fn()}>
         <p>Page content</p>
       </AppShell>
     </MemoryRouter>,

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { LuBell, LuMenu, LuX } from 'react-icons/lu';
+import { LuBell, LuLogOut, LuMenu, LuX } from 'react-icons/lu';
 import logo from '../../assests/careerline.png';
 import type { NavEntry, UserNavigation } from './navigation';
 
@@ -44,10 +44,11 @@ const NavItem = ({ entry, onNavigate }: { entry: NavEntry; onNavigate: () => voi
 interface AppShellProps {
   readonly user: ShellUser;
   readonly navigation: UserNavigation;
+  readonly onSignOut: () => void;
   readonly children: ReactNode;
 }
 
-export const AppShell = ({ user, navigation, children }: AppShellProps) => {
+export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProps) => {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -108,6 +109,15 @@ export const AppShell = ({ user, navigation, children }: AppShellProps) => {
               <p className="text-[12px] text-slate-500">{user.role}</p>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            <LuLogOut size={18} aria-hidden="true" />
+            <span className="sr-only sm:not-sr-only">Sign out</span>
+          </button>
         </div>
       </header>
 

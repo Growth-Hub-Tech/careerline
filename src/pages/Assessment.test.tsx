@@ -94,25 +94,28 @@ describe('Assessment', () => {
     );
   });
 
-  it('has no Back button on the first question but does on later ones', async () => {
+  it('has no Back button on the first question but a disabled one after', async () => {
     setup();
     expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
 
     await answerFirstOption();
     await next();
 
-    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
   });
 
-  it('keeps an earlier answer when going back', async () => {
+  it('locks answered questions by disabling Back', async () => {
     setup();
-    const firstAnswer = SAMPLE_QUESTIONS[0].options[2].label;
-    await userEvent.click(screen.getByRole('radio', { name: firstAnswer }));
+    await answerFirstOption();
     await next();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+    const back = screen.getByRole('button', { name: 'Back' });
+    expect(back).toBeDisabled();
+    await userEvent.click(back);
 
-    expect(screen.getByRole('radio', { name: firstAnswer })).toBeChecked();
+    expect(
+      screen.getByRole('heading', { level: 2, name: SAMPLE_QUESTIONS[1].text }),
+    ).toBeInTheDocument();
   });
 
   it('asks for an answer again on a question that was not answered', async () => {

@@ -21,7 +21,7 @@ export const SplitAuthLayout = ({ children }: { children: ReactNode }) => (
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-x-0 bottom-10">
+        <div className="absolute inset-x-0 bottom-0">
           <TestimonialCard />
         </div>
       </div>

@@ -13,6 +13,8 @@ export const Assessment = () => {
 
   const question = SAMPLE_QUESTIONS[index];
   const isLast = index === SAMPLE_QUESTIONS.length - 1;
+  const previous = index > 0 ? SAMPLE_QUESTIONS[index - 1] : undefined;
+  const isBackDisabled = previous !== undefined && answers[previous.id] !== undefined;
 
   const onNext = () => {
     if (isLast) {
@@ -59,6 +61,7 @@ export const Assessment = () => {
               onChange={(value) => setAnswers((current) => ({ ...current, [question.id]: value }))}
               onNext={onNext}
               onBack={index > 0 ? () => setIndex((current) => current - 1) : undefined}
+              isBackDisabled={isBackDisabled}
               isLast={isLast}
             />
           </div>

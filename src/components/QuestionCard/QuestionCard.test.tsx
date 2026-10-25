@@ -110,6 +110,16 @@ describe('QuestionCard', () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
+  it('can show Back as disabled', async () => {
+    const { onBack } = setup({ isBackDisabled: true });
+
+    const back = screen.getByRole('button', { name: 'Back' });
+    expect(back).toBeDisabled();
+    await userEvent.click(back);
+
+    expect(onBack).not.toHaveBeenCalled();
+  });
+
   it('has no Back button on the first question', () => {
     setup({ onBack: undefined });
 

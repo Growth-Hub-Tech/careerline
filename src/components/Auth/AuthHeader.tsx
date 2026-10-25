@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import logo from '../../assests/careerline.png';
+import logo from '../../assets/careerline.png';
 import { AUTH_PATHS } from './roles';
 
 interface AuthHeaderProps {

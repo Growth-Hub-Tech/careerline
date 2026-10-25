@@ -1,4 +1,4 @@
-import heroImage from '../../assests/hero-team.png';
+import heroImage from '../../assets/hero-team.png';
 import { HeroCard } from './HeroCard';
 
 export const Hero = () => (

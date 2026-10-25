@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import createImage from '../../assests/create.png';
+import createImage from '../../assets/create.jpeg';
 import { AuthHeader } from './AuthHeader';
 import { TestimonialCard } from './TestimonialCard';
 
-/** Form on the left, create.png + testimonial on the right (photo hidden below lg). */
+/** Form on the left, create.jpeg + testimonial on the right (photo hidden below lg). */
 export const SplitAuthLayout = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-dvh w-full bg-white">
     <div className="flex min-h-dvh w-full flex-col lg:w-1/2">
@@ -21,7 +21,7 @@ export const SplitAuthLayout = ({ children }: { children: ReactNode }) => (
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-x-10 bottom-10">
+        <div className="absolute inset-x-0 bottom-10">
           <TestimonialCard />
         </div>
       </div>

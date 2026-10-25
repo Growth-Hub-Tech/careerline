@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { LuBell, LuLogOut, LuMenu, LuX } from 'react-icons/lu';
-import logo from '../../assests/careerline.png';
+import logo from '../../assets/careerline.png';
 import type { NavEntry, UserNavigation } from './navigation';
 
 interface ShellUser {

@@ -33,6 +33,12 @@ const buildUrl = (baseUrl: string, path: string, query: RequestOptions['query'])
   return search ? `${url}?${search}` : url;
 };
 
+const isEnvelope = (value: unknown): value is { success: true; data: unknown } =>
+  typeof value === 'object' &&
+  value !== null &&
+  (value as Record<string, unknown>).success === true &&
+  'data' in value;
+
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
 
 export const createApiClient = ({
@@ -78,7 +84,8 @@ export const createApiClient = ({
     if (text === '') return undefined as T;
 
     try {
-      return JSON.parse(text) as T;
+      const parsed: unknown = JSON.parse(text);
+      return (isEnvelope(parsed) ? parsed.data : parsed) as T;
     } catch {
       throw new ApiError({
         status: response.status,

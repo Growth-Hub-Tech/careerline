@@ -5,6 +5,12 @@ const NOT_CONFIRMED = ['email_not_confirmed', 'email_not_verified', 'unverified_
 const WRONG_LOGIN = ['invalid_credentials', 'wrong_password'];
 const TOO_MANY = ['too_many_requests', 'rate_limited'];
 
+const describeWait = (seconds: number) => {
+  if (seconds < 60) return `${seconds} seconds`;
+  const minutes = Math.ceil(seconds / 60);
+  return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+};
+
 const GENERIC = 'Something went wrong. Try again.';
 
 export const describeAuthError = (error: unknown): string => {
@@ -20,7 +26,9 @@ export const describeAuthError = (error: unknown): string => {
     return 'An account with this email already exists. Sign in instead.';
   }
   if (TOO_MANY.includes(code) || error.status === 429) {
-    return 'Too many tries. Wait a few minutes and try again.';
+    return error.retryAfter
+      ? `Too many tries. Try again in ${describeWait(error.retryAfter)}.`
+      : 'Too many tries. Wait a few minutes and try again.';
   }
   if (WRONG_LOGIN.includes(code) || error.status === 401) {
     return 'That email and password do not match. Check them and try again.';

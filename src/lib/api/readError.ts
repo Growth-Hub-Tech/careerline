@@ -55,24 +55,38 @@ const readFieldErrors = (value: unknown): Record<string, string> => {
   return found;
 };
 
+const asBody = (value: unknown): Body | undefined =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Body)
+    : undefined;
+
+const readRetryAfter = (response: Response) => {
+  const seconds = Number(response.headers.get('retry-after'));
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : undefined;
+};
+
 export const readError = async (response: Response) => {
   let body: Body = {};
 
   try {
-    const parsed: unknown = await response.json();
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      body = parsed as Body;
-    }
+    body = asBody(await response.json()) ?? {};
   } catch {
     body = {};
   }
 
+  const error = asBody(body.error) ?? body;
+
   return new ApiError({
     status: response.status,
-    message: firstString(body, ['message', 'detail', 'title']) ?? messageForStatus(response.status),
-    code: firstString(body, ['code', 'errorCode']),
+    message:
+      firstString(error, ['message', 'detail', 'title']) ?? messageForStatus(response.status),
+    code: firstString(error, ['code', 'errorCode']),
     reference:
-      response.headers.get('x-request-id') ?? firstString(body, ['requestId', 'reference']),
-    fieldErrors: readFieldErrors(body.errors ?? body.fieldErrors),
+      firstString(error, ['request_id', 'requestId', 'reference']) ??
+      response.headers.get('x-request-id') ??
+      undefined,
+    details: firstString(error, ['details']),
+    retryAfter: readRetryAfter(response),
+    fieldErrors: readFieldErrors(error.errors ?? error.fieldErrors ?? body.errors),
   });
 };

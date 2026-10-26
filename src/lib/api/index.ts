@@ -4,6 +4,7 @@ import { createApiClient } from './client';
 
 export { ApiError } from './ApiError';
 export { createApiClient } from './client';
+export { describeAuthError } from './describeError';
 
 export const api = createApiClient({
   baseUrl: config.apiUrl,

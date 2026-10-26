@@ -12,7 +12,7 @@ export const AuthTitle = ({
   className?: string;
 }) => (
   <h1
-    className={`font-heading text-[24px] leading-[1.25] font-bold text-slate-950 sm:text-[26px] ${className}`}
+    className={`font-heading text-[24px] leading-tight font-bold text-slate-950 sm:text-[26px] ${className}`}
   >
     {children}
   </h1>

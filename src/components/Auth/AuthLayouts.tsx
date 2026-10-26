@@ -9,7 +9,7 @@ export const SplitAuthLayout = ({ children }: { children: ReactNode }) => (
     <div className="flex min-h-dvh w-full flex-col lg:w-1/2">
       <AuthHeader />
       <main className="flex flex-1 items-center justify-center px-5 py-12 sm:px-8">
-        <div className="w-full max-w-[400px]">{children}</div>
+        <div className="w-full max-w-100">{children}</div>
       </main>
     </div>
 
@@ -39,7 +39,7 @@ export const CardAuthLayout = ({ children, showActions = false }: CardAuthLayout
   <div className="flex min-h-dvh w-full flex-col bg-gray-50">
     <AuthHeader contained showActions={showActions} />
     <main className="flex flex-1 items-center justify-center px-5 py-12">
-      <div className="w-full max-w-[400px] border border-slate-200 bg-white px-6 py-10 sm:px-8 sm:py-12">
+      <div className="w-full max-w-100 border border-slate-200 bg-white px-6 py-10 sm:px-8 sm:py-12">
         {children}
       </div>
     </main>

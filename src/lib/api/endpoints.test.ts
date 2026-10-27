@@ -1,5 +1,10 @@
 import { createApiClient } from './client';
-import { createAuthApi, createContactApi } from './endpoints';
+import {
+  createAuthApi,
+  createBeginnerApi,
+  createContactApi,
+  createProgrammesApi,
+} from './endpoints';
 
 const setup = (body: unknown = { success: true, data: {} }) => {
   const fetcher = vi.fn<typeof fetch>(() =>
@@ -85,5 +90,60 @@ describe('contact endpoint', () => {
     expect(url).toBe('https://api.example.test/api/v1/contact');
     expect(JSON.parse(String(init.body))).toEqual(message);
     expect(result).toEqual(receipt);
+  });
+});
+
+describe('beginner path endpoints', () => {
+  it('loads the questionnaire with the token', async () => {
+    const { fetcher, client } = setup({ success: true, data: { version: 'v1', questions: [] } });
+
+    const result = await createBeginnerApi(client).getIntake();
+
+    const { url, headers } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/beginner-path/intake');
+    expect(headers.get('authorization')).toBe('Bearer token-123');
+    expect(result).toEqual({ version: 'v1', questions: [] });
+  });
+
+  it('submits the answers', async () => {
+    const { fetcher, client } = setup({ success: true, data: { intake_id: 1 } });
+    const submission = { version: 'v1', answers: [{ question_id: 'a', values: ['x'] }] };
+
+    await createBeginnerApi(client).submitIntake(submission);
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/beginner-path/intake');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual(submission);
+  });
+
+  it('loads the saved recommendations', async () => {
+    const { fetcher, client } = setup();
+
+    await createBeginnerApi(client).getRecommendations();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/beginner-path/recommendations');
+  });
+});
+
+describe('programme endpoints', () => {
+  it('loads one programme', async () => {
+    const { fetcher, client } = setup();
+
+    await createProgrammesApi(client).get(5);
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/programmes/5');
+  });
+
+  it('records a click', async () => {
+    const { fetcher, client } = setup({ success: true, data: { redirect_url: 'https://x.test' } });
+
+    const click = await createProgrammesApi(client).recordClick(5, { source: 'beginner_path' });
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/programmes/5/clicks');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({ source: 'beginner_path' });
+    expect(click).toEqual({ redirect_url: 'https://x.test' });
   });
 });

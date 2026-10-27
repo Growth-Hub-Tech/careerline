@@ -1,12 +1,21 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { SAMPLE_MATCHES } from '../data/sampleResults';
+import { beginnerApi, type BeginnerPath } from '../lib/api';
+import { ApiError } from '../lib/api/ApiError';
+import { PATH } from '../test/fixtures/beginner';
 import { AssessmentResults } from './AssessmentResults';
 
-const setup = () =>
+vi.mock('../lib/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api')>()),
+  beginnerApi: { getIntake: vi.fn(), submitIntake: vi.fn(), getRecommendations: vi.fn() },
+}));
+
+const setup = (path: BeginnerPath | null = PATH) =>
   render(
-    <MemoryRouter>
+    <MemoryRouter
+      initialEntries={[{ pathname: '/assessment/results', state: path ? { path } : undefined }]}
+    >
       <AssessmentResults />
     </MemoryRouter>,
   );
@@ -32,7 +41,7 @@ describe('AssessmentResults', () => {
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: `Here are your top ${SAMPLE_MATCHES.length} recommended career paths`,
+        name: 'Here are your top 3 recommended career paths',
       }),
     ).toBeInTheDocument();
     expect(
@@ -42,46 +51,50 @@ describe('AssessmentResults', () => {
     ).toBeInTheDocument();
   });
 
-  it('lists every path in ranked order', () => {
-    setup();
+  it('lists the paths in the order the API ranked them', () => {
+    const shuffled = { ...PATH, recommendations: [...PATH.recommendations].reverse() };
 
-    expect(items()).toHaveLength(SAMPLE_MATCHES.length);
-    expect(items()[0]).toHaveTextContent(SAMPLE_MATCHES[0].title);
-    expect(items()[2]).toHaveTextContent(SAMPLE_MATCHES[2].title);
+    setup(shuffled);
+
+    expect(items().map((item) => within(item).getByRole('heading').textContent)).toEqual([
+      'Product Design',
+      'Data Analysis',
+      'Software Engineering',
+    ]);
   });
 
   it('shows the reason and the match for each path', () => {
     setup();
 
-    SAMPLE_MATCHES.forEach((match, index) => {
-      expect(within(items()[index]).getByText(match.reason)).toBeInTheDocument();
-      expect(within(items()[index]).getByText(`${match.score}% match`)).toBeInTheDocument();
-    });
+    expect(within(items()[0]).getByText(PATH.recommendations[0].reasons[0])).toBeInTheDocument();
+    expect(within(items()[0]).getByText('92% match')).toBeInTheDocument();
+    expect(within(items()[1]).getByText('84% match')).toBeInTheDocument();
   });
 
-  it('highlights only the top match', () => {
+  it('highlights only the top match and draws each score as a bar', () => {
     setup();
 
     expect(items()[0]).toHaveAttribute('data-top', 'true');
     expect(items()[1]).toHaveAttribute('data-top', 'false');
-  });
-
-  it('draws each score as a bar named after the path', () => {
-    setup();
-
-    const bar = screen.getByRole('progressbar', { name: SAMPLE_MATCHES[1].title });
-
-    expect(bar).toHaveAttribute('aria-valuenow', String(SAMPLE_MATCHES[1].score));
+    const bar = screen.getByRole('progressbar', { name: 'Data Analysis' });
+    expect(bar).toHaveAttribute('aria-valuenow', '84');
     expect(bar).toHaveAttribute('data-variant', 'teal');
   });
 
-  it('starts learning with the top match', () => {
+  it('starts learning with the programme of the top match', () => {
     setup();
 
     expect(screen.getByRole('link', { name: 'Start Learning' })).toHaveAttribute(
       'href',
-      `/programmes/${SAMPLE_MATCHES[0].programmeId}`,
+      '/programmes/5',
     );
+  });
+
+  it('has no Start Learning when the top match has no programme yet', () => {
+    const [first, ...rest] = PATH.recommendations;
+    setup({ ...PATH, recommendations: [{ ...first, programme: null }, ...rest] });
+
+    expect(screen.queryByRole('link', { name: 'Start Learning' })).not.toBeInTheDocument();
   });
 
   it('downloads the report from the Download PDF Report button', async () => {
@@ -92,5 +105,27 @@ describe('AssessmentResults', () => {
 
     expect(print).toHaveBeenCalledTimes(1);
     print.mockRestore();
+  });
+
+  it('loads the saved results when opened without any', async () => {
+    vi.mocked(beginnerApi.getRecommendations).mockResolvedValue(PATH);
+
+    setup(null);
+
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+    expect(beginnerApi.getRecommendations).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows what went wrong and tries again on request', async () => {
+    vi.mocked(beginnerApi.getRecommendations)
+      .mockRejectedValueOnce(new ApiError({ status: 404, message: 'No results yet.' }))
+      .mockResolvedValue(PATH);
+    setup(null);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No results yet.');
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
   });
 });

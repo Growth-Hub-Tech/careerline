@@ -1,16 +1,22 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { SessionProvider, writeSession } from '../lib/session';
+import { signInAs } from '../test/session';
 import { Dashboard } from './Dashboard';
 
 const setup = () =>
   render(
     <MemoryRouter>
-      <Dashboard />
+      <SessionProvider>
+        <Dashboard />
+      </SessionProvider>
     </MemoryRouter>,
   );
 
 describe('Dashboard', () => {
-  it('welcomes the person by first name', () => {
+  it('welcomes the signed-in person by first name', () => {
+    signInAs();
+
     setup();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Welcome, Skye!' })).toBeInTheDocument();
@@ -19,7 +25,37 @@ describe('Dashboard', () => {
     ).toBeInTheDocument();
   });
 
+  it('uses whoever is signed in, not a fixed name', () => {
+    writeSession({
+      token: 'token',
+      user: { name: 'Adaeze Obi Nwosu', email: 'ada@example.com', userType: 'beginner' },
+    });
+
+    setup();
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Welcome, Adaeze!' })).toBeInTheDocument();
+  });
+
+  it('copes with extra spaces and a single name', () => {
+    writeSession({
+      token: 'token',
+      user: { name: '  Tunde  ', email: 'tunde@example.com', userType: 'beginner' },
+    });
+
+    setup();
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Welcome, Tunde!' })).toBeInTheDocument();
+  });
+
+  it('greets without a name when nobody is signed in', () => {
+    setup();
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Welcome!' })).toBeInTheDocument();
+  });
+
   it('invites them to start the assessment', () => {
+    signInAs();
+
     setup();
 
     expect(
@@ -32,6 +68,8 @@ describe('Dashboard', () => {
   });
 
   it('explains the test', () => {
+    signInAs();
+
     setup();
 
     expect(
@@ -42,6 +80,8 @@ describe('Dashboard', () => {
   it.each(['Your Top 3 Strengths', 'Roles That Match You', 'Explore Your Path'])(
     'shows the %s card',
     (title) => {
+      signInAs();
+
       setup();
 
       expect(screen.getByRole('heading', { level: 2, name: title })).toBeInTheDocument();

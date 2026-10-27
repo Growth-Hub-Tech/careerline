@@ -13,8 +13,9 @@ interface QuestionCardProps {
   readonly questionCount: number;
   readonly text: string;
   readonly options: readonly QuestionOption[];
-  readonly value?: string;
-  readonly onChange: (value: string) => void;
+  readonly selected: readonly string[];
+  readonly multiple?: boolean;
+  readonly onChange: (values: string[]) => void;
   readonly onNext: () => void;
   readonly onBack?: () => void;
   readonly isBackDisabled?: boolean;
@@ -26,7 +27,8 @@ export const QuestionCard = ({
   questionCount,
   text,
   options,
-  value,
+  selected,
+  multiple = false,
   onChange,
   onNext,
   onBack,
@@ -35,6 +37,9 @@ export const QuestionCard = ({
 }: QuestionCardProps) => {
   const groupId = useId();
   const headingId = `${groupId}-question`;
+
+  const toggle = (value: string) =>
+    selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value];
 
   return (
     <section
@@ -52,6 +57,7 @@ export const QuestionCard = ({
 
       <p className="text-[13px] text-slate-600">
         There are no right or wrong answers here. Choose the option that resonates most with you.
+        {multiple && <span className="block pt-1">Select all that apply.</span>}
       </p>
 
       <h2
@@ -62,7 +68,7 @@ export const QuestionCard = ({
       </h2>
 
       <div
-        role="radiogroup"
+        role={multiple ? 'group' : 'radiogroup'}
         aria-labelledby={headingId}
         className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 sm:p-6"
       >
@@ -73,11 +79,11 @@ export const QuestionCard = ({
           >
             <span className="text-[17px] text-slate-800">{option.label}</span>
             <input
-              type="radio"
+              type={multiple ? 'checkbox' : 'radio'}
               name={groupId}
               value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
+              checked={selected.includes(option.value)}
+              onChange={() => onChange(multiple ? toggle(option.value) : [option.value])}
               className="size-5 shrink-0 cursor-pointer accent-indigo-800"
             />
           </label>
@@ -102,7 +108,7 @@ export const QuestionCard = ({
         <Button
           variant={isLast ? 'accent' : 'deep'}
           fullWidth={false}
-          disabled={!value}
+          disabled={selected.length === 0}
           onClick={onNext}
         >
           {isLast ? 'Generate Result' : 'Next'}

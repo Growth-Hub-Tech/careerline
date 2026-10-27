@@ -16,6 +16,7 @@ const setup = (props: Partial<Parameters<typeof QuestionCard>[0]> = {}) => {
       questionCount={5}
       text="How do you prefer to spend a free hour?"
       options={OPTIONS}
+      selected={[]}
       {...handlers}
       {...props}
     />,
@@ -62,7 +63,6 @@ describe('QuestionCard', () => {
     setup();
 
     expect(screen.getAllByRole('radio')).toHaveLength(3);
-    expect(screen.getByRole('radio', { name: 'Talking with people' })).toBeInTheDocument();
   });
 
   it('reports the chosen answer', async () => {
@@ -70,7 +70,7 @@ describe('QuestionCard', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: 'Talking with people' }));
 
-    expect(onChange).toHaveBeenCalledWith('people');
+    expect(onChange).toHaveBeenCalledWith(['people']);
   });
 
   it('selects when the option text is clicked', async () => {
@@ -78,14 +78,33 @@ describe('QuestionCard', () => {
 
     await userEvent.click(screen.getByText('Reading or learning something new'));
 
-    expect(onChange).toHaveBeenCalledWith('learn');
+    expect(onChange).toHaveBeenCalledWith(['learn']);
   });
 
   it('shows the current answer as checked', () => {
-    setup({ value: 'learn' });
+    setup({ selected: ['learn'] });
 
     expect(screen.getByRole('radio', { name: 'Reading or learning something new' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Talking with people' })).not.toBeChecked();
+  });
+
+  it('lets several answers be chosen when asked', async () => {
+    const { onChange } = setup({ multiple: true, selected: ['hands'] });
+
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.getByText('Select all that apply.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Talking with people' }));
+
+    expect(onChange).toHaveBeenCalledWith(['hands', 'people']);
+  });
+
+  it('takes an answer away when it is unticked', async () => {
+    const { onChange } = setup({ multiple: true, selected: ['hands', 'people'] });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Talking with people' }));
+
+    expect(onChange).toHaveBeenCalledWith(['hands']);
   });
 
   it('disables Next until an answer is chosen', () => {
@@ -95,7 +114,7 @@ describe('QuestionCard', () => {
   });
 
   it('moves on with Next once answered', async () => {
-    const { onNext } = setup({ value: 'learn' });
+    const { onNext } = setup({ selected: ['learn'] });
 
     await userEvent.click(screen.getByRole('button', { name: 'Next' }));
 
@@ -127,7 +146,7 @@ describe('QuestionCard', () => {
   });
 
   it('offers Generate Result instead of Next on the last question', async () => {
-    const { onNext } = setup({ isLast: true, value: 'learn' });
+    const { onNext } = setup({ isLast: true, selected: ['learn'] });
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Generate Result' }));

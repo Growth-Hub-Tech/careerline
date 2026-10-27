@@ -1,8 +1,14 @@
 import type { createApiClient } from './client';
 import type {
   Acknowledgement,
+  BeginnerPath,
   ContactReceipt,
   ContactRequest,
+  IntakeQuestionnaire,
+  IntakeSubmission,
+  Programme,
+  ProgrammeClick,
+  ProgrammeClickRequest,
   RegisterRequest,
   TokenResponse,
 } from './types';
@@ -26,4 +32,20 @@ export const createAuthApi = (client: Client) => ({
 export const createContactApi = (client: Client) => ({
   send: (message: ContactRequest) =>
     client.post<ContactReceipt>('/contact', { body: message, auth: false }),
+});
+
+export const createBeginnerApi = (client: Client) => ({
+  getIntake: () => client.get<IntakeQuestionnaire>('/beginner-path/intake'),
+
+  submitIntake: (submission: IntakeSubmission) =>
+    client.post<BeginnerPath>('/beginner-path/intake', { body: submission }),
+
+  getRecommendations: () => client.get<BeginnerPath>('/beginner-path/recommendations'),
+});
+
+export const createProgrammesApi = (client: Client) => ({
+  get: (programmeId: number) => client.get<Programme>(`/programmes/${programmeId}`),
+
+  recordClick: (programmeId: number, click: ProgrammeClickRequest) =>
+    client.post<ProgrammeClick>(`/programmes/${programmeId}/clicks`, { body: click }),
 });

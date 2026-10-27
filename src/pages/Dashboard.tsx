@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { LuBriefcase, LuCompass, LuSparkles } from 'react-icons/lu';
 import { Card } from '../components/Card';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
-import { SAMPLE_USER } from '../data/sampleUser';
+import { useSession } from '../lib/session';
 
 const FEATURES = [
   {
@@ -24,13 +24,14 @@ const FEATURES = [
 ] as const;
 
 export const Dashboard = () => {
-  const firstName = SAMPLE_USER.name.split(' ')[0];
+  const { session } = useSession();
+  const firstName = session?.user.name.trim().split(/\s+/)[0];
 
   return (
     <div className="flex w-full flex-col gap-8 px-5 py-8 sm:px-8">
       <div>
         <h1 className="font-heading text-[28px] leading-[1.25] font-bold text-slate-950 sm:text-[32px]">
-          Welcome, {firstName}!
+          {firstName ? `Welcome, ${firstName}!` : 'Welcome!'}
         </h1>
         <p className="mt-2 text-[15px] text-slate-600">
           Take your first step to knowing your ideal career path

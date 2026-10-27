@@ -1,10 +1,48 @@
-import { Link } from 'react-router-dom';
+import { useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
+import { PageLoader } from '../components/Loader';
 import { ProgressBar } from '../components/ProgressBar';
-import { SAMPLE_MATCHES } from '../data/sampleResults';
+import { beginnerApi, type BeginnerPath } from '../lib/api';
+import { describeError } from '../lib/api/describeError';
+import { useRequest } from '../lib/hooks/useRequest';
 
 export const AssessmentResults = () => {
-  const matches = [...SAMPLE_MATCHES].sort((a, b) => b.score - a.score);
+  const location = useLocation() as { state: { path?: BeginnerPath } | null };
+  const saved = location.state?.path;
+
+  const load = useCallback(
+    () => (saved ? Promise.resolve(saved) : beginnerApi.getRecommendations()),
+    [saved],
+  );
+  const { state, retry } = useRequest(load);
+
+  const path = saved ?? (state.status === 'success' ? state.data : undefined);
+
+  if (!path) {
+    if (state.status === 'error') {
+      return (
+        <main className="flex min-h-dvh items-center justify-center bg-white px-5">
+          <div className="flex w-full max-w-[480px] flex-col gap-4">
+            <Alert variant="error">{describeError(state.error)}</Alert>
+            <Button fullWidth={false} onClick={retry}>
+              Try again
+            </Button>
+          </div>
+        </main>
+      );
+    }
+
+    return (
+      <main className="bg-white">
+        <PageLoader fullScreen title="Loading your results" />
+      </main>
+    );
+  }
+
+  const matches = [...path.recommendations].sort((a, b) => a.rank - b.rank);
+  const programmeId = matches[0]?.programme?.programme_id;
 
   return (
     <main className="flex min-h-dvh flex-col items-center bg-white px-5 py-12 sm:px-8 sm:py-16">
@@ -30,7 +68,7 @@ export const AssessmentResults = () => {
 
             return (
               <li
-                key={match.id}
+                key={match.role_id}
                 data-top={isTop}
                 className={`flex flex-col gap-3 rounded-lg border p-5 sm:px-6 ${
                   isTop ? 'border-indigo-800 bg-indigo-50' : 'border-slate-200 bg-white'
@@ -43,13 +81,15 @@ export const AssessmentResults = () => {
                       isTop ? 'bg-amber-500 text-slate-950' : 'bg-gray-100 text-slate-700'
                     }`}
                   >
-                    {match.score}% match
+                    {match.match_score}% match
                   </span>
                 </div>
-                <p className="text-[14px] leading-[1.55] text-slate-600">{match.reason}</p>
+                <p className="text-[14px] leading-[1.55] text-slate-600">
+                  {match.reasons.join(' ')}
+                </p>
                 <ProgressBar
                   label={match.title}
-                  value={match.score}
+                  value={match.match_score}
                   variant="teal"
                   size="sm"
                   hideLabel
@@ -69,12 +109,14 @@ export const AssessmentResults = () => {
           >
             Download PDF Report
           </Button>
-          <Link
-            to={`/programmes/${matches[0].programmeId}`}
-            className="inline-flex h-12 min-w-[240px] items-center justify-center rounded-lg bg-amber-500 px-6 text-[16px] font-medium text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Start Learning
-          </Link>
+          {programmeId !== undefined && (
+            <Link
+              to={`/programmes/${programmeId}`}
+              className="inline-flex h-12 min-w-[240px] items-center justify-center rounded-lg bg-amber-500 px-6 text-[16px] font-medium text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Start Learning
+            </Link>
+          )}
         </div>
       </div>
     </main>

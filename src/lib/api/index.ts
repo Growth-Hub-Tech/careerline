@@ -1,7 +1,12 @@
 import { config } from '../../config';
 import { expireSession, readSession } from '../session';
 import { createApiClient } from './client';
-import { createAuthApi, createContactApi } from './endpoints';
+import {
+  createAuthApi,
+  createBeginnerApi,
+  createContactApi,
+  createProgrammesApi,
+} from './endpoints';
 
 export { ApiError } from './ApiError';
 export { createApiClient } from './client';
@@ -16,3 +21,5 @@ export const api = createApiClient({
 
 export const authApi = createAuthApi(api);
 export const contactApi = createContactApi(api);
+export const beginnerApi = createBeginnerApi(api);
+export const programmesApi = createProgrammesApi(api);

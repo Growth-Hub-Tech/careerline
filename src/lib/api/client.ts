@@ -55,7 +55,7 @@ export const createApiClient = ({
     if (token) headers.set('Authorization', `Bearer ${token}`);
 
     let payload: BodyInit | undefined;
-    if (body instanceof FormData) {
+    if (body instanceof FormData || body instanceof URLSearchParams) {
       payload = body;
     } else if (body !== undefined) {
       headers.set('Content-Type', 'application/json');

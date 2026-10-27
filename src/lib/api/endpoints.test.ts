@@ -1,0 +1,89 @@
+import { createApiClient } from './client';
+import { createAuthApi, createContactApi } from './endpoints';
+
+const setup = (body: unknown = { success: true, data: {} }) => {
+  const fetcher = vi.fn<typeof fetch>(() =>
+    Promise.resolve(
+      new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    ),
+  );
+  const client = createApiClient({
+    baseUrl: 'https://api.example.test/api/v1',
+    getToken: () => 'token-123',
+    fetcher,
+  });
+
+  return { fetcher, client };
+};
+
+const sent = (fetcher: ReturnType<typeof setup>['fetcher']) => {
+  const [input, init] = fetcher.mock.calls[0];
+  return { url: String(input), init: init ?? {}, headers: new Headers(init?.headers) };
+};
+
+describe('auth endpoints', () => {
+  it('logs in with a form body and no token', async () => {
+    const reply = { access_token: 'abc', token_type: 'bearer', learner_id: 7, full_name: 'Skye' };
+    const { fetcher, client } = setup(reply);
+
+    const token = await createAuthApi(client).login('skye@example.com', 'secret123');
+
+    const { url, init, headers } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/auth/login');
+    expect(init.method).toBe('POST');
+    expect((init.body as URLSearchParams).get('username')).toBe('skye@example.com');
+    expect((init.body as URLSearchParams).get('password')).toBe('secret123');
+    expect(headers.has('authorization')).toBe(false);
+    expect(token).toEqual(reply);
+  });
+
+  it('registers with the four fields the API asks for', async () => {
+    const { fetcher, client } = setup();
+    const details = {
+      full_name: 'Skye Favour',
+      email: 'skye@example.com',
+      phone: '+2348012345678',
+      password: 'longenough1',
+    };
+
+    await createAuthApi(client).register(details);
+
+    const { url, init, headers } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/auth/register');
+    expect(JSON.parse(String(init.body))).toEqual(details);
+    expect(headers.has('authorization')).toBe(false);
+  });
+
+  it('asks for a password reset link', async () => {
+    const { fetcher, client } = setup();
+
+    await createAuthApi(client).requestPasswordReset('skye@example.com');
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/accounts/password-reset');
+    expect(JSON.parse(String(init.body))).toEqual({ email: 'skye@example.com' });
+  });
+});
+
+describe('contact endpoint', () => {
+  it('sends the message and returns the receipt', async () => {
+    const receipt = { ticket_id: 'T-1', status: 'received', received_at: '2026-10-26T08:00:00Z' };
+    const { fetcher, client } = setup({ success: true, message: null, data: receipt });
+    const message = {
+      full_name: 'Skye Favour',
+      email: 'skye@example.com',
+      topic: 'general' as const,
+      message: 'Hello, I have a question.',
+    };
+
+    const result = await createContactApi(client).send(message);
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/contact');
+    expect(JSON.parse(String(init.body))).toEqual(message);
+    expect(result).toEqual(receipt);
+  });
+});

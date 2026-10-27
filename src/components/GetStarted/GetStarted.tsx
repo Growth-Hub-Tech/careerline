@@ -6,14 +6,18 @@ import { Button } from '../Button';
 
 export const GetStarted = () => {
   const navigate = useNavigate();
-  const { signIn } = useSession();
+  const { session, signIn } = useSession();
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const chosen = new FormData(e.currentTarget).get('role');
     const role = ROLES.find((r) => r.key === chosen);
     if (!role) return;
-    if (import.meta.env.DEV) signIn(createDevSession(role.key));
+    if (session) {
+      signIn({ ...session, user: { ...session.user, userType: role.key } });
+    } else if (import.meta.env.DEV) {
+      signIn(createDevSession(role.key));
+    }
     navigate(role.nextPath);
   };
 

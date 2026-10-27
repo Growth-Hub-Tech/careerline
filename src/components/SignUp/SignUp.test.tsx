@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ApiError } from '../../lib/api/ApiError';
+import { readPendingEmail } from '../../lib/session';
 import { SignUp } from './SignUp';
 
 const setup = (onSubmit?: Parameters<typeof SignUp>[0]['onSubmit']) =>
@@ -45,6 +46,15 @@ describe('SignUp', () => {
 
     expect(onSubmit).toHaveBeenCalledWith({ email: 'skye@example.com' });
     expect(await screen.findByText('Verify page')).toBeInTheDocument();
+  });
+
+  it('remembers the email for the next steps', async () => {
+    setup();
+
+    await submit('skye@example.com');
+
+    await screen.findByText('Verify page');
+    expect(readPendingEmail()).toBe('skye@example.com');
   });
 
   it('moves on to verification when nothing is connected yet', async () => {

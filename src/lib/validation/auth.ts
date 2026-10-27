@@ -19,6 +19,10 @@ export const forgotPasswordSchema = z.object({ email });
 export const completeProfileSchema = z
   .object({
     fullName: z.string().trim().min(2, 'Enter your full name'),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^\+?[\d\s()-]{7,}$/, 'Enter a valid phone number'),
     password: z.string().min(8, 'Use at least 8 characters'),
     confirmPassword: z.string().min(1, 'Confirm your password'),
   })

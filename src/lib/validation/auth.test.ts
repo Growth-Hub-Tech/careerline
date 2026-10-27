@@ -47,6 +47,7 @@ describe('signUpSchema and forgotPasswordSchema', () => {
 describe('completeProfileSchema', () => {
   const valid = {
     fullName: 'Skye Favour',
+    phone: '08012345678',
     password: 'longenough1',
     confirmPassword: 'longenough1',
   };
@@ -59,6 +60,18 @@ describe('completeProfileSchema', () => {
     expect(messagesOf(completeProfileSchema.safeParse({ ...valid, fullName: ' ' }))).toEqual([
       'Enter your full name',
     ]);
+  });
+
+  it('asks for a phone number that looks like one', () => {
+    const result = completeProfileSchema.safeParse({ ...valid, phone: 'abc' });
+
+    expect(messagesOf(result)).toEqual(['Enter a valid phone number']);
+  });
+
+  it('asks for a phone number that looks like one', () => {
+    const result = completeProfileSchema.safeParse({ ...valid, phone: 'abc' });
+
+    expect(messagesOf(result)).toEqual(['Enter a valid phone number']);
   });
 
   it('asks for at least 8 characters', () => {

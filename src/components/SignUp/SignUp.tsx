@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
+import { rememberPendingEmail } from '../../lib/session';
 import { signUpSchema, type SignUpValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
@@ -32,6 +33,7 @@ export const SignUp = ({ onSubmit }: SignUpProps) => {
 
     try {
       await onSubmit?.(values);
+      rememberPendingEmail(values.email);
       navigate(AUTH_PATHS.verifyEmail);
     } catch (error) {
       if (!applyFieldErrors(error, ['email'], setError)) {

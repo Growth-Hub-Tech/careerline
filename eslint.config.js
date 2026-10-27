@@ -45,7 +45,14 @@ if (tseslint.plugin.rules && !tseslint.plugin.rules['imports-first']) {
 export default tseslint.config(
   // Ignore files
   {
-    ignores: ['dist', 'node_modules', 'public', '*.config.js', '*.config.ts'],
+    ignores: [
+      'dist',
+      'node_modules',
+      'public',
+      '*.config.js',
+      '*.config.ts',
+      'src/lib/api/schema.d.ts',
+    ],
   },
 
   // Base JS recommendations

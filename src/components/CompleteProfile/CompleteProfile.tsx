@@ -1,21 +1,33 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
+import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
+import { clearPendingEmail, readPendingEmail, useSession, type Session } from '../../lib/session';
 import { completeProfileSchema, type CompleteProfileValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
 
+type ProfileSubmission = CompleteProfileValues & { email: string };
+
 interface CompleteProfileProps {
   readonly email?: string;
-  readonly onSubmit?: (values: CompleteProfileValues & { email: string }) => Promise<void>;
+  readonly onSubmit?: (values: ProfileSubmission) => Promise<Session | undefined>;
 }
 
-export const CompleteProfile = ({ email = '', onSubmit }: CompleteProfileProps) => {
+const registerWithApi = ({ email, fullName, phone, password }: ProfileSubmission) =>
+  authActions.register({ email, fullName, phone, password });
+
+export const CompleteProfile = ({
+  email: emailProp,
+  onSubmit = registerWithApi,
+}: CompleteProfileProps) => {
+  const email = emailProp ?? readPendingEmail() ?? '';
   const navigate = useNavigate();
+  const { signIn } = useSession();
   const [formError, setFormError] = useState<string>();
 
   const {
@@ -25,21 +37,27 @@ export const CompleteProfile = ({ email = '', onSubmit }: CompleteProfileProps) 
     formState: { errors, isSubmitting },
   } = useForm<CompleteProfileValues>({
     resolver: zodResolver(completeProfileSchema),
-    defaultValues: { fullName: '', password: '', confirmPassword: '' },
+    defaultValues: { fullName: '', phone: '', password: '', confirmPassword: '' },
   });
 
   const submit = handleSubmit(async (values) => {
     setFormError(undefined);
 
     try {
-      await onSubmit?.({ email, ...values });
+      const session = await onSubmit({ email, ...values });
+      if (session) signIn(session);
+      clearPendingEmail();
       navigate(AUTH_PATHS.getStarted);
     } catch (error) {
-      if (!applyFieldErrors(error, ['fullName', 'password'], setError)) {
+      if (!applyFieldErrors(error, ['fullName', 'phone', 'password'], setError)) {
         setFormError(describeAuthError(error));
       }
     }
   });
+
+  if (!email) {
+    return <Navigate to={AUTH_PATHS.signUp} replace />;
+  }
 
   return (
     <SplitAuthLayout>
@@ -66,6 +84,14 @@ export const CompleteProfile = ({ email = '', onSubmit }: CompleteProfileProps) 
             placeholder="Enter your full name"
             error={errors.fullName?.message}
             {...register('fullName')}
+          />
+          <TextField
+            label="Phone number"
+            type="tel"
+            autoComplete="tel"
+            placeholder="Enter your phone number"
+            error={errors.phone?.message}
+            {...register('phone')}
           />
           <TextField
             label="Password"

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
+import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
 import { useSession, type Session } from '../../lib/session';
 import { signInSchema, type SignInValues } from '../../lib/validation/auth';
@@ -15,7 +16,9 @@ interface SignInProps {
   readonly onSubmit?: (values: SignInValues) => Promise<Session | undefined>;
 }
 
-export const SignIn = ({ onSubmit }: SignInProps) => {
+const signInWithApi = (values: SignInValues) => authActions.signIn(values);
+
+export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
   const navigate = useNavigate();
   const location = useLocation() as { state: { from?: { pathname: string } } | null };
   const { signIn } = useSession();
@@ -35,7 +38,7 @@ export const SignIn = ({ onSubmit }: SignInProps) => {
     setFormError(undefined);
 
     try {
-      const session = await onSubmit?.(values);
+      const session = await onSubmit(values);
       if (session) {
         signIn(session);
         navigate(location.state?.from?.pathname ?? '/dashboard', { replace: true });

@@ -34,7 +34,7 @@ export const SignUp = ({ onSubmit }: SignUpProps) => {
     try {
       await onSubmit?.(values);
       rememberPendingEmail(values.email);
-      navigate(AUTH_PATHS.verifyEmail);
+      navigate(AUTH_PATHS.completeProfile);
     } catch (error) {
       if (!applyFieldErrors(error, ['email'], setError)) {
         setFormError(describeAuthError(error));

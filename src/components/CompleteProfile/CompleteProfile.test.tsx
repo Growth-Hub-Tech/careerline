@@ -17,7 +17,7 @@ const setup = (
             path="/complete-profile"
             element={<CompleteProfile email={email} onSubmit={onSubmit} />}
           />
-          <Route path="/get-started" element={<p>Role picker</p>} />
+          <Route path="/verify-email" element={<p>Verify page</p>} />
           <Route path="/sign-up" element={<p>Sign up page</p>} />
         </Routes>
       </SessionProvider>
@@ -58,7 +58,7 @@ describe('CompleteProfile', () => {
     expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
   });
 
-  it('sends the details and moves on to choosing a role', async () => {
+  it('sends the details and moves on to the verification step', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     setup(onSubmit);
 
@@ -71,7 +71,7 @@ describe('CompleteProfile', () => {
       password: 'longenough1',
       confirmPassword: 'longenough1',
     });
-    expect(await screen.findByText('Role picker')).toBeInTheDocument();
+    expect(await screen.findByText('Verify page')).toBeInTheDocument();
   });
 
   it('signs the new person in when a session comes back', async () => {
@@ -79,7 +79,7 @@ describe('CompleteProfile', () => {
 
     await fill('Skye Favour', '08012345678', 'longenough1', 'longenough1');
 
-    expect(await screen.findByText('Role picker')).toBeInTheDocument();
+    expect(await screen.findByText('Verify page')).toBeInTheDocument();
     expect(readSession()?.user.name).toBe('Skye Favour');
   });
 
@@ -93,7 +93,7 @@ describe('CompleteProfile', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'An account with this email already exists. Sign in instead.',
     );
-    expect(screen.queryByText('Role picker')).not.toBeInTheDocument();
+    expect(screen.queryByText('Verify page')).not.toBeInTheDocument();
   });
 
   it('shows a clear message when it fails', async () => {

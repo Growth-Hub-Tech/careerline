@@ -46,7 +46,7 @@ describe('auth actions', () => {
       password: 'longenough1',
     });
     expect(authApi.login).toHaveBeenCalledWith('skye@example.com', 'longenough1');
-    expect(session.token).toBe('abc123');
+    expect(session?.token).toBe('abc123');
   });
 
   it('does not try to sign in when registering fails', async () => {
@@ -65,5 +65,22 @@ describe('auth actions', () => {
     ).rejects.toBeInstanceOf(ApiError);
 
     expect(authApi.login).not.toHaveBeenCalled();
+  });
+
+  it('still succeeds when the new account cannot sign in yet', async () => {
+    const { authApi, actions } = setup();
+    authApi.login.mockRejectedValue(
+      new ApiError({ status: 403, code: 'email_not_confirmed', message: 'x' }),
+    );
+
+    const session = await actions.register({
+      email: 'skye@example.com',
+      fullName: 'Skye Favour',
+      phone: '08012345678',
+      password: 'longenough1',
+    });
+
+    expect(authApi.register).toHaveBeenCalledTimes(1);
+    expect(session).toBeUndefined();
   });
 });

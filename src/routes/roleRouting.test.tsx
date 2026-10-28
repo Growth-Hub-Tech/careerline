@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { ROLES } from '../components/Auth';
-import { USER_TYPE_LABELS, readSession, writeSession } from '../lib/session';
+import { USER_TYPE_LABELS, readRole, readSession, writeSession } from '../lib/session';
 import { getRoutes } from './index';
 
 const Routes = () => useRoutes(getRoutes());
@@ -36,6 +36,7 @@ describe('role picker routing', () => {
     await chooseRole('Validate talent');
 
     expect(screen.getByText('Recruiter')).toBeInTheDocument();
+    expect(readRole('ada@example.com')).toBe('recruiter');
     expect(readSession()).toEqual({
       token: 'real-token',
       user: { name: 'Ada Obi', email: 'ada@example.com', userType: 'recruiter' },

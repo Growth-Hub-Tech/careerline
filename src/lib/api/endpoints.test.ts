@@ -73,6 +73,32 @@ describe('auth endpoints', () => {
   });
 });
 
+describe('email verification endpoints', () => {
+  it('confirms an email with the token from the link and no sign-in', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'accepted' } });
+
+    const result = await createAuthApi(client).verifyEmail('abc-123');
+
+    const { url, init, headers } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/accounts/verify-email');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({ token: 'abc-123' });
+    expect(headers.has('authorization')).toBe(false);
+    expect(result).toEqual({ status: 'accepted' });
+  });
+
+  it('asks for the email to be sent again with the sign-in token', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'accepted' } });
+
+    await createAuthApi(client).resendVerification();
+
+    const { url, init, headers } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/accounts/verify-email/resend');
+    expect(init.method).toBe('POST');
+    expect(headers.get('authorization')).toBe('Bearer token-123');
+  });
+});
+
 describe('contact endpoint', () => {
   it('sends the message and returns the receipt', async () => {
     const receipt = { ticket_id: 'T-1', status: 'received', received_at: '2026-10-26T08:00:00Z' };

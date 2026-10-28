@@ -24,7 +24,7 @@ describe('CompleteProfile with the API', () => {
         <SessionProvider>
           <Routes>
             <Route path="/complete-profile" element={<CompleteProfile />} />
-            <Route path="/get-started" element={<p>Role picker</p>} />
+            <Route path="/verify-email" element={<p>Verify page</p>} />
           </Routes>
         </SessionProvider>
       </MemoryRouter>,
@@ -36,7 +36,7 @@ describe('CompleteProfile with the API', () => {
     await userEvent.type(screen.getByLabelText('Confirm Password'), 'longenough1');
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(await screen.findByText('Role picker')).toBeInTheDocument();
+    expect(await screen.findByText('Verify page')).toBeInTheDocument();
     expect(authActions.register).toHaveBeenCalledWith({
       email: 'skye@example.com',
       fullName: 'Skye Favour',
@@ -44,6 +44,6 @@ describe('CompleteProfile with the API', () => {
       password: 'longenough1',
     });
     expect(readSession()).not.toBeNull();
-    expect(readPendingEmail()).toBeUndefined();
+    expect(readPendingEmail()).toBe('skye@example.com');
   });
 });

@@ -10,7 +10,7 @@ const setup = (onSubmit?: Parameters<typeof SignUp>[0]['onSubmit']) =>
     <MemoryRouter initialEntries={['/sign-up']}>
       <Routes>
         <Route path="/sign-up" element={<SignUp onSubmit={onSubmit} />} />
-        <Route path="/verify-email" element={<p>Verify page</p>} />
+        <Route path="/complete-profile" element={<p>Profile page</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -27,7 +27,7 @@ describe('SignUp', () => {
     await submit('');
 
     expect(screen.getByText('Email is required')).toBeInTheDocument();
-    expect(screen.queryByText('Verify page')).not.toBeInTheDocument();
+    expect(screen.queryByText('Profile page')).not.toBeInTheDocument();
   });
 
   it('rejects an email that is not an address', async () => {
@@ -38,14 +38,14 @@ describe('SignUp', () => {
     expect(screen.getByText('Enter a valid email address')).toBeInTheDocument();
   });
 
-  it('sends the email and moves on to verification', async () => {
+  it('sends the email and moves on to the profile step', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     setup(onSubmit);
 
     await submit('skye@example.com');
 
     expect(onSubmit).toHaveBeenCalledWith({ email: 'skye@example.com' });
-    expect(await screen.findByText('Verify page')).toBeInTheDocument();
+    expect(await screen.findByText('Profile page')).toBeInTheDocument();
   });
 
   it('remembers the email for the next steps', async () => {
@@ -53,16 +53,16 @@ describe('SignUp', () => {
 
     await submit('skye@example.com');
 
-    await screen.findByText('Verify page');
+    await screen.findByText('Profile page');
     expect(readPendingEmail()).toBe('skye@example.com');
   });
 
-  it('moves on to verification when nothing is connected yet', async () => {
+  it('moves on to the profile step when nothing is connected yet', async () => {
     setup();
 
     await submit('skye@example.com');
 
-    expect(await screen.findByText('Verify page')).toBeInTheDocument();
+    expect(await screen.findByText('Profile page')).toBeInTheDocument();
   });
 
   it('says when the email is already taken and stays on the page', async () => {
@@ -75,7 +75,7 @@ describe('SignUp', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'An account with this email already exists. Sign in instead.',
     );
-    expect(screen.queryByText('Verify page')).not.toBeInTheDocument();
+    expect(screen.queryByText('Profile page')).not.toBeInTheDocument();
   });
 
   it('puts a server email error on the email field', async () => {

@@ -5,7 +5,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
 import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { clearPendingEmail, readPendingEmail, useSession, type Session } from '../../lib/session';
+import { readPendingEmail, useSession, type Session } from '../../lib/session';
 import { completeProfileSchema, type CompleteProfileValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, SplitAuthLayout, TextField } from '../Auth';
@@ -46,8 +46,7 @@ export const CompleteProfile = ({
     try {
       const session = await onSubmit({ email, ...values });
       if (session) signIn(session);
-      clearPendingEmail();
-      navigate(AUTH_PATHS.getStarted);
+      navigate(AUTH_PATHS.verifyEmail);
     } catch (error) {
       if (!applyFieldErrors(error, ['fullName', 'phone', 'password'], setError)) {
         setFormError(describeAuthError(error));

@@ -1,4 +1,5 @@
 import { sessionFromToken } from './fromToken';
+import { writeRole } from './role';
 
 const TOKEN = {
   access_token: 'abc123',
@@ -16,6 +17,20 @@ describe('sessionFromToken', () => {
   });
 
   it('can start as another user type', () => {
+    expect(sessionFromToken(TOKEN, 'skye@example.com', 'recruiter').user.userType).toBe(
+      'recruiter',
+    );
+  });
+
+  it('keeps the role this person chose before', () => {
+    writeRole('skye@example.com', 'self-test');
+
+    expect(sessionFromToken(TOKEN, 'skye@example.com').user.userType).toBe('self-test');
+  });
+
+  it('lets a given user type win over the remembered one', () => {
+    writeRole('skye@example.com', 'self-test');
+
     expect(sessionFromToken(TOKEN, 'skye@example.com', 'recruiter').user.userType).toBe(
       'recruiter',
     );

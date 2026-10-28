@@ -27,6 +27,11 @@ export const createAuthApi = (client: Client) => ({
 
   requestPasswordReset: (email: string) =>
     client.post<Acknowledgement>('/accounts/password-reset', { body: { email }, auth: false }),
+
+  verifyEmail: (token: string) =>
+    client.post<Acknowledgement>('/accounts/verify-email', { body: { token }, auth: false }),
+
+  resendVerification: () => client.post<Acknowledgement>('/accounts/verify-email/resend'),
 });
 
 export const createContactApi = (client: Client) => ({

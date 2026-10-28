@@ -20,9 +20,19 @@ export const createAuthActions = (api: AuthApi) => {
   const signIn = async ({ email, password }: Credentials): Promise<Session> =>
     sessionFromToken(await api.login(email, password), email);
 
-  const register = async ({ email, fullName, phone, password }: Registration): Promise<Session> => {
+  const register = async ({
+    email,
+    fullName,
+    phone,
+    password,
+  }: Registration): Promise<Session | undefined> => {
     await api.register({ full_name: fullName, email, phone, password });
-    return signIn({ email, password });
+
+    try {
+      return await signIn({ email, password });
+    } catch {
+      return undefined;
+    }
   };
 
   return { signIn, register };

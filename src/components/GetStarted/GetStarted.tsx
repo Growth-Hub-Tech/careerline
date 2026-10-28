@@ -1,7 +1,7 @@
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthHeader, ROLES } from '../Auth';
-import { createDevSession, useSession } from '../../lib/session';
+import { createDevSession, useSession, writeRole } from '../../lib/session';
 import { Button } from '../Button';
 
 export const GetStarted = () => {
@@ -14,6 +14,7 @@ export const GetStarted = () => {
     const role = ROLES.find((r) => r.key === chosen);
     if (!role) return;
     if (session) {
+      writeRole(session.user.email, role.key);
       signIn({ ...session, user: { ...session.user, userType: role.key } });
     } else if (import.meta.env.DEV) {
       signIn(createDevSession(role.key));

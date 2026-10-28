@@ -1,27 +1,35 @@
-import { readPendingEmail } from '../../lib/session';
-import { AUTH_PATHS, AuthText, AuthTitle, CardAuthLayout, DashedLink } from '../Auth';
-import { Button } from '../Button';
+import { Link } from 'react-router-dom';
+import { readPendingEmail, useSession } from '../../lib/session';
+import { AUTH_PATHS, AuthText, AuthTitle, CardAuthLayout } from '../Auth';
+import { ResendEmail } from './ResendEmail';
 
 export const VerifyEmail = ({ email }: { email?: string }) => {
-  const address = email ?? readPendingEmail() ?? 'your email address';
+  const { session } = useSession();
+  const address = email ?? readPendingEmail() ?? session?.user.email ?? 'your email address';
 
   return (
     <CardAuthLayout>
       <AuthTitle>Verify your email</AuthTitle>
 
       <AuthText className="mt-6">
-        Kindly verify your email. You will receive a temporary link we sent to {address}. Please
-        check your spam folder as well.
+        We sent a verification link to {address}. Open it to confirm your account. Please check your
+        spam folder as well.
       </AuthText>
 
-      <Button variant="secondary" className="mt-6">
-        Resend Email
-      </Button>
-
-      <div className="mt-8 flex flex-col items-start gap-4">
-        {/* TEMP: stands in for the link in the verification email. Remove once emails are sent. */}
-        <DashedLink to={AUTH_PATHS.completeProfile}>I've verified my email</DashedLink>
-        <DashedLink to={AUTH_PATHS.signUp}>Don't have an account, Sign Up</DashedLink>
+      <div className="mt-6">
+        {session ? (
+          <ResendEmail label="Resend email" sentMessage="We have sent the email again." />
+        ) : (
+          <AuthText>
+            <Link
+              to={AUTH_PATHS.signIn}
+              className="font-medium text-indigo-700 underline hover:text-indigo-900"
+            >
+              Sign in
+            </Link>{' '}
+            to send the email again.
+          </AuthText>
+        )}
       </div>
     </CardAuthLayout>
   );

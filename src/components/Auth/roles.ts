@@ -48,7 +48,7 @@ export const ROLES: readonly Role[] = [
   },
 ];
 
-/** Sign-up flow: signUp → verifyEmail → completeProfile → getStarted (role chosen last). */
+/** Sign-up flow: signUp → completeProfile (registers) → verifyEmail → link in the email → getStarted. */
 export const AUTH_PATHS = {
   signIn: '/sign-in',
   forgotPassword: '/forgot-password',

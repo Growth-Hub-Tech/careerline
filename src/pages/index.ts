@@ -5,3 +5,4 @@ export * from './Assessment';
 export * from './AssessmentResults';
 export * from './Programme';
 export * from './AssessmentProcessing';
+export * from './SkillTests';

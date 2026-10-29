@@ -18,3 +18,21 @@ export type ProgrammeClick = Schemas['ProgrammeClick'];
 export type ProgrammeClickRequest = Schemas['ProgrammeClickRequest'];
 export type ProgrammeSummary = Schemas['ProgrammeSummary'];
 export type Money = Schemas['Money'];
+
+export type LevelName = Schemas['LevelName'];
+export type AssessmentSummary = Schemas['AssessmentSummary'];
+export type AssessmentPage = Schemas['Page_AssessmentSummary_'];
+
+export interface Skill {
+  readonly skill_id: number;
+  readonly skill_name: string;
+  readonly category: string;
+  readonly description: string;
+}
+
+export interface SkillsPage {
+  readonly skills: readonly Skill[];
+  readonly total: number;
+  readonly limit: number;
+  readonly offset: number;
+}

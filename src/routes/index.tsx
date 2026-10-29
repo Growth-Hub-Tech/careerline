@@ -14,6 +14,7 @@ import {
   AssessmentProcessing,
   AssessmentResults,
   Programme,
+  SkillTests,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -70,7 +71,11 @@ export const getRoutes = (): RouteObject[] => {
           children: [
             {
               element: <AppLayout />,
-              children: [{ path: '/dashboard', element: <Dashboard /> }, ...groupByAccess(framed)],
+              children: [
+                { path: '/dashboard', element: <Dashboard /> },
+                guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
+                ...groupByAccess(framed),
+              ],
             },
             { element: <TestFrame />, children: groupByAccess(fullScreen) },
             guard(accessFor('/assessment'), [

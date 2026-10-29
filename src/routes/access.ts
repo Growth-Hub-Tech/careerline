@@ -18,6 +18,7 @@ export const PAGE_ACCESS: Readonly<Partial<Record<string, readonly UserType[]>>>
   '/programmes/:programmeId': BEGINNERS,
   '/tests': PROFESSIONALS,
   '/tests/:testId': PROFESSIONALS,
+  '/tests/:testId/attempt': PROFESSIONALS,
   '/reports': PROFESSIONALS,
   '/reports/:reportId': PROFESSIONALS,
   '/candidates': RECRUITERS,

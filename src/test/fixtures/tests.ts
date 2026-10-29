@@ -1,4 +1,12 @@
-import type { AssessmentAccess, AssessmentDetail, AssessmentPage, SkillsPage } from '../../lib/api';
+import type {
+  AssessmentAccess,
+  AssessmentDetail,
+  AssessmentPage,
+  Attempt,
+  AttemptSubmissionReply,
+  SkillsPage,
+  StartedAttempt,
+} from '../../lib/api';
 
 export const SKILLS: SkillsPage = {
   total: 5,
@@ -112,4 +120,63 @@ export const ACCESS_SHORT_OF_CREDITS: AssessmentAccess = {
   reason: 'insufficient_credits',
   price_credits: 2,
   credits_balance: 1,
+};
+
+export const STARTED_ATTEMPT: StartedAttempt = {
+  attempt_id: 12,
+  declared_level: 'BEGINNER',
+  total_questions: 3,
+  questions: [
+    {
+      question_id: 1,
+      question_text: 'What does HTML stand for?',
+      difficulty_level: 'BEGINNER',
+      subskill_id: 1,
+      options: [
+        { option_id: 3, option_text: 'Hyper Transfer Markup Language' },
+        { option_id: 1, option_text: 'Hyper Text Markup Language' },
+      ],
+    },
+    {
+      question_id: 6,
+      question_text: 'Which property is used to change the text color in CSS?',
+      difficulty_level: 'BEGINNER',
+      subskill_id: 2,
+      options: [
+        { option_id: 21, option_text: 'text-color' },
+        { option_id: 22, option_text: 'color' },
+      ],
+    },
+    {
+      question_id: 10,
+      question_text: 'What will console.log(typeof 42) output?',
+      difficulty_level: 'BEGINNER',
+      subskill_id: 3,
+      options: [
+        { option_id: 37, option_text: 'string' },
+        { option_id: 40, option_text: 'number' },
+      ],
+    },
+  ],
+};
+
+export const ATTEMPT_IN_PROGRESS: Attempt = {
+  attempt_id: 12,
+  learner_id: 2,
+  skill_id: 2,
+  attempt_status: 'in_progress',
+  overall_percentage: null,
+  start_time: '2026-10-29T11:20:49.017475',
+  end_time: null,
+};
+
+export const SUBMITTED_ATTEMPT: AttemptSubmissionReply = {
+  result: {
+    score: 2,
+    total_possible: 3,
+    percentage: 67,
+    declared_level: 'BEGINNER',
+    status: 'passed',
+    confirmed_level: 'BEGINNER',
+  },
 };

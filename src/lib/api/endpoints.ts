@@ -1,15 +1,20 @@
 import type { createApiClient } from './client';
 import type {
   Acknowledgement,
+  Attempt,
+  AttemptSubmission,
+  AttemptSubmissionReply,
   BeginnerPath,
   ContactReceipt,
   ContactRequest,
   IntakeQuestionnaire,
   IntakeSubmission,
+  LevelName,
   Programme,
   ProgrammeClick,
   ProgrammeClickRequest,
   RegisterRequest,
+  StartedAttempt,
   TokenResponse,
 } from './types';
 
@@ -53,4 +58,17 @@ export const createProgrammesApi = (client: Client) => ({
 
   recordClick: (programmeId: number, click: ProgrammeClickRequest) =>
     client.post<ProgrammeClick>(`/programmes/${programmeId}/clicks`, { body: click }),
+});
+
+export const createAttemptsApi = (client: Client) => ({
+  start: (skillId: number, level: LevelName) =>
+    client.post<StartedAttempt>('/attempts/start', {
+      body: { skill_id: skillId, declared_level: level },
+    }),
+
+  get: async (attemptId: number) =>
+    (await client.get<{ readonly attempt: Attempt }>(`/attempts/${attemptId}`)).attempt,
+
+  submit: (submission: AttemptSubmission) =>
+    client.post<AttemptSubmissionReply>('/attempts/submit', { body: submission }),
 });

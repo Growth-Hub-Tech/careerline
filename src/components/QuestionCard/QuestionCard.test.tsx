@@ -160,3 +160,26 @@ describe('QuestionCard', () => {
     expect(screen.getByRole('button', { name: 'Generate Result' })).toBeDisabled();
   });
 });
+
+describe('QuestionCard wording', () => {
+  it('can give its own instructions', () => {
+    setup({ instructions: 'Choose the best answer.' });
+
+    expect(screen.getByText('Choose the best answer.')).toBeInTheDocument();
+    expect(screen.queryByText(/no right or wrong answers/)).not.toBeInTheDocument();
+  });
+
+  it('can name the last button', () => {
+    setup({ isLast: true, lastLabel: 'Submit test', selected: ['learn'] });
+
+    expect(screen.getByRole('button', { name: 'Submit test' })).toBeEnabled();
+  });
+
+  it('shows the last button as busy while submitting', () => {
+    setup({ isLast: true, isSubmitting: true, selected: ['learn'] });
+
+    const button = screen.getByRole('button', { name: 'Generate Result' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+  });
+});

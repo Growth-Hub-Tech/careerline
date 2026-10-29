@@ -7,3 +7,4 @@ export * from './Programme';
 export * from './AssessmentProcessing';
 export * from './SkillTests';
 export * from './TestStart';
+export * from './TestAttempt';

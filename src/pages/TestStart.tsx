@@ -1,14 +1,22 @@
-import { useCallback, useId } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useCallback, useId, useRef, useState } from 'react';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { PaymentNeeded } from '../components/PaymentNeeded';
-import { catalogApi, type AssessmentAccess } from '../lib/api';
+import { RadioGroup } from '../components/RadioGroup';
+import {
+  attemptsApi,
+  catalogApi,
+  type AssessmentAccess,
+  type AssessmentDetail,
+  type LevelName,
+} from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
-import { describeCredits, FORMAT_LABELS } from '../lib/tests/catalog';
+import { readAttempt, saveAttempt } from '../lib/tests/attemptStore';
+import { describeCredits, FORMAT_LABELS, LEVEL_LABELS } from '../lib/tests/catalog';
 
 const isStatus = (error: unknown, status: number) =>
   error instanceof ApiError && error.status === status;
@@ -17,6 +25,62 @@ const describeAccess = ({ reason, price_credits, credits_balance }: AssessmentAc
   if (reason === 'free') return 'This test is free.';
   if (reason === 'subscription') return 'Your subscription covers this test.';
   return `This test uses ${describeCredits(price_credits)}. You have ${describeCredits(credits_balance)}.`;
+};
+
+const StartTest = ({ test }: { test: AssessmentDetail }) => {
+  const navigate = useNavigate();
+  const [level, setLevel] = useState<LevelName>(test.levels[0] ?? 'BEGINNER');
+  const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState<string>();
+  const starting = useRef(false);
+  const attemptPath = `/tests/${test.test_id}/attempt`;
+
+  if (readAttempt(test.test_id)) {
+    return (
+      <div className="flex flex-col items-start gap-3">
+        <p className="text-[14px] text-slate-700">You have this test in progress.</p>
+        <Link
+          to={attemptPath}
+          className="inline-flex h-12 items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Continue test
+        </Link>
+      </div>
+    );
+  }
+
+  const start = async () => {
+    if (starting.current) return;
+    starting.current = true;
+    setIsStarting(true);
+    setError(undefined);
+
+    try {
+      const attempt = await attemptsApi.start(test.skill_id, level);
+      saveAttempt({ testId: test.test_id, title: test.title, attempt, answers: [] });
+      navigate(attemptPath);
+    } catch (startError) {
+      setError(describeError(startError));
+      starting.current = false;
+      setIsStarting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-start gap-5">
+      <RadioGroup
+        legend="Choose your level"
+        name="level"
+        options={test.levels.map((value) => ({ value, label: LEVEL_LABELS[value] }))}
+        value={level}
+        onChange={(value) => setLevel(value as LevelName)}
+      />
+      {error && <Alert variant="error">{error}</Alert>}
+      <Button fullWidth={false} isLoading={isStarting} onClick={start}>
+        Start test
+      </Button>
+    </div>
+  );
 };
 
 const TestDetails = ({ id }: { id: number }) => {
@@ -85,7 +149,10 @@ const TestDetails = ({ id }: { id: number }) => {
       )}
 
       {access?.can_start ? (
-        <p className="text-[14px] text-slate-700">{describeAccess(access)}</p>
+        <>
+          <p className="text-[14px] text-slate-700">{describeAccess(access)}</p>
+          <StartTest test={test} />
+        </>
       ) : (
         <PaymentNeeded
           priceCredits={access?.price_credits ?? test.price_credits}

@@ -20,7 +20,13 @@ interface QuestionCardProps {
   readonly onBack?: () => void;
   readonly isBackDisabled?: boolean;
   readonly isLast?: boolean;
+  readonly instructions?: string;
+  readonly lastLabel?: string;
+  readonly isSubmitting?: boolean;
 }
+
+const REASSURANCE =
+  'There are no right or wrong answers here. Choose the option that resonates most with you.';
 
 export const QuestionCard = ({
   questionNumber,
@@ -34,6 +40,9 @@ export const QuestionCard = ({
   onBack,
   isBackDisabled = false,
   isLast = false,
+  instructions = REASSURANCE,
+  lastLabel = 'Generate Result',
+  isSubmitting = false,
 }: QuestionCardProps) => {
   const groupId = useId();
   const headingId = `${groupId}-question`;
@@ -56,7 +65,7 @@ export const QuestionCard = ({
       />
 
       <p className="text-[13px] text-slate-600">
-        There are no right or wrong answers here. Choose the option that resonates most with you.
+        {instructions}
         {multiple && <span className="block pt-1">Select all that apply.</span>}
       </p>
 
@@ -109,9 +118,10 @@ export const QuestionCard = ({
           variant={isLast ? 'accent' : 'deep'}
           fullWidth={false}
           disabled={selected.length === 0}
+          isLoading={isSubmitting}
           onClick={onNext}
         >
-          {isLast ? 'Generate Result' : 'Next'}
+          {isLast ? lastLabel : 'Next'}
           <LuArrowRight size={18} aria-hidden="true" />
         </Button>
       </div>

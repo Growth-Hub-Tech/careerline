@@ -1,5 +1,6 @@
 import { createApiClient } from './client';
 import {
+  createAttemptsApi,
   createAuthApi,
   createBeginnerApi,
   createContactApi,
@@ -171,5 +172,50 @@ describe('programme endpoints', () => {
     expect(init.method).toBe('POST');
     expect(JSON.parse(String(init.body))).toEqual({ source: 'beginner_path' });
     expect(click).toEqual({ redirect_url: 'https://x.test' });
+  });
+});
+
+describe('attempt endpoints', () => {
+  it('starts an attempt for a skill at a level', async () => {
+    const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
+
+    const attempt = await createAttemptsApi(client).start(1, 'JUNIOR');
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/attempts/start');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({ skill_id: 1, declared_level: 'JUNIOR' });
+    expect(attempt).toEqual({ attempt_id: 2 });
+  });
+
+  it('reads one attempt out of its wrapper', async () => {
+    const { fetcher, client } = setup({
+      success: true,
+      data: { attempt: { attempt_id: 2, attempt_status: 'in_progress' } },
+    });
+
+    const attempt = await createAttemptsApi(client).get(2);
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/attempts/2');
+    expect(attempt).toEqual({ attempt_id: 2, attempt_status: 'in_progress' });
+  });
+
+  it('submits every answer at once', async () => {
+    const { fetcher, client } = setup({ success: true, data: { result: { percentage: 36 } } });
+    const submission = {
+      attempt_id: 2,
+      answers: [
+        { question_id: 1, selected_option_id: 3 },
+        { question_id: 6, selected_option_id: 22 },
+      ],
+    };
+
+    const reply = await createAttemptsApi(client).submit(submission);
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/attempts/submit');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual(submission);
+    expect(reply).toEqual({ result: { percentage: 36 } });
   });
 });

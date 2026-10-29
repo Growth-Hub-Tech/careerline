@@ -38,3 +38,56 @@ export interface SkillsPage {
   readonly limit: number;
   readonly offset: number;
 }
+
+export interface AttemptOption {
+  readonly option_id: number;
+  readonly option_text: string;
+}
+
+export interface AttemptQuestion {
+  readonly question_id: number;
+  readonly question_text: string;
+  readonly difficulty_level: LevelName;
+  readonly subskill_id: number;
+  readonly options: readonly AttemptOption[];
+}
+
+export interface StartedAttempt {
+  readonly attempt_id: number;
+  readonly declared_level: LevelName;
+  readonly total_questions: number;
+  readonly questions: readonly AttemptQuestion[];
+}
+
+export interface Attempt {
+  readonly attempt_id: number;
+  readonly learner_id: number;
+  readonly skill_id: number;
+  readonly attempt_status: string;
+  readonly overall_percentage: number | null;
+  readonly start_time: string;
+  readonly end_time: string | null;
+}
+
+export interface AttemptAnswer {
+  readonly question_id: number;
+  readonly selected_option_id: number;
+}
+
+export interface AttemptSubmission {
+  readonly attempt_id: number;
+  readonly answers: readonly AttemptAnswer[];
+}
+
+export interface AttemptResult {
+  readonly score: number;
+  readonly total_possible: number;
+  readonly percentage: number;
+  readonly declared_level: LevelName;
+  readonly status: string;
+  readonly confirmed_level: LevelName | null;
+}
+
+export interface AttemptSubmissionReply {
+  readonly result: AttemptResult;
+}

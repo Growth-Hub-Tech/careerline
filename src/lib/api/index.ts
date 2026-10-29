@@ -3,6 +3,7 @@ import { expireSession, readSession } from '../session';
 import { createCatalogApi } from './catalog';
 import { createApiClient } from './client';
 import {
+  createAttemptsApi,
   createAuthApi,
   createBeginnerApi,
   createContactApi,
@@ -25,3 +26,4 @@ export const contactApi = createContactApi(api);
 export const beginnerApi = createBeginnerApi(api);
 export const programmesApi = createProgrammesApi(api);
 export const catalogApi = createCatalogApi(api);
+export const attemptsApi = createAttemptsApi(api);

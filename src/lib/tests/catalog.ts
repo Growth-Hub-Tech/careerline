@@ -57,9 +57,3 @@ export const groupByCategory = (
 
 export const describeCredits = (credits: number) =>
   `${credits} ${credits === 1 ? 'credit' : 'credits'}`;
-
-export const describePrice = (credits: number) =>
-  credits === 0 ? 'Free' : describeCredits(credits);
-
-export const describeLevels = (levels: readonly LevelName[]) =>
-  levels.map((level) => LEVEL_LABELS[level]).join(', ');

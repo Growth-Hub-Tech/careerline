@@ -1,5 +1,5 @@
 import { SKILLS, TESTS } from '../../test/fixtures/tests';
-import { describeCredits, describeLevels, describePrice, groupByCategory } from './catalog';
+import { describeCredits, groupByCategory } from './catalog';
 
 describe('groupByCategory', () => {
   it('groups the testable skills under their category', () => {
@@ -42,24 +42,6 @@ describe('groupByCategory', () => {
 
   it('gives nothing when there are no tests', () => {
     expect(groupByCategory(SKILLS.skills, [])).toEqual([]);
-  });
-});
-
-describe('describePrice', () => {
-  it.each([
-    [0, 'Free'],
-    [1, '1 credit'],
-    [2, '2 credits'],
-  ])('shows %i credits as "%s"', (credits, text) => {
-    expect(describePrice(credits)).toBe(text);
-  });
-});
-
-describe('describeLevels', () => {
-  it('lists the levels in plain words', () => {
-    expect(describeLevels(['BEGINNER', 'JUNIOR', 'MID', 'ADVANCED'])).toBe(
-      'Beginner, Junior, Mid, Advanced',
-    );
   });
 });
 

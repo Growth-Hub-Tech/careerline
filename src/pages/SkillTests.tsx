@@ -2,20 +2,13 @@ import { useId } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { Card } from '../components/Card';
 import { EmptyState } from '../components/EmptyState';
 import { PageLoader } from '../components/Loader';
-import { StatusLabel } from '../components/StatusLabel';
 import { catalogApi } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
-import {
-  describeLevels,
-  describePrice,
-  FORMAT_LABELS,
-  groupByCategory,
-  type CatalogGroup,
-} from '../lib/tests/catalog';
+import { useSession } from '../lib/session';
+import { groupByCategory, type CatalogGroup } from '../lib/tests/catalog';
 
 const load = () => Promise.all([catalogApi.listSkills(), catalogApi.listTests()]);
 
@@ -24,45 +17,32 @@ const CategorySection = ({ group }: { group: CatalogGroup }) => {
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <h2 id={headingId} className="font-heading text-[22px] font-bold text-slate-950">
+      <h2 id={headingId} className="text-[14px] font-semibold text-slate-500">
         {group.category}
       </h2>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <ul className="grid gap-6 md:grid-cols-2">
         {group.entries.map(({ test, skill }) => (
-          <Card
-            key={test.test_id}
-            title={test.title}
-            description={skill.description}
-            footer={
-              <>
-                <StatusLabel status={test.price_credits === 0 ? 'success' : 'info'}>
-                  {describePrice(test.price_credits)}
-                </StatusLabel>
-                <Link
-                  to={`/tests/${test.test_id}`}
-                  aria-label={`Start ${test.title} test`}
-                  className="ml-auto inline-flex h-10 items-center justify-center rounded-lg bg-indigo-600 px-4 text-[14px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  Start test
-                </Link>
-              </>
-            }
-          >
-            <ul className="flex flex-col gap-1 text-[13px] text-slate-600">
-              <li>{test.question_count} questions</li>
-              <li>{test.duration_minutes} minutes</li>
-              <li>{FORMAT_LABELS[test.format]}</li>
-              <li>{describeLevels(test.levels)}</li>
-            </ul>
-          </Card>
+          <li key={test.test_id}>
+            <Link
+              to={`/tests/${test.test_id}`}
+              className="flex h-full flex-col gap-4 rounded-2xl border border-indigo-300 bg-white px-6 py-8 transition-colors hover:border-indigo-600 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:px-[74px]"
+            >
+              <h3 className="text-[17px] font-semibold text-slate-700">{test.title}</h3>
+              {skill.description && (
+                <p className="text-[13px] leading-[1.5] text-slate-500">{skill.description}</p>
+              )}
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 };
 
 export const SkillTests = () => {
+  const { session } = useSession();
+  const firstName = session?.user.name.trim().split(/\s+/)[0];
   const { state, retry } = useRequest(load);
 
   if (state.status === 'loading') {
@@ -84,13 +64,18 @@ export const SkillTests = () => {
   const groups = groupByCategory(skills, tests);
 
   return (
-    <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-8 sm:px-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="font-heading text-[28px] leading-[1.25] font-bold text-slate-950 sm:text-[32px]">
-          Skill tests
+    <div className="flex w-full max-w-[1280px] flex-col gap-12 px-5 py-10 sm:px-20">
+      <header className="flex flex-col gap-3">
+        <p className="text-[15px] text-slate-950">Self Tester dashboard</p>
+        <h1 className="text-[36px] leading-[1.2] font-bold text-slate-700 sm:text-[44px]">
+          {firstName ? `Welcome, ${firstName}` : 'Welcome'}
         </h1>
-        <p className="text-[15px] text-slate-600">
-          Choose a skill to test. Your result shows your level and what to learn next.
+        <p className="text-[22px] font-bold text-slate-500 sm:text-[26px]">
+          Test your skills and get a real answer.
+        </p>
+        <p className="text-[13px] text-slate-500">
+          Choose a skill area below. You will receive a score along with your specific strengths and
+          weaknesses when you finish.
         </p>
       </header>
 

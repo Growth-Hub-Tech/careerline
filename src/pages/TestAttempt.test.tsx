@@ -72,7 +72,7 @@ describe('TestAttempt', () => {
 
     expect(await progress()).toHaveAccessibleName('Question 1 of 3');
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Backend Development' }),
+      screen.getByRole('heading', { level: 1, name: 'Backend Development Skill Test' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { level: 2, name: 'What does HTML stand for?' }),
@@ -170,6 +170,7 @@ describe('TestAttempt', () => {
     await userEvent.dblClick(screen.getByRole('button', { name: 'Submit test' }));
 
     expect(attemptsApi.submit).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Sending...' })).toBeDisabled();
   });
 
   it('keeps the answers and lets the person try again when submitting fails', async () => {

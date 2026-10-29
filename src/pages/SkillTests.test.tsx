@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { catalogApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
+import { SessionProvider } from '../lib/session';
 import { SKILLS, TESTS } from '../test/fixtures/tests';
+import { signInAs } from '../test/session';
 import { SkillTests } from './SkillTests';
 
 vi.mock('../lib/api', async (importOriginal) => ({
@@ -13,12 +15,15 @@ vi.mock('../lib/api', async (importOriginal) => ({
 
 const setup = () =>
   render(
-    <MemoryRouter>
-      <SkillTests />
-    </MemoryRouter>,
+    <SessionProvider>
+      <MemoryRouter>
+        <SkillTests />
+      </MemoryRouter>
+    </SessionProvider>,
   );
 
 beforeEach(() => {
+  signInAs('self-test');
   vi.mocked(catalogApi.listSkills).mockResolvedValue([...SKILLS.skills]);
   vi.mocked(catalogApi.listTests).mockResolvedValue(TESTS.items);
 });
@@ -32,13 +37,24 @@ describe('SkillTests', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
-  it('has a main heading and an introduction', async () => {
+  it('welcomes the person by first name', async () => {
     setup();
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Skill tests' }),
+      await screen.findByRole('heading', { level: 1, name: 'Welcome, Skye' }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Choose a skill to test/)).toBeInTheDocument();
+    expect(screen.getByText('Self Tester dashboard')).toBeInTheDocument();
+  });
+
+  it('says what the tests give', async () => {
+    setup();
+
+    expect(await screen.findByText('Test your skills and get a real answer.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Choose a skill area below. You will receive a score along with your specific strengths and weaknesses when you finish.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('groups the skills that can be tested by category', async () => {
@@ -54,38 +70,21 @@ describe('SkillTests', () => {
     expect(screen.queryByRole('region', { name: 'Design & Product' })).not.toBeInTheDocument();
   });
 
-  it('shows what each test involves', async () => {
+  it('describes each skill on its card', async () => {
     setup();
 
-    const card = (await screen.findByRole('heading', { name: 'Version Control (Git)' })).closest(
-      'section',
-    ) as HTMLElement;
+    const card = await screen.findByRole('link', { name: /Version Control \(Git\)/ });
 
     expect(card).toHaveTextContent('Tests expertise in: Branching, merging, pull requests');
-    expect(card).toHaveTextContent('15 questions');
-    expect(card).toHaveTextContent('15 minutes');
-    expect(card).toHaveTextContent('Fixed');
-    expect(card).toHaveTextContent('1 credit');
-    expect(card).toHaveTextContent('Beginner, Junior, Mid');
   });
 
-  it('says when a test is free', async () => {
+  it('opens the test page from the whole card', async () => {
     setup();
 
-    const card = (await screen.findByRole('heading', { name: 'Frontend Web Development' })).closest(
-      'section',
-    ) as HTMLElement;
-
-    expect(card).toHaveTextContent('Free');
-    expect(card).toHaveTextContent('Adaptive');
-  });
-
-  it('links each test to its start page', async () => {
-    setup();
-
-    expect(
-      await screen.findByRole('link', { name: 'Start Backend Development test' }),
-    ).toHaveAttribute('href', '/tests/202');
+    expect(await screen.findByRole('link', { name: /Backend Development/ })).toHaveAttribute(
+      'href',
+      '/tests/202',
+    );
   });
 
   it('says so when there are no tests yet', async () => {
@@ -108,7 +107,7 @@ describe('SkillTests', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Skill tests' }),
+      await screen.findByRole('region', { name: 'Engineering and Development' }),
     ).toBeInTheDocument();
   });
 });

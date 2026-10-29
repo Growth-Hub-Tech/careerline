@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
-import { QuestionCard } from '../components/QuestionCard';
+import { SkillQuestion } from '../components/SkillQuestion';
 import { attemptsApi, type AttemptAnswer, type AttemptResult } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
@@ -59,7 +59,7 @@ const TestSubmitted = ({ result }: { result: AttemptResult }) => (
 const Player = ({ saved }: { saved: SavedAttempt }) => {
   const { testId, title, attempt } = saved;
   const [answers, setAnswers] = useState<readonly AttemptAnswer[]>(saved.answers);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<AttemptResult>();
@@ -92,9 +92,9 @@ const Player = ({ saved }: { saved: SavedAttempt }) => {
   };
 
   const next = () => {
-    if (selected.length === 0) return;
+    if (selected === undefined) return;
 
-    const choice = { question_id: question.question_id, selected_option_id: Number(selected[0]) };
+    const choice = { question_id: question.question_id, selected_option_id: Number(selected) };
     if (isLast) {
       void submit([...answers, choice]);
       return;
@@ -103,14 +103,16 @@ const Player = ({ saved }: { saved: SavedAttempt }) => {
     const updated = [...answers, choice];
     saveAttempt({ ...saved, answers: updated });
     setAnswers(updated);
-    setSelected([]);
+    setSelected(undefined);
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-[16px] font-semibold text-indigo-950">{title}</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="text-[28px] leading-[1.25] font-bold text-slate-700 sm:text-[36px]">
+        {title} Skill Test
+      </h1>
       {error && <Alert variant="error">{error}</Alert>}
-      <QuestionCard
+      <SkillQuestion
         key={question.question_id}
         questionNumber={index + 1}
         questionCount={attempt.questions.length}
@@ -123,8 +125,6 @@ const Player = ({ saved }: { saved: SavedAttempt }) => {
         onChange={setSelected}
         onNext={next}
         isLast={isLast}
-        instructions="Choose the best answer. You cannot go back once you move on."
-        lastLabel="Submit test"
         isSubmitting={isSubmitting}
       />
     </div>

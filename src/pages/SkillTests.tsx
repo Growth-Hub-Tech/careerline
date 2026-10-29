@@ -12,13 +12,12 @@ import { useRequest } from '../lib/hooks/useRequest';
 import {
   describeLevels,
   describePrice,
+  FORMAT_LABELS,
   groupByCategory,
   type CatalogGroup,
 } from '../lib/tests/catalog';
 
 const load = () => Promise.all([catalogApi.listSkills(), catalogApi.listTests()]);
-
-const FORMATS = { adaptive: 'Adaptive', fixed: 'Fixed' } as const;
 
 const CategorySection = ({ group }: { group: CatalogGroup }) => {
   const headingId = useId();
@@ -53,7 +52,7 @@ const CategorySection = ({ group }: { group: CatalogGroup }) => {
             <ul className="flex flex-col gap-1 text-[13px] text-slate-600">
               <li>{test.question_count} questions</li>
               <li>{test.duration_minutes} minutes</li>
-              <li>{FORMATS[test.format]}</li>
+              <li>{FORMAT_LABELS[test.format]}</li>
               <li>{describeLevels(test.levels)}</li>
             </ul>
           </Card>

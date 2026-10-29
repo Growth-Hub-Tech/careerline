@@ -1,4 +1,4 @@
-import type { AssessmentPage, SkillsPage } from '../../lib/api';
+import type { AssessmentAccess, AssessmentDetail, AssessmentPage, SkillsPage } from '../../lib/api';
 
 export const SKILLS: SkillsPage = {
   total: 5,
@@ -80,4 +80,36 @@ export const TESTS: AssessmentPage = {
       role_ids: [101, 102],
     },
   ],
+};
+
+export const TEST_DETAIL: AssessmentDetail = {
+  test_id: 202,
+  title: 'Backend Development',
+  skill_id: 2,
+  skill_name: 'Backend Development',
+  levels: ['BEGINNER', 'JUNIOR', 'MID', 'ADVANCED'],
+  format: 'adaptive',
+  question_count: 25,
+  duration_minutes: 30,
+  price_credits: 2,
+  role_ids: [102],
+  description: 'Shows how well you design, build and secure server-side applications.',
+  subskills: ['REST APIs', 'Databases', 'Authentication'],
+  what_you_get: ['Your level from Beginner to Advanced', 'A score for each sub-skill'],
+};
+
+export const ACCESS_WITH_CREDITS: AssessmentAccess = {
+  test_id: 202,
+  can_start: true,
+  reason: 'credits',
+  price_credits: 2,
+  credits_balance: 3,
+};
+
+export const ACCESS_SHORT_OF_CREDITS: AssessmentAccess = {
+  test_id: 202,
+  can_start: false,
+  reason: 'insufficient_credits',
+  price_credits: 2,
+  credits_balance: 1,
 };

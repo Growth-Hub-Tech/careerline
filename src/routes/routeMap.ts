@@ -49,11 +49,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/tests/:testId',
-    title: 'Skill test',
-    description: 'Complete the test and get a scored report with strengths and gaps.',
-  },
-  {
     path: '/reports',
     title: 'Reports',
     description: 'Every report you have taken, ready to download or share.',

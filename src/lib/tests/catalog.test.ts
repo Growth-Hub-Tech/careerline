@@ -1,5 +1,5 @@
 import { SKILLS, TESTS } from '../../test/fixtures/tests';
-import { describeLevels, describePrice, groupByCategory } from './catalog';
+import { describeCredits, describeLevels, describePrice, groupByCategory } from './catalog';
 
 describe('groupByCategory', () => {
   it('groups the testable skills under their category', () => {
@@ -60,5 +60,13 @@ describe('describeLevels', () => {
     expect(describeLevels(['BEGINNER', 'JUNIOR', 'MID', 'ADVANCED'])).toBe(
       'Beginner, Junior, Mid, Advanced',
     );
+  });
+});
+
+describe('describeCredits', () => {
+  it('counts credits, including none', () => {
+    expect(describeCredits(0)).toBe('0 credits');
+    expect(describeCredits(1)).toBe('1 credit');
+    expect(describeCredits(4)).toBe('4 credits');
   });
 });

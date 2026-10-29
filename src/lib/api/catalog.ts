@@ -1,6 +1,6 @@
 import type { createApiClient } from './client';
 import { fetchAll } from './fetchAll';
-import type { AssessmentPage, SkillsPage } from './types';
+import type { AssessmentAccess, AssessmentDetail, AssessmentPage, SkillsPage } from './types';
 
 type Client = ReturnType<typeof createApiClient>;
 
@@ -19,4 +19,8 @@ export const createCatalogApi = (client: Client) => ({
     fetchAll((offset) =>
       client.get<AssessmentPage>('/tests', { query: { limit: PAGE_SIZE, offset } }),
     ),
+
+  getTest: (testId: number) => client.get<AssessmentDetail>(`/tests/${testId}`),
+
+  getAccess: (testId: number) => client.get<AssessmentAccess>(`/tests/${testId}/access`),
 });

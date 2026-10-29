@@ -17,6 +17,11 @@ export interface CatalogGroup {
   readonly entries: readonly CatalogEntry[];
 }
 
+export const FORMAT_LABELS: Record<AssessmentSummary['format'], string> = {
+  adaptive: 'Adaptive',
+  fixed: 'Fixed',
+};
+
 const UNKNOWN_POSITION = Number.MAX_SAFE_INTEGER;
 
 export const groupByCategory = (
@@ -50,10 +55,11 @@ export const groupByCategory = (
   return [...groups].map(([category, items]) => ({ category, entries: items }));
 };
 
-export const describePrice = (credits: number) => {
-  if (credits === 0) return 'Free';
-  return `${credits} ${credits === 1 ? 'credit' : 'credits'}`;
-};
+export const describeCredits = (credits: number) =>
+  `${credits} ${credits === 1 ? 'credit' : 'credits'}`;
+
+export const describePrice = (credits: number) =>
+  credits === 0 ? 'Free' : describeCredits(credits);
 
 export const describeLevels = (levels: readonly LevelName[]) =>
   levels.map((level) => LEVEL_LABELS[level]).join(', ');

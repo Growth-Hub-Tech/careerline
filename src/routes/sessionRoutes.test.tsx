@@ -1,8 +1,14 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import type { UserType } from '../lib/session';
+import { catalogApi } from '../lib/api';
 import { signInAs } from '../test/session';
 import { getRoutes } from './index';
+
+vi.mock('../lib/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api')>()),
+  catalogApi: { getTest: vi.fn(), getAccess: vi.fn() },
+}));
 
 const Routes = () => useRoutes(getRoutes());
 
@@ -68,11 +74,14 @@ describe('session routes', () => {
   });
 
   it('puts a self-test inside the full-screen frame', () => {
+    vi.mocked(catalogApi.getTest).mockReturnValue(new Promise(() => undefined));
+    vi.mocked(catalogApi.getAccess).mockReturnValue(new Promise(() => undefined));
     signInAs('self-test');
 
-    renderAt('/tests/abc');
+    renderAt('/tests/202');
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Skill test' })).toBeInTheDocument();
+    expect(screen.getByRole('banner')).toHaveTextContent('Skill test');
+    expect(screen.getByRole('status')).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Main' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Exit test' })).toBeInTheDocument();
   });

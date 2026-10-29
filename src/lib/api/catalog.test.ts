@@ -52,4 +52,24 @@ describe('catalog api', () => {
     expect(tests).toEqual([{ test_id: 201 }]);
     expect(urls(fetcher)).toEqual(['https://api.example.test/api/v1/tests?limit=50&offset=0']);
   });
+
+  it('loads one test by its id', async () => {
+    const { fetcher, api } = setup([{ success: true, data: { test_id: 202, title: 'Backend' } }]);
+
+    const test = await api.getTest(202);
+
+    expect(test).toEqual({ test_id: 202, title: 'Backend' });
+    expect(urls(fetcher)).toEqual(['https://api.example.test/api/v1/tests/202']);
+  });
+
+  it('asks whether the person can start a test', async () => {
+    const { fetcher, api } = setup([
+      { success: true, data: { test_id: 202, can_start: false, reason: 'insufficient_credits' } },
+    ]);
+
+    const access = await api.getAccess(202);
+
+    expect(access).toMatchObject({ can_start: false, reason: 'insufficient_credits' });
+    expect(urls(fetcher)).toEqual(['https://api.example.test/api/v1/tests/202/access']);
+  });
 });

@@ -15,6 +15,7 @@ import {
   AssessmentResults,
   Programme,
   SkillTests,
+  TestStart,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -22,8 +23,6 @@ import { PlaceholderPage } from '../components/PlaceholderPage';
 import { authRoutes } from '../authRoutes';
 import type { UserType } from '../lib/session';
 import { APP_PLACEHOLDERS, PUBLIC_PLACEHOLDERS, type PlaceholderRoute } from './routeMap';
-
-const TEST_FRAME_PATHS: readonly string[] = ['/tests/:testId'];
 
 const toRoute = ({ path, title, description }: PlaceholderRoute): RouteObject => ({
   path,
@@ -49,51 +48,53 @@ const groupByAccess = (placeholders: readonly PlaceholderRoute[]): RouteObject[]
   return [...groups.values()].map(({ allow, routes }) => guard(allow, routes));
 };
 
-export const getRoutes = (): RouteObject[] => {
-  const framed = APP_PLACEHOLDERS.filter(({ path }) => !TEST_FRAME_PATHS.includes(path));
-  const fullScreen = APP_PLACEHOLDERS.filter(({ path }) => TEST_FRAME_PATHS.includes(path));
-
-  return [
-    {
-      element: <SessionRoot />,
-      children: [
-        {
-          element: <MainLayout />,
-          children: [
-            { path: '/', element: <Home /> },
-            { path: '/contact', element: <Contact /> },
-            ...PUBLIC_PLACEHOLDERS.map(toRoute),
-          ],
-        },
-        ...authRoutes,
-        {
-          element: <RequireAccess />,
-          children: [
-            {
-              element: <AppLayout />,
-              children: [
-                { path: '/dashboard', element: <Dashboard /> },
-                guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
-                ...groupByAccess(framed),
-              ],
-            },
-            { element: <TestFrame />, children: groupByAccess(fullScreen) },
-            guard(accessFor('/assessment'), [
-              { path: '/assessment', element: <Assessment /> },
-              { path: '/assessment/processing', element: <AssessmentProcessing /> },
-              { path: '/assessment/results', element: <AssessmentResults /> },
-              { path: '/programmes/:programmeId', element: <Programme /> },
-            ]),
-          ],
-        },
-        {
-          element: <NoFooterLayout />,
-          children: [
-            { path: '/no-access', element: <NoAccess /> },
-            { path: '*', element: <NotFound /> },
-          ],
-        },
-      ],
-    },
-  ];
-};
+export const getRoutes = (): RouteObject[] => [
+  {
+    element: <SessionRoot />,
+    children: [
+      {
+        element: <MainLayout />,
+        children: [
+          { path: '/', element: <Home /> },
+          { path: '/contact', element: <Contact /> },
+          ...PUBLIC_PLACEHOLDERS.map(toRoute),
+        ],
+      },
+      ...authRoutes,
+      {
+        element: <RequireAccess />,
+        children: [
+          {
+            element: <AppLayout />,
+            children: [
+              { path: '/dashboard', element: <Dashboard /> },
+              guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
+              ...groupByAccess(APP_PLACEHOLDERS),
+            ],
+          },
+          {
+            element: <TestFrame />,
+            children: [
+              guard(accessFor('/tests/:testId'), [
+                { path: '/tests/:testId', element: <TestStart /> },
+              ]),
+            ],
+          },
+          guard(accessFor('/assessment'), [
+            { path: '/assessment', element: <Assessment /> },
+            { path: '/assessment/processing', element: <AssessmentProcessing /> },
+            { path: '/assessment/results', element: <AssessmentResults /> },
+            { path: '/programmes/:programmeId', element: <Programme /> },
+          ]),
+        ],
+      },
+      {
+        element: <NoFooterLayout />,
+        children: [
+          { path: '/no-access', element: <NoAccess /> },
+          { path: '*', element: <NotFound /> },
+        ],
+      },
+    ],
+  },
+];

@@ -22,6 +22,8 @@ export type Money = Schemas['Money'];
 export type LevelName = Schemas['LevelName'];
 export type AssessmentSummary = Schemas['AssessmentSummary'];
 export type AssessmentPage = Schemas['Page_AssessmentSummary_'];
+export type AssessmentDetail = Schemas['AssessmentDetail'];
+export type AssessmentAccess = Schemas['AssessmentAccess'];
 
 export interface Skill {
   readonly skill_id: number;

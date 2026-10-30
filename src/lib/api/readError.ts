@@ -55,6 +55,24 @@ const readFieldErrors = (value: unknown): Record<string, string> => {
   return found;
 };
 
+const LOCATIONS = new Set(['body', 'query', 'path']);
+
+const readValidationDetails = (value: unknown): Record<string, string> => {
+  const found: Record<string, string> = {};
+  if (!Array.isArray(value)) return found;
+
+  value.forEach((item: unknown) => {
+    if (typeof item !== 'object' || item === null) return;
+    const { loc, msg } = item as Body;
+    if (!Array.isArray(loc) || typeof msg !== 'string') return;
+    const parts = loc.map(String);
+    const field = (LOCATIONS.has(parts[0]) ? parts.slice(1) : parts).join('.');
+    if (field && !(field in found)) found[field] = msg;
+  });
+
+  return found;
+};
+
 const asBody = (value: unknown): Body | undefined =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as Body)
@@ -87,6 +105,9 @@ export const readError = async (response: Response) => {
       undefined,
     details: firstString(error, ['details']),
     retryAfter: readRetryAfter(response),
-    fieldErrors: readFieldErrors(error.errors ?? error.fieldErrors ?? body.errors),
+    fieldErrors: {
+      ...readValidationDetails(error.details),
+      ...readFieldErrors(error.errors ?? error.fieldErrors ?? body.errors),
+    },
   });
 };

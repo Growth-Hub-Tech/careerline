@@ -224,4 +224,30 @@ describe('api client', () => {
 
     await expect(client.get('/tests')).rejects.toMatchObject({ name: 'AbortError' });
   });
+
+  it("reads field errors from the API's validation details", async () => {
+    const { client } = setup(() =>
+      json(
+        {
+          success: false,
+          error: {
+            code: 'validation_error',
+            message: 'Request validation failed',
+            details: [
+              { loc: ['body', 'answers', 1, 'values'], msg: 'List should have at least 1 item' },
+              { loc: ['body', 'email'], msg: 'value is not a valid email address' },
+            ],
+          },
+        },
+        { status: 422 },
+      ),
+    );
+
+    const error = await failureOf(client.post('/beginner-path/intake'));
+
+    expect(error.fieldErrors).toEqual({
+      'answers.1.values': 'List should have at least 1 item',
+      email: 'value is not a valid email address',
+    });
+  });
 });

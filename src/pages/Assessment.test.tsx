@@ -16,9 +16,9 @@ const Processing = () => {
   return <pre data-testid="submission">{JSON.stringify(state.submission)}</pre>;
 };
 
-const setup = () =>
+const setup = (state: unknown = null) =>
   render(
-    <MemoryRouter initialEntries={['/assessment']}>
+    <MemoryRouter initialEntries={[{ pathname: '/assessment', state }]}>
       <Routes>
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/assessment/processing" element={<Processing />} />
@@ -192,6 +192,70 @@ describe('Assessment', () => {
         { question_id: 'hours', values: ['5'] },
         { question_id: 'budget', values: ['free'] },
       ],
+    });
+  });
+
+  describe('after the server rejected some answers', () => {
+    const returned = (version = '2026-10') => ({
+      submission: {
+        version,
+        answers: [
+          { question_id: 'free_hour', values: ['learn'] },
+          { question_id: 'traits', values: ['organised'] },
+          { question_id: 'hours', values: ['7'] },
+          { question_id: 'budget', values: ['paid'] },
+        ],
+      },
+      flagged: { hours: 'Choose one of the listed options.' },
+    });
+
+    it('opens the first flagged question and says what is wrong', async () => {
+      setup(returned());
+
+      expect(
+        await screen.findByRole('heading', { level: 2, name: QUESTIONNAIRE.questions[2].text }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveTextContent('Choose one of the listed options.');
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-invalid', 'true');
+      expect(steps().getByText('Time').closest('li')).toHaveAttribute('aria-current', 'step');
+    });
+
+    it('keeps the answers already given', async () => {
+      setup(returned());
+      await screen.findByRole('heading', { level: 2, name: QUESTIONNAIRE.questions[2].text });
+      await userEvent.click(screen.getByRole('radio', { name: 'About 10 hours' }));
+      await next();
+
+      expect(screen.getByRole('radio', { name: 'I can pay for a good course' })).toBeChecked();
+      await userEvent.click(screen.getByRole('button', { name: 'Generate Result' }));
+
+      expect(JSON.parse(screen.getByTestId('submission').textContent ?? '')).toEqual({
+        version: '2026-10',
+        answers: [
+          { question_id: 'free_hour', values: ['learn'] },
+          { question_id: 'traits', values: ['organised'] },
+          { question_id: 'hours', values: ['10'] },
+          { question_id: 'budget', values: ['paid'] },
+        ],
+      });
+    });
+
+    it('clears the message once the answer changes', async () => {
+      setup(returned());
+      await screen.findByRole('alert');
+
+      await userEvent.click(screen.getByRole('radio', { name: 'About 10 hours' }));
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(screen.getByRole('radiogroup')).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('starts again from the first question when the questions have changed', async () => {
+      setup(returned('2025-01'));
+
+      expect(await ready()).toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(choices().some((choice) => (choice as HTMLInputElement).checked)).toBe(false);
     });
   });
 });

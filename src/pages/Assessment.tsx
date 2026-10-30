@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LuArrowLeft, LuLightbulb } from 'react-icons/lu';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
@@ -7,8 +7,9 @@ import { FlowHeader } from '../components/FlowHeader';
 import { Spinner } from '../components/Loader';
 import { QuestionCard } from '../components/QuestionCard';
 import { StepList } from '../components/StepList';
-import { beginnerApi, type IntakeQuestionnaire } from '../lib/api';
+import { beginnerApi, type IntakeQuestionnaire, type IntakeSubmission } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import type { FlaggedAnswers } from '../lib/beginner/flaggedAnswers';
 import { useRequest } from '../lib/hooks/useRequest';
 
 const SECTION_TITLES: Record<string, string> = {
@@ -34,11 +35,37 @@ const AssessmentFrame = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const Questionnaire = ({ questionnaire }: { questionnaire: IntakeQuestionnaire }) => {
+interface Returned {
+  readonly submission?: IntakeSubmission;
+  readonly flagged?: FlaggedAnswers;
+}
+
+interface QuestionnaireProps {
+  readonly questionnaire: IntakeQuestionnaire;
+  readonly returned: Returned | null;
+}
+
+const startFrom = ({ questions, version }: IntakeQuestionnaire, returned: Returned | null) => {
+  if (returned?.submission?.version !== version) return { answers: {}, flagged: {}, index: 0 };
+
+  const known = new Set(questions.map((item) => item.question_id));
+  const answers: Record<string, string[]> = {};
+  returned.submission.answers.forEach((answer) => {
+    if (known.has(answer.question_id)) answers[answer.question_id] = [...answer.values];
+  });
+  const flagged = returned.flagged ?? {};
+  const index = questions.findIndex((item) => item.question_id in flagged);
+
+  return { answers, flagged, index: Math.max(index, 0) };
+};
+
+const Questionnaire = ({ questionnaire, returned }: QuestionnaireProps) => {
   const navigate = useNavigate();
   const { questions, version } = questionnaire;
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [start] = useState(() => startFrom(questionnaire, returned));
+  const [index, setIndex] = useState(start.index);
+  const [answers, setAnswers] = useState<Record<string, string[]>>(start.answers);
+  const [flagged, setFlagged] = useState<FlaggedAnswers>(start.flagged);
 
   const steps = useMemo(
     () =>
@@ -102,9 +129,12 @@ const Questionnaire = ({ questionnaire }: { questionnaire: IntakeQuestionnaire }
           options={question.options}
           selected={answers[question.question_id] ?? []}
           multiple={question.kind === 'multi_choice'}
-          onChange={(values) =>
-            setAnswers((current) => ({ ...current, [question.question_id]: values }))
-          }
+          scale={question.kind === 'scale'}
+          error={flagged[question.question_id]}
+          onChange={(values) => {
+            setAnswers((current) => ({ ...current, [question.question_id]: values }));
+            setFlagged(({ [question.question_id]: _fixed, ...rest }) => rest);
+          }}
           onNext={onNext}
           onBack={index > 0 ? () => setIndex((current) => current - 1) : undefined}
           isBackDisabled={isBackDisabled}
@@ -116,6 +146,7 @@ const Questionnaire = ({ questionnaire }: { questionnaire: IntakeQuestionnaire }
 };
 
 export const Assessment = () => {
+  const location = useLocation() as { state: Returned | null };
   const { state, retry } = useRequest(loadQuestionnaire);
 
   if (state.status === 'loading') {
@@ -151,7 +182,7 @@ export const Assessment = () => {
 
   return (
     <AssessmentFrame>
-      <Questionnaire questionnaire={state.data} />
+      <Questionnaire questionnaire={state.data} returned={location.state} />
     </AssessmentFrame>
   );
 };

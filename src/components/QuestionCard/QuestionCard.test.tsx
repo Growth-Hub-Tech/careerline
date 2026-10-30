@@ -159,4 +159,30 @@ describe('QuestionCard', () => {
 
     expect(screen.getByRole('button', { name: 'Generate Result' })).toBeDisabled();
   });
+
+  it('shows why the server rejected the answer and marks the choices', () => {
+    setup({ error: 'Choose one of the listed options.' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose one of the listed options.');
+    const group = screen.getByRole('radiogroup');
+    expect(group).toHaveAttribute('aria-invalid', 'true');
+    expect(group).toHaveAccessibleDescription('Choose one of the listed options.');
+  });
+
+  it('marks nothing when the answer is fine', () => {
+    setup();
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('radiogroup')).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('lays a scale out as one row of single choices', () => {
+    setup({ scale: true });
+
+    expect(
+      screen.getByText('Choose the point on the scale that fits you best.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getByRole('radiogroup')).toHaveClass('sm:flex-row');
+  });
 });

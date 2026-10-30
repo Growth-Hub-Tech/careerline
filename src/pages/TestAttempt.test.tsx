@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { attemptsApi, resultsApi } from '../lib/api';
@@ -218,7 +218,7 @@ describe('TestAttempt', () => {
         'href',
         '/tests/202',
       );
-      expect(readAttempt(202)).toBeNull();
+      await waitFor(() => expect(readAttempt(202)).toBeNull());
     },
   );
 
@@ -252,7 +252,7 @@ describe('TestAttempt', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'This test has ended' }),
     ).toBeInTheDocument();
-    expect(readAttempt(202)).toBeNull();
+    await waitFor(() => expect(readAttempt(202)).toBeNull());
   });
 
   it('shows what went wrong while checking and tries again on request', async () => {

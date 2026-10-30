@@ -28,7 +28,7 @@ export const ROLES: readonly Role[] = [
     description: 'Take a skill test on your own and download a shareable report.',
     icon: LuPuzzle,
     iconClass: 'bg-amber-100 text-amber-800',
-    nextPath: '/dashboard',
+    nextPath: '/tests',
   },
   {
     key: 'recruiter',

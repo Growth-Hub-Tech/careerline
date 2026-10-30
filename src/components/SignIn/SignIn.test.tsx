@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ApiError } from '../../lib/api/ApiError';
-import { createDevSession, readSession, SessionProvider } from '../../lib/session';
+import { createDevSession, readSession, SessionProvider, writeRole } from '../../lib/session';
 import { SignIn } from './SignIn';
 
 const setup = (onSubmit?: Parameters<typeof SignIn>[0]['onSubmit']) =>
@@ -12,6 +12,7 @@ const setup = (onSubmit?: Parameters<typeof SignIn>[0]['onSubmit']) =>
         <Routes>
           <Route path="/sign-in" element={<SignIn onSubmit={onSubmit} />} />
           <Route path="/dashboard" element={<p>Dashboard page</p>} />
+          <Route path="/get-started" element={<p>Get started page</p>} />
         </Routes>
       </SessionProvider>
     </MemoryRouter>,
@@ -55,12 +56,22 @@ describe('SignIn', () => {
   });
 
   it('signs in and opens the dashboard when a session comes back', async () => {
+    writeRole('skye@example.com', 'recruiter');
     setup(vi.fn().mockResolvedValue(createDevSession('recruiter')));
 
     await fill();
 
     expect(await screen.findByText('Dashboard page')).toBeInTheDocument();
     expect(readSession()?.user.userType).toBe('recruiter');
+  });
+
+  it('asks someone who has not chosen a role yet to pick one', async () => {
+    setup(vi.fn().mockResolvedValue(createDevSession('beginner')));
+
+    await fill();
+
+    expect(await screen.findByText('Get started page')).toBeInTheDocument();
+    expect(screen.queryByText('Dashboard page')).not.toBeInTheDocument();
   });
 
   it.each([
@@ -87,6 +98,7 @@ describe('SignIn', () => {
         new ApiError({ status: 401, code: 'invalid_credentials', message: 'x' }),
       )
       .mockResolvedValue(createDevSession('beginner'));
+    writeRole('skye@example.com', 'beginner');
     setup(onSubmit);
 
     await fill();

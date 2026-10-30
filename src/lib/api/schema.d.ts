@@ -13,8 +13,31 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Register */
+        /**
+         * Register
+         * @description Creates the account and signs it in (the answer holds a token). A confirmation link is emailed; until it is opened, GET /accounts/me shows email_verified: false.
+         */
         post: operations["register_api_v1_auth_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout
+         * @description Ends this session: its token stops working at once. everywhere=true ends every session of the account (all devices).
+         */
+        post: operations["logout_api_v1_auth_logout_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -30,7 +53,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Login */
+        /**
+         * Login
+         * @description OAuth2 password form: username = email. A wrong password and an unknown email get the same 401. After 5 failed sign-ins for one email (or 20 from one IP address) in 15 minutes: 429 with Retry-After, whatever the password.
+         */
         post: operations["login_api_v1_auth_login_post"];
         delete?: never;
         options?: never;
@@ -253,9 +279,7 @@ export interface paths {
         put?: never;
         /**
          * Send Contact Message
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description Public, no login. Stores the message and emails the team (who can reply straight to the sender) and an acknowledgement to the sender. At most 5 messages an hour per email address and per IP address (then 429 with Retry-After).
          */
         post: operations["send_contact_message_api_v1_contact_post"];
         delete?: never;
@@ -271,24 +295,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get My Account
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
-         */
+        /** Get My Account */
         get: operations["get_my_account_api_v1_accounts_me_get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Update My Account
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
-         */
+        /** Update My Account */
         patch: operations["update_my_account_api_v1_accounts_me_patch"];
         trace?: never;
     };
@@ -303,9 +317,7 @@ export interface paths {
         put?: never;
         /**
          * Change My Password
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description Needs the current password (400 wrong_password otherwise). Signs out every other device; this session stays signed in. An email tells the owner.
          */
         post: operations["change_my_password_api_v1_accounts_me_password_post"];
         delete?: never;
@@ -325,9 +337,7 @@ export interface paths {
         put?: never;
         /**
          * Request Password Reset
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description Always 202, whether or not the email has an account. If it has one, a reset link (valid 60 minutes, once) is emailed.
          */
         post: operations["request_password_reset_api_v1_accounts_password_reset_post"];
         delete?: never;
@@ -347,11 +357,7 @@ export interface paths {
         put?: never;
         /**
          * Confirm Password Reset
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     An old or used token is `expired` (410).
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description Sets the new password and signs out every device. An old, used or unknown token is `expired` (410).
          */
         post: operations["confirm_password_reset_api_v1_accounts_password_reset_confirm_post"];
         delete?: never;
@@ -371,11 +377,7 @@ export interface paths {
         put?: never;
         /**
          * Verify Email
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     An old or used token is `expired` (410).
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description The token from the confirmation link. An old, used or unknown token is `expired` (410).
          */
         post: operations["verify_email_api_v1_accounts_verify_email_post"];
         delete?: never;
@@ -395,12 +397,34 @@ export interface paths {
         put?: never;
         /**
          * Resend Verification Email
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
+         * @description Emails a new confirmation link (the old one stops working). Nothing is sent if the email is already confirmed. At most 3 an hour.
          */
         post: operations["resend_verification_email_api_v1_accounts_verify_email_resend_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/test-mailbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Test Mailbox
+         * @description The emails sent to one address on the test server, newest first. Send X-Test-Mailbox-Token when the server has one.
+         */
+        get: operations["read_test_mailbox_api_v1_test_mailbox_get"];
+        put?: never;
+        post?: never;
+        /**
+         * Clear Test Mailbox
+         * @description Delete the emails sent to one address (start a test with an empty mailbox).
+         */
+        delete: operations["clear_test_mailbox_api_v1_test_mailbox_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2155,6 +2179,30 @@ export interface components {
             message?: string | null;
             data?: components["schemas"]["Targets"] | null;
         };
+        /** ApiResponse[TestMailboxCleared] */
+        ApiResponse_TestMailboxCleared_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["TestMailboxCleared"] | null;
+        };
+        /** ApiResponse[TestMailbox] */
+        ApiResponse_TestMailbox_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["TestMailbox"] | null;
+        };
         /** ApiResponse[Union[Subscription, NoneType]] */
         ApiResponse_Union_Subscription__NoneType__: {
             /**
@@ -2639,6 +2687,11 @@ export interface components {
             organisation?: string | null;
             /** Message */
             message: string;
+            /**
+             * Website
+             * @description Spam trap: leave it out or empty. Hide this input from people; bots fill it.
+             */
+            website?: string | null;
         };
         /** CreditPack */
         CreditPack: {
@@ -3625,6 +3678,48 @@ export interface components {
             /** Role Id */
             role_id: number;
         };
+        /** TestMailbox */
+        TestMailbox: {
+            /** To */
+            to: string;
+            /**
+             * Messages
+             * @description Newest first
+             */
+            messages: components["schemas"]["TestMailboxMessageOut"][];
+        };
+        /** TestMailboxCleared */
+        TestMailboxCleared: {
+            /** To */
+            to: string;
+            /** Deleted */
+            deleted: number;
+        };
+        /** TestMailboxMessageOut */
+        TestMailboxMessageOut: {
+            /** Id */
+            id: number;
+            /** To */
+            to: string;
+            /** Subject */
+            subject: string;
+            /** Text */
+            text: string;
+            /** Html */
+            html: string;
+            /** Reply To */
+            reply_to: string | null;
+            /**
+             * Links
+             * @description Every link in the email, e.g. a confirm or reset link
+             */
+            links: string[];
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+        };
         /** TokenResponse */
         TokenResponse: {
             /** Access Token */
@@ -3695,6 +3790,56 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Too many requests: slow down and retry after the Retry-After seconds */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    logout_api_v1_auth_logout_post: {
+        parameters: {
+            query?: {
+                /** @description Sign out on every device */
+                everywhere?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     login_api_v1_auth_login_post: {
@@ -3730,6 +3875,15 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests: slow down and retry after the Retry-After seconds */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4414,69 +4568,6 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_ContactReceipt_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
                 headers: {
@@ -4488,24 +4579,6 @@ export interface operations {
             };
             /** @description Too many requests: slow down and retry after the Retry-After seconds */
             429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4533,89 +4606,8 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Account_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Not logged in: missing, invalid or expired token */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4647,15 +4639,6 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Account_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Not logged in: missing, invalid or expired token */
             401: {
                 headers: {
@@ -4665,80 +4648,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4788,80 +4699,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4893,98 +4732,8 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5016,60 +4765,6 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
             410: {
                 headers: {
@@ -5081,33 +4776,6 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5139,60 +4807,6 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
             410: {
                 headers: {
@@ -5204,33 +4818,6 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5258,62 +4845,8 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
             /** @description Not logged in: missing, invalid or expired token */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5330,8 +4863,32 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Server error: something went wrong on our side */
-            500: {
+        };
+    };
+    read_test_mailbox_api_v1_test_mailbox_get: {
+        parameters: {
+            query: {
+                /** @description The address the emails were sent to */
+                to: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_TestMailbox_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5339,8 +4896,67 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Service unavailable: try again shortly */
-            503: {
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    clear_test_mailbox_api_v1_test_mailbox_delete: {
+        parameters: {
+            query: {
+                /** @description The address to clear */
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_TestMailboxCleared_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

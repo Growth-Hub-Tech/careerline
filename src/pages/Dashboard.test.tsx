@@ -87,4 +87,41 @@ describe('Dashboard', () => {
       expect(screen.getByRole('heading', { level: 2, name: title })).toBeInTheDocument();
     },
   );
+
+  it('keeps the career assessment for beginners only', () => {
+    signInAs('self-test');
+
+    setup();
+
+    expect(screen.queryByRole('link', { name: 'Take Assessment Test' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Take your first step to knowing your ideal career path'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('points a self-tester to the skill tests and their reports', () => {
+    signInAs('self-test');
+
+    setup();
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Test your skills' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Choose a test' })).toHaveAttribute('href', '/tests');
+    expect(screen.getByRole('link', { name: 'View your reports' })).toHaveAttribute(
+      'href',
+      '/reports',
+    );
+  });
+
+  it.each([
+    ['recruiter', 'Validate talent', 'Go to candidates', '/candidates'],
+    ['organization', 'Audit your team', 'Go to your team', '/team'],
+  ] as const)('points the %s user type to its own area', (userType, heading, link, href) => {
+    signInAs(userType);
+
+    setup();
+
+    expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: link })).toHaveAttribute('href', href);
+    expect(screen.queryByRole('link', { name: 'Take Assessment Test' })).not.toBeInTheDocument();
+  });
 });

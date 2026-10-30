@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { authActions } from '../../lib/auth/actions';
-import { createDevSession, readSession, SessionProvider } from '../../lib/session';
+import { createDevSession, readSession, SessionProvider, writeRole } from '../../lib/session';
 import { SignIn } from './SignIn';
 
 vi.mock('../../lib/auth/actions', () => ({
@@ -24,6 +24,7 @@ const setup = () =>
 describe('SignIn with the API', () => {
   it('signs in through the API when no handler is given', async () => {
     vi.mocked(authActions.signIn).mockResolvedValue(createDevSession('beginner'));
+    writeRole('skye@example.com', 'beginner');
     setup();
 
     await userEvent.type(screen.getByLabelText('Email'), 'skye@example.com');

@@ -49,16 +49,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/reports',
-    title: 'Reports',
-    description: 'Every report you have taken, ready to download or share.',
-  },
-  {
-    path: '/reports/:reportId',
-    title: 'Report',
-    description: 'Score, strengths, weaknesses and a recommendation for the next step.',
-  },
-  {
     path: '/candidates',
     title: 'Candidates',
     description: 'Candidates you have assigned a role-specific test to.',

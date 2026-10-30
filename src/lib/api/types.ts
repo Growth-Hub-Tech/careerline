@@ -24,6 +24,11 @@ export type AssessmentSummary = Schemas['AssessmentSummary'];
 export type AssessmentPage = Schemas['Page_AssessmentSummary_'];
 export type AssessmentDetail = Schemas['AssessmentDetail'];
 export type AssessmentAccess = Schemas['AssessmentAccess'];
+export type ResultSummary = Schemas['ResultSummary'];
+export type ResultPage = Schemas['Page_ResultSummary_'];
+export type ResultDetail = Schemas['ResultDetail'];
+export type SubskillScore = Schemas['SubskillScore'];
+export type ResultReport = Schemas['Report'];
 
 export interface Skill {
   readonly skill_id: number;

@@ -17,6 +17,8 @@ import {
   SkillTests,
   TestStart,
   TestAttempt,
+  Reports,
+  Report,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -70,6 +72,10 @@ export const getRoutes = (): RouteObject[] => [
             children: [
               { path: '/dashboard', element: <Dashboard /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
+              guard(accessFor('/reports'), [
+                { path: '/reports', element: <Reports /> },
+                { path: '/reports/:reportId', element: <Report /> },
+              ]),
               ...groupByAccess(APP_PLACEHOLDERS),
             ],
           },

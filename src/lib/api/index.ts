@@ -1,6 +1,7 @@
 import { config } from '../../config';
 import { expireSession, readSession } from '../session';
 import { createCatalogApi } from './catalog';
+import { createResultsApi } from './results';
 import { createApiClient } from './client';
 import {
   createAttemptsApi,
@@ -27,3 +28,4 @@ export const beginnerApi = createBeginnerApi(api);
 export const programmesApi = createProgrammesApi(api);
 export const catalogApi = createCatalogApi(api);
 export const attemptsApi = createAttemptsApi(api);
+export const resultsApi = createResultsApi(api);

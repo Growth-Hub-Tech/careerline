@@ -1,17 +1,19 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { attemptsApi } from '../lib/api';
+import { attemptsApi, resultsApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { readAttempt, saveAttempt } from '../lib/tests/attemptStore';
 import type { AttemptAnswer } from '../lib/api';
 import { ATTEMPT_IN_PROGRESS, STARTED_ATTEMPT, SUBMITTED_ATTEMPT } from '../test/fixtures/tests';
+import { RESULT_SUMMARIES } from '../test/fixtures/results';
 import { signInAs } from '../test/session';
 import { TestAttempt } from './TestAttempt';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   attemptsApi: { get: vi.fn(), submit: vi.fn() },
+  resultsApi: { list: vi.fn() },
 }));
 
 const save = (answers: readonly AttemptAnswer[] = []) =>
@@ -23,6 +25,7 @@ const setup = () =>
       <Routes>
         <Route path="/tests/:testId/attempt" element={<TestAttempt />} />
         <Route path="/tests/:testId" element={<h1>Test page</h1>} />
+        <Route path="/reports/:reportId" element={<h1>Report page</h1>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -39,6 +42,7 @@ beforeEach(() => {
   save();
   vi.mocked(attemptsApi.get).mockResolvedValue(ATTEMPT_IN_PROGRESS);
   vi.mocked(attemptsApi.submit).mockResolvedValue(SUBMITTED_ATTEMPT);
+  vi.mocked(resultsApi.list).mockResolvedValue([]);
 });
 
 describe('TestAttempt', () => {
@@ -264,5 +268,38 @@ describe('TestAttempt', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await progress()).toHaveAccessibleName('Question 1 of 3');
+  });
+
+  it('opens the result page once the result is listed', async () => {
+    vi.mocked(resultsApi.list).mockResolvedValue([...RESULT_SUMMARIES]);
+    save([
+      { question_id: 1, selected_option_id: 1 },
+      { question_id: 6, selected_option_id: 22 },
+    ]);
+    setup();
+
+    await answer('number', 'Submit test');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Report page' }),
+    ).toBeInTheDocument();
+    expect(readAttempt(202)).toBeNull();
+  });
+
+  it('still shows the score when the result list cannot be read', async () => {
+    vi.mocked(resultsApi.list).mockRejectedValue(
+      new ApiError({ status: 0, code: 'network', message: 'No connection.' }),
+    );
+    save([
+      { question_id: 1, selected_option_id: 1 },
+      { question_id: 6, selected_option_id: 22 },
+    ]);
+    setup();
+
+    await answer('number', 'Submit test');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Test submitted' }),
+    ).toBeInTheDocument();
   });
 });

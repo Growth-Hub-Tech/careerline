@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { SkillQuestion } from '../components/SkillQuestion';
-import { attemptsApi, type AttemptAnswer, type AttemptResult } from '../lib/api';
+import { attemptsApi, resultsApi, type AttemptAnswer, type AttemptResult } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
@@ -58,6 +58,7 @@ const TestSubmitted = ({ result }: { result: AttemptResult }) => (
 
 const Player = ({ saved }: { saved: SavedAttempt }) => {
   const { testId, title, attempt } = saved;
+  const navigate = useNavigate();
   const [answers, setAnswers] = useState<readonly AttemptAnswer[]>(saved.answers);
   const [selected, setSelected] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +83,12 @@ const Player = ({ saved }: { saved: SavedAttempt }) => {
     try {
       const reply = await attemptsApi.submit({ attempt_id: attempt.attempt_id, answers: all });
       clearAttempt(testId);
-      setResult(reply.result);
+      const listed = await resultsApi
+        .list()
+        .then((results) => results.find((item) => item.attempt_id === attempt.attempt_id))
+        .catch(() => undefined);
+      if (listed) navigate(`/reports/${listed.result_id}`, { replace: true });
+      else setResult(reply.result);
     } catch (submitError) {
       if (hasEnded(submitError)) setEnded(true);
       else setError(describeError(submitError));

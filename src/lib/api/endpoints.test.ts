@@ -4,6 +4,7 @@ import {
   createAuthApi,
   createBeginnerApi,
   createContactApi,
+  createProfileApi,
   createProgrammesApi,
 } from './endpoints';
 
@@ -172,6 +173,18 @@ describe('programme endpoints', () => {
     expect(init.method).toBe('POST');
     expect(JSON.parse(String(init.body))).toEqual({ source: 'beginner_path' });
     expect(click).toEqual({ redirect_url: 'https://x.test' });
+  });
+});
+
+describe('profile endpoints', () => {
+  it('loads my profile', async () => {
+    const { fetcher, client } = setup({ success: true, data: { budget: 'under_50k' } });
+
+    const profile = await createProfileApi(client).get();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/profile');
+    expect(sent(fetcher).headers.get('authorization')).toBe('Bearer token-123');
+    expect(profile).toEqual({ budget: 'under_50k' });
   });
 });
 

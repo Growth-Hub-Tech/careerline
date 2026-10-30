@@ -10,6 +10,7 @@ import type {
   IntakeQuestionnaire,
   IntakeSubmission,
   LevelName,
+  Profile,
   Programme,
   ProgrammeClick,
   ProgrammeClickRequest,
@@ -58,6 +59,10 @@ export const createProgrammesApi = (client: Client) => ({
 
   recordClick: (programmeId: number, click: ProgrammeClickRequest) =>
     client.post<ProgrammeClick>(`/programmes/${programmeId}/clicks`, { body: click }),
+});
+
+export const createProfileApi = (client: Client) => ({
+  get: () => client.get<Profile>('/profile'),
 });
 
 export const createAttemptsApi = (client: Client) => ({

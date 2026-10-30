@@ -1,15 +1,16 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beginnerApi, programmesApi } from '../lib/api';
+import { beginnerApi, profileApi, programmesApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
-import { PATH, PROGRAMME } from '../test/fixtures/beginner';
+import { PATH, PROFILE, PROGRAMME } from '../test/fixtures/beginner';
 import { Programme } from './Programme';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   beginnerApi: { getIntake: vi.fn(), submitIntake: vi.fn(), getRecommendations: vi.fn() },
   programmesApi: { get: vi.fn(), recordClick: vi.fn() },
+  profileApi: { get: vi.fn() },
 }));
 
 const setup = (address = '/programmes/5', onOpen = vi.fn()) => {
@@ -27,6 +28,7 @@ const setup = (address = '/programmes/5', onOpen = vi.fn()) => {
 beforeEach(() => {
   vi.mocked(programmesApi.get).mockResolvedValue(PROGRAMME);
   vi.mocked(beginnerApi.getRecommendations).mockResolvedValue(PATH);
+  vi.mocked(profileApi.get).mockResolvedValue({ ...PROFILE, budget: null });
 });
 
 describe('Programme', () => {
@@ -172,5 +174,20 @@ describe('Programme', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument();
+  });
+
+  it('flags the programme when it costs more than the budget', async () => {
+    vi.mocked(profileApi.get).mockResolvedValue({ ...PROFILE, budget: 'under_50k' });
+    setup();
+
+    const card = await screen.findByRole('region', { name: PROGRAMME.name });
+    expect(await within(card).findByText('Over your budget')).toBeInTheDocument();
+  });
+
+  it('shows the programme without waiting for the profile', async () => {
+    vi.mocked(profileApi.get).mockReturnValue(new Promise(() => undefined));
+    setup();
+
+    expect(await screen.findByRole('region', { name: PROGRAMME.name })).toBeInTheDocument();
   });
 });

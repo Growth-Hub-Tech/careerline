@@ -8,6 +8,7 @@ import {
   createAuthApi,
   createBeginnerApi,
   createContactApi,
+  createProfileApi,
   createProgrammesApi,
 } from './endpoints';
 
@@ -26,6 +27,7 @@ export const authApi = createAuthApi(api);
 export const contactApi = createContactApi(api);
 export const beginnerApi = createBeginnerApi(api);
 export const programmesApi = createProgrammesApi(api);
+export const profileApi = createProfileApi(api);
 export const catalogApi = createCatalogApi(api);
 export const attemptsApi = createAttemptsApi(api);
 export const resultsApi = createResultsApi(api);

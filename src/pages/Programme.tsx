@@ -1,21 +1,16 @@
-import { useCallback, useId, useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { FlowHeader } from '../components/FlowHeader';
 import { PageLoader } from '../components/Loader';
+import { ProgrammeCard } from '../components/ProgrammeCard';
 import { beginnerApi, programmesApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
-import { formatMoney } from '../lib/format';
+import { loadBudget } from '../lib/beginner/budget';
 import { useRequest } from '../lib/hooks/useRequest';
-
-const MODES: Record<string, string> = {
-  online: 'Online',
-  in_person: 'In person',
-  hybrid: 'Hybrid',
-};
 
 const openUrl = (url: string) => window.location.assign(url);
 
@@ -32,7 +27,6 @@ interface ProgrammeDetailsProps {
 }
 
 const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
-  const headingId = useId();
   const [clickError, setClickError] = useState<string>();
   const [isOpening, setIsOpening] = useState(false);
 
@@ -44,6 +38,8 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
     return { programme, path };
   }, [id]);
   const { state, retry } = useRequest(load);
+  const { state: budgetState } = useRequest(loadBudget);
+  const budget = budgetState.status === 'success' ? budgetState.data : null;
 
   if (state.status === 'error') {
     if (state.error instanceof ApiError && state.error.status === 404) {
@@ -76,14 +72,6 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
   const recommendation = path?.recommendations.find(
     (item) => item.programme?.programme_id === programme.programme_id,
   );
-  const isPartner = programme.provider_type === 'partner';
-  const weeks = `${programme.duration_weeks} ${programme.duration_weeks === 1 ? 'week' : 'weeks'}`;
-  const facts = [
-    programme.provider,
-    MODES[programme.mode] ?? programme.mode,
-    weeks,
-    formatMoney(programme.price),
-  ].join(' · ');
 
   const open = async () => {
     setClickError(undefined);
@@ -115,32 +103,17 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
         )}
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.75fr_1fr]">
-          <section
-            aria-labelledby={headingId}
-            className="flex flex-col gap-4 rounded-xl bg-gray-100 p-8"
-          >
-            <p className="text-[12px] font-semibold tracking-wide text-teal-700 uppercase">
-              {isPartner ? 'Partner programme' : 'Recommended programme'}
-            </p>
-            <h2 id={headingId} className="text-[24px] leading-[1.3] font-bold text-slate-800">
-              {programme.name}
-            </h2>
+          <ProgrammeCard programme={programme} budget={budget} headingLevel={2}>
             <p className="max-w-[60ch] text-[15px] leading-[1.55] text-slate-600">
               {programme.summary}
             </p>
-            <p className="text-[14px] font-medium text-slate-700">{facts}</p>
-            {isPartner && (
-              <p className="max-w-[60ch] text-[13px] text-slate-600">
-                This is a partner programme. CareerLine may earn a referral fee if you enrol.
-              </p>
-            )}
             {clickError && <Alert variant="error">{clickError}</Alert>}
             <div className="pt-4">
               <Button variant="deep" fullWidth={false} isLoading={isOpening} onClick={open}>
                 View programme details
               </Button>
             </div>
-          </section>
+          </ProgrammeCard>
 
           {recommendation && recommendation.reasons.length > 0 && (
             <Card title="Why this programme" headingLevel={2} className="p-6">

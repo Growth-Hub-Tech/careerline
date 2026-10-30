@@ -1,4 +1,4 @@
-import type { BeginnerPath, IntakeQuestionnaire, Programme } from '../../lib/api';
+import type { BeginnerPath, IntakeQuestionnaire, Profile, Programme } from '../../lib/api';
 
 export const QUESTIONNAIRE: IntakeQuestionnaire = {
   version: '2026-10',
@@ -109,4 +109,20 @@ export const PATH: BeginnerPath = {
       },
     },
   ],
+};
+
+export const PROFILE: Profile = {
+  learner_id: 7,
+  full_name: 'Skye Favour',
+  headline: null,
+  location: 'Lagos',
+  current_role: null,
+  years_experience: null,
+  goals: [],
+  weekly_hours: 10,
+  budget: 'under_50k',
+  linkedin_url: null,
+  visibility: 'private',
+  completeness: 40,
+  updated_at: '2026-10-26T08:00:00Z',
 };

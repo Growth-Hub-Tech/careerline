@@ -3,12 +3,21 @@ import { Link, useLocation } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
+import { ProgrammeCard } from '../components/ProgrammeCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { beginnerApi, type BeginnerPath } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { loadBudget } from '../lib/beginner/budget';
 import { useRequest } from '../lib/hooks/useRequest';
 
+const MAX_PATHS = 3;
+
+const VIEW_LINK =
+  'inline-flex h-11 w-fit items-center justify-center rounded-lg border border-indigo-800 bg-white px-5 text-[15px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+
 export const AssessmentResults = () => {
+  const { state: budgetState } = useRequest(loadBudget);
+  const budget = budgetState.status === 'success' ? budgetState.data : null;
   const location = useLocation() as { state: { path?: BeginnerPath } | null };
   const saved = location.state?.path;
 
@@ -41,7 +50,7 @@ export const AssessmentResults = () => {
     );
   }
 
-  const matches = [...path.recommendations].sort((a, b) => a.rank - b.rank);
+  const matches = path.recommendations.slice(0, MAX_PATHS);
   const programmeId = matches[0]?.programme?.programme_id;
 
   return (
@@ -84,9 +93,11 @@ export const AssessmentResults = () => {
                     {match.match_score}% match
                   </span>
                 </div>
-                <p className="text-[14px] leading-[1.55] text-slate-600">
-                  {match.reasons.join(' ')}
-                </p>
+                {match.reasons.map((reason) => (
+                  <p key={reason} className="text-[14px] leading-[1.55] text-slate-600">
+                    {reason}
+                  </p>
+                ))}
                 <ProgressBar
                   label={match.title}
                   value={match.match_score}
@@ -95,6 +106,18 @@ export const AssessmentResults = () => {
                   hideLabel
                   className="max-w-[810px]"
                 />
+                <ProgrammeCard
+                  programme={match.programme}
+                  budget={budget}
+                  headingLevel={4}
+                  className="mt-2"
+                >
+                  {match.programme && (
+                    <Link to={`/programmes/${match.programme.programme_id}`} className={VIEW_LINK}>
+                      View programme
+                    </Link>
+                  )}
+                </ProgrammeCard>
               </li>
             );
           })}

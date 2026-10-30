@@ -18,6 +18,8 @@ export type ProgrammeClick = Schemas['ProgrammeClick'];
 export type ProgrammeClickRequest = Schemas['ProgrammeClickRequest'];
 export type ProgrammeSummary = Schemas['ProgrammeSummary'];
 export type Money = Schemas['Money'];
+export type Profile = Schemas['Profile'];
+export type Budget = NonNullable<Profile['budget']>;
 
 export type LevelName = Schemas['LevelName'];
 export type AssessmentSummary = Schemas['AssessmentSummary'];

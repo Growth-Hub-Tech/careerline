@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
-import { beginnerApi, programmesApi } from '../lib/api';
+import { beginnerApi, profileApi, programmesApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
-import { PATH, PROGRAMME, QUESTIONNAIRE } from '../test/fixtures/beginner';
+import { PATH, PROFILE, PROGRAMME, QUESTIONNAIRE } from '../test/fixtures/beginner';
 import { signInAs } from '../test/session';
 import { getRoutes } from './index';
 
@@ -10,6 +10,7 @@ vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   beginnerApi: { getIntake: vi.fn(), submitIntake: vi.fn(), getRecommendations: vi.fn() },
   programmesApi: { get: vi.fn(), recordClick: vi.fn() },
+  profileApi: { get: vi.fn() },
 }));
 
 const Routes = () => useRoutes(getRoutes());
@@ -29,6 +30,7 @@ describe('beginner flow routes', () => {
     vi.mocked(beginnerApi.getIntake).mockResolvedValue(QUESTIONNAIRE);
     vi.mocked(beginnerApi.getRecommendations).mockResolvedValue(PATH);
     vi.mocked(programmesApi.get).mockResolvedValue(PROGRAMME);
+    vi.mocked(profileApi.get).mockResolvedValue({ ...PROFILE, budget: null });
   });
 
   it('serves the assessment outside the app shell', async () => {

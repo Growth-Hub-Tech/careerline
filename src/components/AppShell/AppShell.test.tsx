@@ -7,7 +7,6 @@ import { NAV_BY_TYPE } from './navigation';
 const USER = { name: 'Skye Favour', role: 'Beginner' };
 
 const NAV_LINKS: readonly [string, string][] = [
-  ['Home', '/'],
   ['Dashboard', '/dashboard'],
   ['Assessment', '/assessment'],
   ['Tasks', '/tasks'],
@@ -67,12 +66,10 @@ describe('AppShell', () => {
     );
   });
 
-  it('does not mark Home as current on other pages', () => {
+  it('keeps people inside the app with no Home link to the public site', () => {
     setup('/dashboard');
 
-    expect(within(mainNav()).getByRole('link', { name: 'Home' })).not.toHaveAttribute(
-      'aria-current',
-    );
+    expect(within(mainNav()).queryByRole('link', { name: 'Home' })).not.toBeInTheDocument();
   });
 
   it("shows the person's name and role", () => {

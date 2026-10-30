@@ -22,4 +22,10 @@ describe('navigation per user type', () => {
 
     expect(new Set(paths).size).toBe(paths.length);
   });
+
+  it.each(USER_TYPES)('never sends %s out to the public homepage', (userType) => {
+    const { main, footer } = NAV_BY_TYPE[userType];
+
+    expect([...main, ...footer].map(({ path }) => path)).not.toContain('/');
+  });
 });

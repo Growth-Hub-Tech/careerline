@@ -5,3 +5,8 @@ export * from './Assessment';
 export * from './AssessmentResults';
 export * from './Programme';
 export * from './AssessmentProcessing';
+export * from './SkillTests';
+export * from './TestStart';
+export * from './TestAttempt';
+export * from './Reports';
+export * from './Report';

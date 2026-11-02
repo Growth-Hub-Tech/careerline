@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { contactApi, type ContactReceipt, type ContactRequest } from '../../lib/api';
+import { describeError } from '../../lib/api/describeError';
+import { Alert } from '../Alert';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
 import { TextField } from '../TextField';
@@ -10,7 +14,10 @@ const contactFormSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
-  message: z.string().min(1, 'Message is required'),
+  message: z
+    .string()
+    .min(1, 'Message is required')
+    .min(10, 'Message must be at least 10 characters'),
   privacy: z.boolean().refine((val) => val === true, {
     message: 'You must agree to the privacy policy',
   }),
@@ -18,7 +25,16 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
-const ContactForm = () => {
+interface ContactFormProps {
+  readonly onSubmit?: (message: ContactRequest) => Promise<ContactReceipt>;
+}
+
+const sendWithApi = (message: ContactRequest) => contactApi.send(message);
+
+const ContactForm = ({ onSubmit = sendWithApi }: ContactFormProps) => {
+  const [formError, setFormError] = useState<string>();
+  const [receipt, setReceipt] = useState<ContactReceipt>();
+
   const {
     register,
     handleSubmit,
@@ -35,14 +51,33 @@ const ContactForm = () => {
     },
   });
 
-  const onSubmit = (_data: ContactFormData) => {
-    // TODO: replace alert with a real API call using _data
-    alert('Message sent successfully!');
-    reset();
-  };
+  const submit = handleSubmit(async (data) => {
+    setFormError(undefined);
+    setReceipt(undefined);
+
+    try {
+      const result = await onSubmit({
+        full_name: `${data.firstName} ${data.lastName}`.trim(),
+        email: data.email,
+        topic: 'general',
+        message: data.message,
+      });
+      setReceipt(result);
+      reset();
+    } catch (error) {
+      setFormError(describeError(error));
+    }
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
+    <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+      {formError && <Alert variant="error">{formError}</Alert>}
+      {receipt && (
+        <Alert variant="success">
+          Thanks, we have your message. Your reference is {receipt.ticket_id}.
+        </Alert>
+      )}
+
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField
           label="First name"

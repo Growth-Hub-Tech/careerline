@@ -2,16 +2,14 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { AppShell } from './AppShell';
+import { NAV_BY_TYPE } from './navigation';
 
 const USER = { name: 'Skye Favour', role: 'Beginner' };
 
 const NAV_LINKS: readonly [string, string][] = [
-  ['Home', '/'],
   ['Dashboard', '/dashboard'],
   ['Assessment', '/assessment'],
   ['Tasks', '/tasks'],
-  ['Reporting', '/reports'],
-  ['Users', '/users'],
   ['Support', '/support'],
   ['Settings', '/settings'],
 ];
@@ -19,7 +17,7 @@ const NAV_LINKS: readonly [string, string][] = [
 const setup = (address = '/dashboard') =>
   render(
     <MemoryRouter initialEntries={[address]}>
-      <AppShell user={USER}>
+      <AppShell user={USER} navigation={NAV_BY_TYPE.beginner} onSignOut={vi.fn()}>
         <p>Page content</p>
       </AppShell>
     </MemoryRouter>,
@@ -68,12 +66,10 @@ describe('AppShell', () => {
     );
   });
 
-  it('does not mark Home as current on other pages', () => {
+  it('keeps people inside the app with no Home link to the public site', () => {
     setup('/dashboard');
 
-    expect(within(mainNav()).getByRole('link', { name: 'Home' })).not.toHaveAttribute(
-      'aria-current',
-    );
+    expect(within(mainNav()).queryByRole('link', { name: 'Home' })).not.toBeInTheDocument();
   });
 
   it("shows the person's name and role", () => {

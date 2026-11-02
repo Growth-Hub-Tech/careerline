@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { getRoutes } from './index';
+import { signInAs } from '../test/session';
+import { accessFor } from './access';
 import { APP_PLACEHOLDERS, PUBLIC_PLACEHOLDERS } from './routeMap';
 
 const Routes = () => useRoutes(getRoutes());
@@ -17,6 +19,8 @@ const withExampleParams = (path: string) => path.replace(/:[^/]+/g, 'example');
 const PLACEHOLDERS = [...PUBLIC_PLACEHOLDERS, ...APP_PLACEHOLDERS];
 
 describe('route map', () => {
+  beforeEach(() => signInAs());
+
   it('has no duplicate addresses', () => {
     const paths = PLACEHOLDERS.map(({ path }) => path);
 
@@ -28,6 +32,7 @@ describe('route map', () => {
   });
 
   it.each(PLACEHOLDERS)('serves $path with a placeholder page', ({ path, title, description }) => {
+    signInAs(accessFor(path)[0]);
     renderAt(withExampleParams(path));
 
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();

@@ -13,10 +13,14 @@ interface QuestionCardProps {
   readonly questionCount: number;
   readonly text: string;
   readonly options: readonly QuestionOption[];
-  readonly value?: string;
-  readonly onChange: (value: string) => void;
+  readonly selected: readonly string[];
+  readonly multiple?: boolean;
+  readonly scale?: boolean;
+  readonly error?: string;
+  readonly onChange: (values: string[]) => void;
   readonly onNext: () => void;
   readonly onBack?: () => void;
+  readonly isBackDisabled?: boolean;
   readonly isLast?: boolean;
 }
 
@@ -25,14 +29,22 @@ export const QuestionCard = ({
   questionCount,
   text,
   options,
-  value,
+  selected,
+  multiple = false,
+  scale = false,
+  error,
   onChange,
   onNext,
   onBack,
+  isBackDisabled = false,
   isLast = false,
 }: QuestionCardProps) => {
   const groupId = useId();
   const headingId = `${groupId}-question`;
+  const errorId = `${groupId}-error`;
+
+  const toggle = (value: string) =>
+    selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value];
 
   return (
     <section
@@ -50,6 +62,10 @@ export const QuestionCard = ({
 
       <p className="text-[13px] text-slate-600">
         There are no right or wrong answers here. Choose the option that resonates most with you.
+        {multiple && <span className="block pt-1">Select all that apply.</span>}
+        {scale && (
+          <span className="block pt-1">Choose the point on the scale that fits you best.</span>
+        )}
       </p>
 
       <h2
@@ -60,34 +76,43 @@ export const QuestionCard = ({
       </h2>
 
       <div
-        role="radiogroup"
+        role={multiple ? 'group' : 'radiogroup'}
         aria-labelledby={headingId}
-        className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 sm:p-6"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={`flex flex-col gap-2 rounded-xl border p-3 sm:p-6 ${scale ? 'sm:flex-row' : ''} ${error ? 'border-red-600' : 'border-slate-200'}`}
       >
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50 has-checked:border-indigo-800 has-checked:bg-indigo-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-indigo-600"
+            className="flex flex-1 cursor-pointer items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 transition-colors hover:bg-gray-50 has-checked:border-indigo-800 has-checked:bg-indigo-50 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-indigo-600"
           >
             <span className="text-[17px] text-slate-800">{option.label}</span>
             <input
-              type="radio"
+              type={multiple ? 'checkbox' : 'radio'}
               name={groupId}
               value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
+              checked={selected.includes(option.value)}
+              onChange={() => onChange(multiple ? toggle(option.value) : [option.value])}
               className="size-5 shrink-0 cursor-pointer accent-indigo-800"
             />
           </label>
         ))}
       </div>
 
+      {error && (
+        <p id={errorId} role="alert" className="-mt-3 text-[14px] text-red-700">
+          {error}
+        </p>
+      )}
+
       <div className="flex items-center justify-between gap-3 pt-2">
         {onBack ? (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex h-11 min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-full border border-indigo-800 bg-white px-6 text-[16px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            disabled={isBackDisabled}
+            className="inline-flex h-11 min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-full border border-indigo-800 bg-white px-6 text-[16px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
           >
             <LuArrowLeft size={18} aria-hidden="true" />
             Back
@@ -99,7 +124,7 @@ export const QuestionCard = ({
         <Button
           variant={isLast ? 'accent' : 'deep'}
           fullWidth={false}
-          disabled={!value}
+          disabled={selected.length === 0}
           onClick={onNext}
         >
           {isLast ? 'Generate Result' : 'Next'}

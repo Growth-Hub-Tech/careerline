@@ -16,6 +16,7 @@ const setup = (props: Partial<Parameters<typeof QuestionCard>[0]> = {}) => {
       questionCount={5}
       text="How do you prefer to spend a free hour?"
       options={OPTIONS}
+      selected={[]}
       {...handlers}
       {...props}
     />,
@@ -62,7 +63,6 @@ describe('QuestionCard', () => {
     setup();
 
     expect(screen.getAllByRole('radio')).toHaveLength(3);
-    expect(screen.getByRole('radio', { name: 'Talking with people' })).toBeInTheDocument();
   });
 
   it('reports the chosen answer', async () => {
@@ -70,7 +70,7 @@ describe('QuestionCard', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: 'Talking with people' }));
 
-    expect(onChange).toHaveBeenCalledWith('people');
+    expect(onChange).toHaveBeenCalledWith(['people']);
   });
 
   it('selects when the option text is clicked', async () => {
@@ -78,14 +78,33 @@ describe('QuestionCard', () => {
 
     await userEvent.click(screen.getByText('Reading or learning something new'));
 
-    expect(onChange).toHaveBeenCalledWith('learn');
+    expect(onChange).toHaveBeenCalledWith(['learn']);
   });
 
   it('shows the current answer as checked', () => {
-    setup({ value: 'learn' });
+    setup({ selected: ['learn'] });
 
     expect(screen.getByRole('radio', { name: 'Reading or learning something new' })).toBeChecked();
     expect(screen.getByRole('radio', { name: 'Talking with people' })).not.toBeChecked();
+  });
+
+  it('lets several answers be chosen when asked', async () => {
+    const { onChange } = setup({ multiple: true, selected: ['hands'] });
+
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.getByText('Select all that apply.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Talking with people' }));
+
+    expect(onChange).toHaveBeenCalledWith(['hands', 'people']);
+  });
+
+  it('takes an answer away when it is unticked', async () => {
+    const { onChange } = setup({ multiple: true, selected: ['hands', 'people'] });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Talking with people' }));
+
+    expect(onChange).toHaveBeenCalledWith(['hands']);
   });
 
   it('disables Next until an answer is chosen', () => {
@@ -95,7 +114,7 @@ describe('QuestionCard', () => {
   });
 
   it('moves on with Next once answered', async () => {
-    const { onNext } = setup({ value: 'learn' });
+    const { onNext } = setup({ selected: ['learn'] });
 
     await userEvent.click(screen.getByRole('button', { name: 'Next' }));
 
@@ -110,6 +129,16 @@ describe('QuestionCard', () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
+  it('can show Back as disabled', async () => {
+    const { onBack } = setup({ isBackDisabled: true });
+
+    const back = screen.getByRole('button', { name: 'Back' });
+    expect(back).toBeDisabled();
+    await userEvent.click(back);
+
+    expect(onBack).not.toHaveBeenCalled();
+  });
+
   it('has no Back button on the first question', () => {
     setup({ onBack: undefined });
 
@@ -117,7 +146,7 @@ describe('QuestionCard', () => {
   });
 
   it('offers Generate Result instead of Next on the last question', async () => {
-    const { onNext } = setup({ isLast: true, value: 'learn' });
+    const { onNext } = setup({ isLast: true, selected: ['learn'] });
 
     expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Generate Result' }));
@@ -129,5 +158,31 @@ describe('QuestionCard', () => {
     setup({ isLast: true });
 
     expect(screen.getByRole('button', { name: 'Generate Result' })).toBeDisabled();
+  });
+
+  it('shows why the server rejected the answer and marks the choices', () => {
+    setup({ error: 'Choose one of the listed options.' });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose one of the listed options.');
+    const group = screen.getByRole('radiogroup');
+    expect(group).toHaveAttribute('aria-invalid', 'true');
+    expect(group).toHaveAccessibleDescription('Choose one of the listed options.');
+  });
+
+  it('marks nothing when the answer is fine', () => {
+    setup();
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('radiogroup')).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('lays a scale out as one row of single choices', () => {
+    setup({ scale: true });
+
+    expect(
+      screen.getByText('Choose the point on the scale that fits you best.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getByRole('radiogroup')).toHaveClass('sm:flex-row');
   });
 });

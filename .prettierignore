@@ -9,3 +9,5 @@ build
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+src/lib/api/schema.d.ts
+docs/openapi.json

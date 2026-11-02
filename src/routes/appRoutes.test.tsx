@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { getRoutes } from './index';
+import { signInAs } from '../test/session';
 
 const Routes = () => useRoutes(getRoutes());
 
@@ -14,6 +15,8 @@ const renderAt = (address: string) =>
 const shellNav = () => screen.queryByRole('navigation', { name: 'Main' });
 
 describe('app routes', () => {
+  beforeEach(() => signInAs());
+
   it('serves the dashboard inside the app shell', () => {
     renderAt('/dashboard');
 

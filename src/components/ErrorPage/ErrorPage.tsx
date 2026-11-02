@@ -35,7 +35,7 @@ export const ErrorPage = ({
     <p className="mt-2 max-w-[440px] text-[14px] leading-[1.55] text-slate-600">{description}</p>
 
     {children && (
-      <div className="mt-8 flex w-full max-w-[400px] flex-col gap-3 sm:flex-row sm:justify-center">
+      <div className="mt-8 flex w-full max-w-[560px] flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
         {children}
       </div>
     )}

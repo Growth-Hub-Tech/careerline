@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
-import logo from '../../assests/careerline.png';
+import logo from '../../assets/careerline.png';
 
 interface NavChild {
   readonly label: string;

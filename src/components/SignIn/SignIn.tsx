@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
 import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { readRole, useSession, type Session } from '../../lib/session';
+import { readRole, useSession, wasSessionExpired, type Session } from '../../lib/session';
 import { signInSchema, type SignInValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
@@ -26,6 +26,7 @@ export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
   const from = location.state?.from;
   const { signIn } = useSession();
   const [formError, setFormError] = useState<string>();
+  const [hadExpired] = useState(wasSessionExpired);
 
   const {
     register,
@@ -62,6 +63,11 @@ export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
     <SplitAuthLayout>
       <AuthTitle>Welcome Back</AuthTitle>
       <p className="mt-3 text-[16px] text-slate-700">Welcome back! Please enter your details.</p>
+      {hadExpired && (
+        <Alert variant="info" className="mt-4">
+          Your session has ended. Sign in again to carry on where you left off.
+        </Alert>
+      )}
 
       <form onSubmit={submit} noValidate className="mt-10 flex flex-col">
         {formError && (

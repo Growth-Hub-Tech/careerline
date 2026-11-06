@@ -2,7 +2,14 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ApiError } from '../../lib/api/ApiError';
-import { createDevSession, readSession, SessionProvider, writeRole } from '../../lib/session';
+import {
+  createDevSession,
+  expireSession,
+  readSession,
+  SessionProvider,
+  writeRole,
+  writeSession,
+} from '../../lib/session';
 import { SignIn } from './SignIn';
 
 const setup = (onSubmit?: Parameters<typeof SignIn>[0]['onSubmit']) =>
@@ -137,5 +144,15 @@ describe('SignIn', () => {
     await fill();
 
     expect(await screen.findByText('Callback ?reference=ref-1')).toBeInTheDocument();
+  });
+
+  it('says why when the last session ended', async () => {
+    writeSession(createDevSession('self-test'));
+    expireSession();
+    setup();
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Your session has ended. Sign in again to carry on where you left off.',
+    );
   });
 });

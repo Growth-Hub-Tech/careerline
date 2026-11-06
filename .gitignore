@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .env
+
+# Install scripts
+*.sh
+*.patch
+*.diff

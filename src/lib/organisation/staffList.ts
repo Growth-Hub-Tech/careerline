@@ -1,6 +1,6 @@
 import type { RoleSummary, TeamMemberCreate } from '../api';
 
-export const STAFF_COLUMNS = ['full_name', 'email', 'department', 'role'] as const;
+const STAFF_COLUMNS = ['full_name', 'email', 'department', 'role'] as const;
 
 export const STAFF_LIST_TEMPLATE = `${STAFF_COLUMNS.join(',')}\nAda Obi,ada@yourcompany.com,Engineering,Frontend Developer\n`;
 

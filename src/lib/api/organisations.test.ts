@@ -88,6 +88,31 @@ describe('organisations api', () => {
   });
 });
 
+describe('organisation users', () => {
+  it('lists, adds, changes and removes users', async () => {
+    const { fetcher, organisations } = setup(
+      { items: [], total: 0 },
+      { learner_id: 5 },
+      { learner_id: 5 },
+      { status: 'accepted' },
+    );
+
+    await organisations.listUsers(41);
+    await organisations.addUser(41, 'ada@kora.example', 'admin');
+    await organisations.changeRole(41, 5, 'recruiter');
+    await organisations.removeUser(41, 5);
+
+    expect(calls(fetcher)).toEqual([
+      'GET https://api.example.test/api/v1/organisations/41/users',
+      'POST https://api.example.test/api/v1/organisations/41/users',
+      'PATCH https://api.example.test/api/v1/organisations/41/users/5',
+      'DELETE https://api.example.test/api/v1/organisations/41/users/5',
+    ]);
+    expect(bodyOf(fetcher, 1)).toEqual({ email: 'ada@kora.example', role: 'admin' });
+    expect(bodyOf(fetcher, 2)).toEqual({ role: 'recruiter' });
+  });
+});
+
 describe('roles api', () => {
   it('lists every role', async () => {
     const { fetcher, roles } = setup({ items: [{ role_id: 1 }], total: 1, limit: 100, offset: 0 });

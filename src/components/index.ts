@@ -24,7 +24,6 @@ export * from './EmptyState';
 export * from './Loader';
 export * from './Pagination';
 export * from './ProgressBar';
-export * from './PlaceholderPage';
 export * from './ErrorPage';
 export * from './ErrorBoundary';
 export * from './NoAccess';

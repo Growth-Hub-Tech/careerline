@@ -19,6 +19,16 @@ import {
   TestAttempt,
   Invitation,
   Quote,
+  AudiencePage,
+  HowItWorks,
+  Help,
+  PrivacyPolicy,
+  Terms,
+  Settings,
+  Support,
+  Tasks,
+  Users,
+  AttemptReview,
 } from '../pages';
 import {
   Pricing,
@@ -40,34 +50,13 @@ import {
 } from './lazyPages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
-import { PlaceholderPage } from '../components/PlaceholderPage';
 import { authRoutes } from '../authRoutes';
 import type { UserType } from '../lib/session';
-import { APP_PLACEHOLDERS, PUBLIC_PLACEHOLDERS, type PlaceholderRoute } from './routeMap';
-
-const toRoute = ({ path, title, description }: PlaceholderRoute): RouteObject => ({
-  path,
-  element: <PlaceholderPage title={title} description={description} />,
-});
 
 const guard = (allow: readonly UserType[], children: RouteObject[]): RouteObject => ({
   element: <RequireAccess allow={allow} />,
   children,
 });
-
-const groupByAccess = (placeholders: readonly PlaceholderRoute[]): RouteObject[] => {
-  const groups = new Map<string, { allow: readonly UserType[]; routes: RouteObject[] }>();
-
-  placeholders.forEach((placeholder) => {
-    const allow = accessFor(placeholder.path);
-    const key = allow.join(',');
-    const group = groups.get(key) ?? { allow, routes: [] };
-    group.routes.push(toRoute(placeholder));
-    groups.set(key, group);
-  });
-
-  return [...groups.values()].map(({ allow, routes }) => guard(allow, routes));
-};
 
 export const getRoutes = (): RouteObject[] => [
   {
@@ -80,7 +69,13 @@ export const getRoutes = (): RouteObject[] => [
           { path: '/contact', element: <Contact /> },
           { path: '/pricing', element: <Pricing /> },
           { path: '/quote', element: <Quote /> },
-          ...PUBLIC_PLACEHOLDERS.map(toRoute),
+          { path: '/how-it-works', element: <HowItWorks /> },
+          { path: '/help', element: <Help /> },
+          { path: '/privacy', element: <PrivacyPolicy /> },
+          { path: '/terms', element: <Terms /> },
+          { path: '/for-individuals', element: <AudiencePage audience="individuals" /> },
+          { path: '/for-organizations', element: <AudiencePage audience="organizations" /> },
+          { path: '/for-recruiters', element: <AudiencePage audience="recruiters" /> },
         ],
       },
       ...authRoutes,
@@ -93,6 +88,8 @@ export const getRoutes = (): RouteObject[] => [
               { path: '/dashboard', element: <Dashboard /> },
               { path: '/credits', element: <Credits /> },
               { path: '/billing', element: <Billing /> },
+              { path: '/settings', element: <Settings /> },
+              { path: '/support', element: <Support /> },
               { path: '/payments/callback', element: <PaymentCheck /> },
               { path: '/settings/privacy', element: <PrivacyCentre /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
@@ -113,7 +110,9 @@ export const getRoutes = (): RouteObject[] => [
                 { path: '/team/targets', element: <CompanyTargets /> },
                 { path: '/team/audits/:auditId', element: <AuditProgress /> },
               ]),
-              ...groupByAccess(APP_PLACEHOLDERS),
+              { path: '/tasks', element: <Tasks /> },
+              { path: '/attempts/:attemptId/review', element: <AttemptReview /> },
+              guard(accessFor('/users'), [{ path: '/users', element: <Users /> }]),
             ],
           },
           {

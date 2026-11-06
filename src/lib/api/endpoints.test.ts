@@ -1,5 +1,6 @@
 import { createApiClient } from './client';
 import {
+  createAccountsApi,
   createAttemptsApi,
   createAuthApi,
   createBeginnerApi,
@@ -417,5 +418,66 @@ describe('billing endpoints', () => {
 
     expect(await createPaymentsApi(client).list()).toEqual([{ reference: 'r' }]);
     expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments?limit=20&offset=0');
+  });
+});
+
+describe('account endpoints', () => {
+  it('reads, updates and changes the password of my account', async () => {
+    const { fetcher, client } = setup({ success: true, data: { account_id: 1 } });
+    const accounts = createAccountsApi(client);
+
+    await accounts.me();
+    await accounts.update({ full_name: 'Skye Favour' });
+    await accounts.changePassword({ current_password: 'old-secret', new_password: 'new-secret' });
+
+    expect(
+      fetcher.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${String(url)}`),
+    ).toEqual([
+      'GET https://api.example.test/api/v1/accounts/me',
+      'PATCH https://api.example.test/api/v1/accounts/me',
+      'POST https://api.example.test/api/v1/accounts/me/password',
+    ]);
+    expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body))).toEqual({
+      full_name: 'Skye Favour',
+    });
+  });
+});
+
+describe('remaining endpoints', () => {
+  const calls = (fetcher: ReturnType<typeof setup>['fetcher']) =>
+    fetcher.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${String(url)}`);
+
+  it('signs out here or everywhere and sets a new password from the reset link', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'accepted' } });
+    const auth = createAuthApi(client);
+
+    await auth.logout();
+    await auth.logout(true);
+    await auth.confirmPasswordReset('reset-token', 'new-secret-1');
+
+    expect(calls(fetcher)).toEqual([
+      'POST https://api.example.test/api/v1/auth/logout?everywhere=false',
+      'POST https://api.example.test/api/v1/auth/logout?everywhere=true',
+      'POST https://api.example.test/api/v1/accounts/password-reset/confirm',
+    ]);
+    expect(JSON.parse(String(fetcher.mock.calls[2][1]?.body))).toEqual({
+      token: 'reset-token',
+      new_password: 'new-secret-1',
+    });
+    expect(new Headers(fetcher.mock.calls[2][1]?.headers).get('Authorization')).toBeNull();
+  });
+
+  it('reviews and cancels an attempt and reads the skill profile', async () => {
+    const { fetcher, client } = setup({ success: true, data: {} });
+
+    await createAttemptsApi(client).review(12);
+    await createAttemptsApi(client).cancel(12);
+    await createProfileApi(client).skills();
+
+    expect(calls(fetcher)).toEqual([
+      'GET https://api.example.test/api/v1/attempts/12/review',
+      'PATCH https://api.example.test/api/v1/attempts/12/cancel',
+      'GET https://api.example.test/api/v1/profile/skills',
+    ]);
   });
 });

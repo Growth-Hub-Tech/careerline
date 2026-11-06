@@ -3,6 +3,8 @@ import axe from 'axe-core';
 import type { ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import {
+  accountsApi,
+  attemptsApi,
   catalogApi,
   invitationsApi,
   organisationsApi,
@@ -24,7 +26,18 @@ import {
   CompanyTargets,
   Credits,
   Home,
+  AttemptReview,
+  SetNewPassword,
+  Settings,
+  Support,
+  Tasks,
+  Users,
   EmployeeReport,
+  Help,
+  HowItWorks,
+  AudiencePage,
+  PrivacyPolicy,
+  Terms,
   Invitation,
   Pricing,
   PrivacyCentre,
@@ -50,12 +63,20 @@ import {
 import { CREDIT_PACKS, CREDITS, PLANS, payment, subscription } from './fixtures/payments';
 import { consents } from './fixtures/privacy';
 import { CANDIDATE_REPORT, CANDIDATES, INVITATION_PUBLIC, INVITATIONS } from './fixtures/recruiter';
-import { REPORT_READY, RESULT_DETAIL, SKILL_HISTORY } from './fixtures/results';
+import {
+  REPORT_READY,
+  RESULT_DETAIL,
+  RESULT_SUMMARIES,
+  reviewOf,
+  SKILL_HISTORY,
+} from './fixtures/results';
+import { account } from './fixtures/account';
 import { ACCESS_WITH_CREDITS, TEST_DETAIL, TESTS } from './fixtures/tests';
 import { signInAs } from './session';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
+  accountsApi: { me: vi.fn() },
   catalogApi: { getTest: vi.fn(), getAccess: vi.fn(), listTests: vi.fn() },
   paymentsApi: { listCreditPacks: vi.fn(), credits: vi.fn(), list: vi.fn() },
   subscriptionsApi: { listPlans: vi.fn(), mine: vi.fn() },
@@ -69,14 +90,34 @@ vi.mock('../lib/api', async (importOriginal) => ({
     getAudit: vi.fn(),
     heatmap: vi.fn(),
     getTargets: vi.fn(),
+    listUsers: vi.fn(),
   },
   rolesApi: { list: vi.fn(), get: vi.fn() },
   programmesApi: { listForRole: vi.fn() },
-  profileApi: { skillHistory: vi.fn() },
-  resultsApi: { get: vi.fn(), getReport: vi.fn() },
+  profileApi: { skillHistory: vi.fn(), skills: vi.fn() },
+  resultsApi: { get: vi.fn(), getReport: vi.fn(), list: vi.fn() },
+  attemptsApi: { review: vi.fn() },
 }));
 
 beforeEach(() => {
+  vi.mocked(accountsApi.me).mockResolvedValue(
+    account({ organisation_id: 41, organisation_role: 'owner' }),
+  );
+  vi.mocked(resultsApi.list).mockResolvedValue([...RESULT_SUMMARIES]);
+  vi.mocked(attemptsApi.review).mockResolvedValue(reviewOf());
+  vi.mocked(profileApi.skills).mockResolvedValue({ learner_id: 2, skills: [] });
+  vi.mocked(organisationsApi.listUsers).mockResolvedValue({
+    items: [
+      {
+        learner_id: 1,
+        full_name: 'Ngozi Okafor',
+        email: 'ngozi@kora.example',
+        role: 'owner',
+        added_at: '2026-10-01T09:00:00Z',
+      },
+    ],
+    total: 1,
+  });
   vi.mocked(catalogApi.getTest).mockResolvedValue(TEST_DETAIL);
   vi.mocked(catalogApi.getAccess).mockResolvedValue(ACCESS_WITH_CREDITS);
   vi.mocked(catalogApi.listTests).mockResolvedValue([...TESTS.items]);
@@ -112,9 +153,99 @@ interface PageCase {
   readonly element: ReactElement;
   readonly ready: string;
   readonly userType: UserType;
+  readonly hasOwnMain?: boolean;
 }
 
 const PAGES: readonly PageCase[] = [
+  {
+    name: 'answer review',
+    path: '/attempts/:attemptId/review',
+    address: '/attempts/12/review',
+    element: <AttemptReview />,
+    ready: '1 of 2 right',
+    userType: 'self-test',
+  },
+  {
+    name: 'set new password',
+    path: '/reset-password',
+    address: '/reset-password?token=t',
+    element: <SetNewPassword />,
+    ready: 'Choose a new password',
+    userType: 'self-test',
+    hasOwnMain: true,
+  },
+  {
+    name: 'settings',
+    path: '/settings',
+    address: '/settings',
+    element: <Settings />,
+    ready: 'Your details',
+    userType: 'self-test',
+  },
+  {
+    name: 'support',
+    path: '/support',
+    address: '/support',
+    element: <Support />,
+    ready: 'Send us a message',
+    userType: 'self-test',
+  },
+  {
+    name: 'tasks',
+    path: '/tasks',
+    address: '/tasks',
+    element: <Tasks />,
+    ready: 'Open the report',
+    userType: 'self-test',
+  },
+  {
+    name: 'users',
+    path: '/users',
+    address: '/users',
+    element: <Users />,
+    ready: 'Add a person',
+    userType: 'organization',
+  },
+  {
+    name: 'how it works',
+    path: '/how-it-works',
+    address: '/how-it-works',
+    element: <HowItWorks />,
+    ready: 'One engine underneath',
+    userType: 'self-test',
+  },
+  {
+    name: 'for recruiters',
+    path: '/for-recruiters',
+    address: '/for-recruiters',
+    element: <AudiencePage audience="recruiters" />,
+    ready: 'What you get',
+    userType: 'self-test',
+  },
+  {
+    name: 'help',
+    path: '/help',
+    address: '/help',
+    element: <Help />,
+    ready: 'Help Center',
+    userType: 'self-test',
+  },
+  {
+    name: 'privacy policy',
+    path: '/privacy',
+    address: '/privacy',
+    element: <PrivacyPolicy />,
+    ready: 'What we collect',
+    userType: 'self-test',
+  },
+  {
+    name: 'terms',
+    path: '/terms',
+    address: '/terms',
+    element: <Terms />,
+    ready: 'What results mean',
+    userType: 'self-test',
+  },
   {
     name: 'quote',
     path: '/quote',
@@ -277,11 +408,17 @@ describe('accessibility', () => {
     const { container } = render(
       <MemoryRouter initialEntries={[page.address]}>
         <SessionProvider>
-          <main>
+          {page.hasOwnMain ? (
             <Routes>
               <Route path={page.path} element={page.element} />
             </Routes>
-          </main>
+          ) : (
+            <main>
+              <Routes>
+                <Route path={page.path} element={page.element} />
+              </Routes>
+            </main>
+          )}
         </SessionProvider>
       </MemoryRouter>,
     );

@@ -7,7 +7,7 @@ interface Skill {
   readonly tone: Tone;
 }
 
-export interface Testimonial {
+interface Testimonial {
   readonly name: string;
   readonly rating: number;
   readonly role: string;
@@ -23,7 +23,7 @@ const TONES: Record<Tone, string> = {
   terracotta: 'border-terracotta-600 bg-terracotta-50 text-terracotta-700',
 };
 
-export const DEFAULT_TESTIMONIAL: Testimonial = {
+const DEFAULT_TESTIMONIAL: Testimonial = {
   name: 'Skye Favour',
   rating: 4.9,
   role: 'Founder, Catalog',

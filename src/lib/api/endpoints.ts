@@ -1,5 +1,10 @@
 import type { createApiClient } from './client';
 import type {
+  AttemptReview,
+  SkillProfile,
+  Account,
+  AccountUpdate,
+  ChangePasswordRequest,
   PaymentPage,
   Subscription,
   SkillHistory,
@@ -51,6 +56,24 @@ export const createAuthApi = (client: Client) => ({
     client.post<Acknowledgement>('/accounts/verify-email', { body: { token }, auth: false }),
 
   resendVerification: () => client.post<Acknowledgement>('/accounts/verify-email/resend'),
+
+  confirmPasswordReset: (token: string, newPassword: string) =>
+    client.post<Acknowledgement>('/accounts/password-reset/confirm', {
+      body: { token, new_password: newPassword },
+      auth: false,
+    }),
+
+  logout: (everywhere = false) =>
+    client.post<Acknowledgement>('/auth/logout', { query: { everywhere } }),
+});
+
+export const createAccountsApi = (client: Client) => ({
+  me: () => client.get<Account>('/accounts/me'),
+
+  update: (changes: AccountUpdate) => client.patch<Account>('/accounts/me', { body: changes }),
+
+  changePassword: (request: ChangePasswordRequest) =>
+    client.post<Acknowledgement>('/accounts/me/password', { body: request }),
 });
 
 export const createContactApi = (client: Client) => ({
@@ -125,6 +148,8 @@ export const createPrivacyApi = (client: Client) => ({
 export const createProfileApi = (client: Client) => ({
   get: () => client.get<Profile>('/profile'),
 
+  skills: () => client.get<SkillProfile>('/profile/skills'),
+
   skillHistory: (skillId: number) =>
     client.get<SkillHistory>('/profile/skills/history', { query: { skill_id: skillId } }),
 });
@@ -137,4 +162,8 @@ export const createAttemptsApi = (client: Client) => ({
 
   answer: (attemptId: number, answer: AnswerRequest) =>
     client.post<AttemptState>(`/attempts/${attemptId}/answer`, { body: answer }),
+
+  review: (attemptId: number) => client.get<AttemptReview>(`/attempts/${attemptId}/review`),
+
+  cancel: (attemptId: number) => client.patch<unknown>(`/attempts/${attemptId}/cancel`),
 });

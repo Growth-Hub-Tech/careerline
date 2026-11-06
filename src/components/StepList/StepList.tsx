@@ -1,6 +1,6 @@
 import { LuCheck } from 'react-icons/lu';
 
-export interface Step {
+interface Step {
   readonly id: string;
   readonly title: string;
 }

@@ -3,16 +3,17 @@ import type { components } from './schema';
 type Schemas = components['schemas'];
 
 export type RegisterRequest = Schemas['RegisterRequest'];
+export type Account = Schemas['Account'];
+export type AccountUpdate = Schemas['AccountUpdate'];
+export type ChangePasswordRequest = Schemas['ChangePasswordRequest'];
 export type TokenResponse = Schemas['TokenResponse'];
 export type Acknowledgement = Schemas['Acknowledgement'];
 export type ContactRequest = Schemas['ContactRequest'];
 export type ContactReceipt = Schemas['ContactReceipt'];
 export type ContactTopic = NonNullable<ContactRequest['topic']>;
 export type IntakeQuestionnaire = Schemas['IntakeQuestionnaire'];
-export type IntakeQuestion = Schemas['IntakeQuestion'];
 export type IntakeSubmission = Schemas['IntakeSubmission'];
 export type BeginnerPath = Schemas['BeginnerPath'];
-export type CareerPathRecommendation = Schemas['CareerPathRecommendation'];
 export type Programme = Schemas['Programme'];
 export type ProgrammeClick = Schemas['ProgrammeClick'];
 export type ProgrammeClickRequest = Schemas['ProgrammeClickRequest'];
@@ -57,6 +58,9 @@ export type InvitationCreate = Schemas['InvitationCreate'];
 export type InvitationPage = Schemas['Page_Invitation_'];
 export type InvitationPublic = Schemas['InvitationPublic'];
 export type Organisation = Schemas['Organisation'];
+export type OrganisationUser = Schemas['OrganisationUser'];
+export type OrganisationUserList = Schemas['OrganisationUserList'];
+export type OrganisationRole = OrganisationUser['role'];
 export type TeamMember = Schemas['TeamMember'];
 export type TeamMemberCreate = Schemas['TeamMemberCreate'];
 export type TeamMemberPage = Schemas['Page_TeamMember_'];
@@ -67,7 +71,6 @@ export type AuditSummary = Schemas['AuditSummary'];
 export type AuditPage = Schemas['Page_AuditSummary_'];
 export type Benchmark = Schemas['Benchmark'];
 export type Heatmap = Schemas['Heatmap'];
-export type HeatmapRow = Schemas['HeatmapRow'];
 export type HeatmapCell = Schemas['HeatmapCell'];
 export type HeatmapGrouping = Heatmap['group_by'];
 export type Target = Schemas['Target'];
@@ -78,7 +81,6 @@ export type RolePage = Schemas['Page_RoleSummary_'];
 export type Role = Schemas['Role'];
 export type RoleSkill = Schemas['RoleSkill'];
 export type SkillHistory = Schemas['SkillHistory'];
-export type SkillHistoryEntry = Schemas['SkillHistoryEntry'];
 export type Subscription = Schemas['Subscription'];
 
 export interface Skill {
@@ -97,5 +99,7 @@ export interface SkillsPage {
 
 export type AttemptState = Schemas['AttemptState'];
 export type ServedQuestion = Schemas['ServedQuestion'];
-export type AttemptResult = Schemas['AttemptResult'];
 export type AnswerRequest = Schemas['AnswerRequest'];
+export type AttemptReview = Schemas['AttemptReview'];
+export type ReviewItem = Schemas['ReviewItem'];
+export type SkillProfile = Schemas['SkillProfile'];

@@ -1,0 +1,28 @@
+name: Live check
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Site address to check'
+        required: false
+
+jobs:
+  check:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: 🌍 Check the live site and the API
+        run: node scripts/live-check.mjs
+        env:
+          SITE_URL: ${{ github.event.inputs.site_url || github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}

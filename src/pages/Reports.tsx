@@ -1,16 +1,50 @@
+import { useId } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { EmptyState } from '../components/EmptyState';
 import { PageLoader } from '../components/Loader';
 import { Table, type TableColumn } from '../components/Table';
-import { resultsApi, type ResultSummary } from '../lib/api';
+import { profileApi, resultsApi, type ResultSummary } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { formatDate } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 
 const load = () => resultsApi.list();
+
+const loadSkills = () => profileApi.skills();
+
+const SkillLevels = () => {
+  const headingId = useId();
+  const { state } = useRequest(loadSkills);
+
+  if (state.status !== 'success' || state.data.skills.length === 0) return null;
+
+  return (
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <h2 id={headingId} className="text-[20px] font-bold text-slate-800">
+        Your skill levels
+      </h2>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {state.data.skills.map((skill) => (
+          <li
+            key={skill.skill_id}
+            className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-5"
+          >
+            <span className="text-[15px] font-semibold text-slate-900">{skill.skill_name}</span>
+            <span className="text-[14px] text-slate-700">
+              {LEVEL_LABELS[skill.level]} · {Math.round(skill.percentage_score)}%
+            </span>
+            <span className="text-[13px] text-slate-500">
+              Confirmed {formatDate(skill.confirmed_at)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 const LINK_CLASS =
   'rounded-md font-medium text-indigo-700 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
@@ -64,6 +98,8 @@ export const Reports = () => {
           Every skill test you have finished, newest first.
         </p>
       </header>
+
+      <SkillLevels />
 
       {state.data.length === 0 ? (
         <EmptyState

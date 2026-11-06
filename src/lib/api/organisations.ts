@@ -7,6 +7,9 @@ import type {
   Heatmap,
   HeatmapGrouping,
   Organisation,
+  OrganisationRole,
+  OrganisationUser,
+  OrganisationUserList,
   Role,
   RolePage,
   RosterResult,
@@ -22,6 +25,22 @@ const PAGE_SIZE = 50;
 
 export const createOrganisationsApi = (client: Client) => ({
   me: () => client.get<Organisation>('/organisations/me'),
+
+  listUsers: (organisationId: number) =>
+    client.get<OrganisationUserList>(`/organisations/${organisationId}/users`),
+
+  addUser: (organisationId: number, email: string, role: OrganisationRole) =>
+    client.post<OrganisationUser>(`/organisations/${organisationId}/users`, {
+      body: { email, role },
+    }),
+
+  changeRole: (organisationId: number, learnerId: number, role: OrganisationRole) =>
+    client.patch<OrganisationUser>(`/organisations/${organisationId}/users/${learnerId}`, {
+      body: { role },
+    }),
+
+  removeUser: (organisationId: number, learnerId: number) =>
+    client.delete<unknown>(`/organisations/${organisationId}/users/${learnerId}`),
 
   listMembers: (organisationId: number) =>
     fetchAll((offset) =>

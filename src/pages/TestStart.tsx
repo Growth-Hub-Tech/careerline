@@ -3,12 +3,13 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
+import { Dialog } from '../components/Dialog';
 import { PaymentNeeded } from '../components/PaymentNeeded';
 import { attemptsApi, catalogApi, type AssessmentAccess, type AssessmentDetail } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
-import { readAttempt, saveAttempt } from '../lib/tests/attemptStore';
+import { clearAttempt, readAttempt, saveAttempt } from '../lib/tests/attemptStore';
 import { describeCredits, FORMAT_LABELS } from '../lib/tests/catalog';
 
 const isStatus = (error: unknown, status: number) =>
@@ -20,24 +21,93 @@ const describeAccess = ({ reason, price_credits, credits_balance }: AssessmentAc
   return `This test uses ${describeCredits(price_credits)}. You have ${describeCredits(credits_balance)}.`;
 };
 
-const StartTest = ({ test }: { test: AssessmentDetail }) => {
-  const navigate = useNavigate();
-  const [isStarting, setIsStarting] = useState(false);
-  const [error, setError] = useState<string>();
-  const starting = useRef(false);
-  const attemptPath = `/tests/${test.test_id}/attempt`;
+interface InProgressProps {
+  readonly attemptId: number;
+  readonly attemptPath: string;
+  readonly onCancelled: () => void;
+}
 
-  if (readAttempt(test.test_id)) {
-    return (
-      <div className="flex flex-col items-start gap-3">
-        <p className="text-[14px] text-slate-700">You have this test in progress.</p>
+const InProgress = ({ attemptId, attemptPath, onCancelled }: InProgressProps) => {
+  const [isAsking, setIsAsking] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [error, setError] = useState<string>();
+
+  const cancel = async () => {
+    setIsCancelling(true);
+    setError(undefined);
+    try {
+      await attemptsApi.cancel(attemptId);
+      onCancelled();
+    } catch (cancelError) {
+      setError(describeError(cancelError));
+      setIsAsking(false);
+      setIsCancelling(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-start gap-3">
+      <p className="text-[14px] text-slate-700">You have this test in progress.</p>
+      {error && <Alert variant="error">{error}</Alert>}
+      <div className="flex flex-wrap gap-3">
         <Link
           to={attemptPath}
           className="inline-flex h-12 items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Continue test
         </Link>
+        <Button
+          variant="transparent"
+          border="solid"
+          fullWidth={false}
+          onClick={() => setIsAsking(true)}
+        >
+          Start again
+        </Button>
       </div>
+      <Dialog
+        open={isAsking}
+        onClose={() => setIsAsking(false)}
+        title="Start this test again?"
+        description="Your answers so far are thrown away and this attempt gets no result."
+        footer={
+          <>
+            <Button
+              variant="transparent"
+              border="solid"
+              fullWidth={false}
+              onClick={() => setIsAsking(false)}
+            >
+              Keep going
+            </Button>
+            <Button fullWidth={false} isLoading={isCancelling} onClick={cancel}>
+              Start again
+            </Button>
+          </>
+        }
+      />
+    </div>
+  );
+};
+
+const StartTest = ({ test }: { test: AssessmentDetail }) => {
+  const navigate = useNavigate();
+  const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState<string>();
+  const starting = useRef(false);
+  const [saved, setSaved] = useState(() => readAttempt(test.test_id));
+  const attemptPath = `/tests/${test.test_id}/attempt`;
+
+  if (saved) {
+    return (
+      <InProgress
+        attemptId={saved.attemptId}
+        attemptPath={attemptPath}
+        onCancelled={() => {
+          clearAttempt(test.test_id);
+          setSaved(null);
+        }}
+      />
     );
   }
 

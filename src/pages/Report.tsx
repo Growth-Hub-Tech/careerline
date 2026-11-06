@@ -256,9 +256,17 @@ const ResultDetails = ({ id, onOpen, pollInterval }: ResultDetailsProps) => {
           skillName={result.skill_name}
           attemptId={result.attempt_id}
         />
-        <Link to={`/tests/${result.test_id}`} className={`${SECONDARY_ACTION} w-fit`}>
-          Retake to measure progress
-        </Link>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            to={`/attempts/${result.attempt_id}/review`}
+            className={`${SECONDARY_ACTION} w-fit`}
+          >
+            Review your answers
+          </Link>
+          <Link to={`/tests/${result.test_id}`} className={`${SECONDARY_ACTION} w-fit`}>
+            Retake to measure progress
+          </Link>
+        </div>
       </div>
 
       <SkillReport result={result} />

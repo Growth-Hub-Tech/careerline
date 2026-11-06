@@ -83,3 +83,57 @@ export const SKILL_HISTORY: SkillHistory = {
     },
   ],
 };
+
+export const reviewOf = (aiExplanations: 'ready' | 'generating' | 'unavailable' = 'ready') => ({
+  attempt_id: 12,
+  skill_id: 13,
+  status: 'completed' as const,
+  result: null,
+  ai_explanations: aiExplanations,
+  items: [
+    {
+      position: 1,
+      question_id: 1,
+      question_text: 'What does HTML stand for?',
+      subskill_id: 1,
+      subskill_name: 'HTML',
+      level: 'BEGINNER' as const,
+      options: [
+        {
+          option_id: 3,
+          option_text: 'Hyper Transfer Markup Language',
+          is_correct: false,
+          chosen: true,
+        },
+        {
+          option_id: 1,
+          option_text: 'Hyper Text Markup Language',
+          is_correct: true,
+          chosen: false,
+        },
+      ],
+      selected_option_id: 3,
+      correct_option_id: 1,
+      is_correct: false,
+      explanation: 'HTML stands for Hyper Text Markup Language.',
+      explanation_source: aiExplanations === 'ready' ? ('ai' as const) : ('standard' as const),
+    },
+    {
+      position: 2,
+      question_id: 6,
+      question_text: 'Which property changes the text colour in CSS?',
+      subskill_id: 2,
+      subskill_name: 'CSS',
+      level: 'BEGINNER' as const,
+      options: [
+        { option_id: 22, option_text: 'color', is_correct: true, chosen: true },
+        { option_id: 21, option_text: 'text-color', is_correct: false, chosen: false },
+      ],
+      selected_option_id: 22,
+      correct_option_id: 22,
+      is_correct: true,
+      explanation: 'The color property sets the text colour.',
+      explanation_source: 'standard' as const,
+    },
+  ],
+});

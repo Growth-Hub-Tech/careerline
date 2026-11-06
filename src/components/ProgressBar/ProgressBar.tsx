@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-export type ProgressVariant = 'indigo' | 'amber' | 'teal';
+type ProgressVariant = 'indigo' | 'amber' | 'teal';
 type ProgressSize = 'sm' | 'md';
 
 const FILLS: Record<ProgressVariant, string> = {

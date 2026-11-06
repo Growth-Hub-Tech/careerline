@@ -294,6 +294,15 @@ describe('Report', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('links to the question-by-question review', async () => {
+      setup();
+
+      expect(await screen.findByRole('link', { name: 'Review your answers' })).toHaveAttribute(
+        'href',
+        '/attempts/12/review',
+      );
+    });
+
     it('offers to retake the test to measure progress', async () => {
       setup();
 

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { LuCircleAlert, LuCircleCheck, LuInfo, LuTriangleAlert, LuX } from 'react-icons/lu';
 
-export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
+type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 
 interface VariantStyle {
   readonly icon: IconType;

@@ -18,10 +18,10 @@ interface NavItem {
 const TAKE_TEST_PATH = '/sign-up';
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'For Individuals', path: '/sign-up' },
-  { label: 'For Organizations', path: '/sign-up' },
-  { label: 'For Recruiters', path: '/sign-up' },
-  { label: 'How it works', path: '/' },
+  { label: 'For Individuals', path: '/for-individuals' },
+  { label: 'For Organizations', path: '/for-organizations' },
+  { label: 'For Recruiters', path: '/for-recruiters' },
+  { label: 'How it works', path: '/how-it-works' },
 ];
 
 const linkBase =

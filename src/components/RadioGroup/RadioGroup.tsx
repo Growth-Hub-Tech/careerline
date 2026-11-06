@@ -1,6 +1,6 @@
 import { useId } from 'react';
 
-export interface RadioOption {
+interface RadioOption {
   readonly value: string;
   readonly label: string;
   readonly description?: string;

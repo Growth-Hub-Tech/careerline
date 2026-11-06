@@ -16,7 +16,7 @@ import { TestStart } from './TestStart';
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   catalogApi: { getTest: vi.fn(), getAccess: vi.fn() },
-  attemptsApi: { start: vi.fn() },
+  attemptsApi: { start: vi.fn(), cancel: vi.fn() },
 }));
 
 const setup = (address = '/tests/202') =>
@@ -235,5 +235,35 @@ describe('TestStart', () => {
 
     expect(screen.queryByRole('button', { name: 'Start test' })).not.toBeInTheDocument();
     expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
+  });
+
+  it('starts a test in progress again after asking first', async () => {
+    vi.mocked(attemptsApi.cancel).mockResolvedValue({});
+    saveAttempt({ testId: 202, title: 'Backend Development', attemptId: 12 });
+    setup();
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Start again' }));
+    const dialog = screen.getByRole('dialog', { name: 'Start this test again?' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Start again' }));
+
+    expect(attemptsApi.cancel).toHaveBeenCalledWith(12);
+    expect(readAttempt(202)).toBeNull();
+    expect(await screen.findByRole('button', { name: 'Start test' })).toBeInTheDocument();
+  });
+
+  it('keeps the test in progress when starting again fails', async () => {
+    vi.mocked(attemptsApi.cancel).mockRejectedValue(
+      new ApiError({ status: 0, message: 'No connection.' }),
+    );
+    saveAttempt({ testId: 202, title: 'Backend Development', attemptId: 12 });
+    setup();
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Start again' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Start again' }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('No connection.');
+    expect(readAttempt(202)?.attemptId).toBe(12);
   });
 });

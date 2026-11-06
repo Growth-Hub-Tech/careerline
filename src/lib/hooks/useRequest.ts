@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export type RequestState<T> =
+type RequestState<T> =
   | { readonly status: 'loading' }
   | { readonly status: 'error'; readonly error: unknown }
   | { readonly status: 'success'; readonly data: T };

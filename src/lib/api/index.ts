@@ -6,6 +6,7 @@ import { createInvitationsApi, createRecruiterApi } from './recruiter';
 import { createOrganisationsApi, createRolesApi } from './organisations';
 import { createApiClient } from './client';
 import {
+  createAccountsApi,
   createAttemptsApi,
   createAuthApi,
   createBeginnerApi,
@@ -17,12 +18,9 @@ import {
   createSubscriptionsApi,
 } from './endpoints';
 
-export { ApiError } from './ApiError';
-export { createApiClient } from './client';
-export { describeAuthError, describeError } from './describeError';
 export type * from './types';
 
-export const api = createApiClient({
+const api = createApiClient({
   baseUrl: config.apiUrl,
   getToken: () => readSession()?.token,
   onUnauthorized: expireSession,
@@ -43,3 +41,4 @@ export const recruiterApi = createRecruiterApi(api);
 export const invitationsApi = createInvitationsApi(api);
 export const organisationsApi = createOrganisationsApi(api);
 export const rolesApi = createRolesApi(api);
+export const accountsApi = createAccountsApi(api);

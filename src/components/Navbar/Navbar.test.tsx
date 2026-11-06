@@ -12,6 +12,7 @@ const setup = () =>
         <Routes>
           <Route path="/pricing" element={<Navbar />} />
           <Route path="/dashboard" element={<h1>Dashboard page</h1>} />
+          <Route path="/for-recruiters" element={<h1>Recruiters page</h1>} />
         </Routes>
       </SessionProvider>
     </MemoryRouter>,
@@ -33,5 +34,13 @@ describe('Navbar', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'Go to dashboard' })[0]);
 
     expect(screen.getByRole('heading', { name: 'Dashboard page' })).toBeInTheDocument();
+  });
+
+  it('opens the page for each group', async () => {
+    setup();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'For Recruiters' })[0]);
+
+    expect(screen.getByRole('heading', { name: 'Recruiters page' })).toBeInTheDocument();
   });
 });

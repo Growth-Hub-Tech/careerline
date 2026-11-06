@@ -23,6 +23,7 @@ import {
   Credits,
   PaymentCheck,
   PrivacyCentre,
+  Candidates,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -84,6 +85,7 @@ export const getRoutes = (): RouteObject[] => [
                 { path: '/reports', element: <Reports /> },
                 { path: '/reports/:reportId', element: <Report /> },
               ]),
+              guard(accessFor('/candidates'), [{ path: '/candidates', element: <Candidates /> }]),
               ...groupByAccess(APP_PLACEHOLDERS),
             ],
           },

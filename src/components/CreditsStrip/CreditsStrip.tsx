@@ -10,7 +10,11 @@ const LINK_CLASS =
 
 const load = () => paymentsApi.credits();
 
-export const CreditsStrip = () => {
+interface CreditsStripProps {
+  readonly returnTo?: string;
+}
+
+export const CreditsStrip = ({ returnTo = '/dashboard' }: CreditsStripProps) => {
   const headingId = useId();
   const { state } = useRequest(load);
 
@@ -28,7 +32,7 @@ export const CreditsStrip = () => {
         <LuWallet size={18} aria-hidden="true" className="text-indigo-700" />
         You have {describeCredits(state.data.credits_balance)}
       </p>
-      <Link to={`/pricing?return=${encodeURIComponent('/dashboard')}`} className={LINK_CLASS}>
+      <Link to={`/pricing?return=${encodeURIComponent(returnTo)}`} className={LINK_CLASS}>
         Buy credits
       </Link>
       <Link to="/credits" className={LINK_CLASS}>

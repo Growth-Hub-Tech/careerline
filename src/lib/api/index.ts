@@ -2,6 +2,7 @@ import { config } from '../../config';
 import { expireSession, readSession } from '../session';
 import { createCatalogApi } from './catalog';
 import { createResultsApi } from './results';
+import { createInvitationsApi, createRecruiterApi } from './recruiter';
 import { createApiClient } from './client';
 import {
   createAttemptsApi,
@@ -37,3 +38,5 @@ export const privacyApi = createPrivacyApi(api);
 export const catalogApi = createCatalogApi(api);
 export const attemptsApi = createAttemptsApi(api);
 export const resultsApi = createResultsApi(api);
+export const recruiterApi = createRecruiterApi(api);
+export const invitationsApi = createInvitationsApi(api);

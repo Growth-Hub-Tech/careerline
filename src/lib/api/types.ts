@@ -45,6 +45,15 @@ export type ResultPage = Schemas['Page_ResultSummary_'];
 export type ResultDetail = Schemas['ResultDetail'];
 export type SubskillScore = Schemas['SubskillScore'];
 export type ResultReport = Schemas['Report'];
+export type Candidate = Schemas['Candidate'];
+export type CandidateCreate = Schemas['CandidateCreate'];
+export type CandidatePage = Schemas['Page_Candidate_'];
+export type CandidateReport = Schemas['CandidateReport'];
+export type CandidateTestResult = Schemas['CandidateTestResult'];
+export type Invitation = Schemas['Invitation'];
+export type InvitationCreate = Schemas['InvitationCreate'];
+export type InvitationPage = Schemas['Page_Invitation_'];
+export type InvitationPublic = Schemas['InvitationPublic'];
 
 export interface Skill {
   readonly skill_id: number;

@@ -8,8 +8,10 @@ import {
   createAuthApi,
   createBeginnerApi,
   createContactApi,
+  createPaymentsApi,
   createProfileApi,
   createProgrammesApi,
+  createSubscriptionsApi,
 } from './endpoints';
 
 export { ApiError } from './ApiError';
@@ -28,6 +30,8 @@ export const contactApi = createContactApi(api);
 export const beginnerApi = createBeginnerApi(api);
 export const programmesApi = createProgrammesApi(api);
 export const profileApi = createProfileApi(api);
+export const subscriptionsApi = createSubscriptionsApi(api);
+export const paymentsApi = createPaymentsApi(api);
 export const catalogApi = createCatalogApi(api);
 export const attemptsApi = createAttemptsApi(api);
 export const resultsApi = createResultsApi(api);

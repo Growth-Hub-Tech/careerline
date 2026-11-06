@@ -10,3 +10,4 @@ export * from './TestStart';
 export * from './TestAttempt';
 export * from './Reports';
 export * from './Report';
+export * from './Pricing';

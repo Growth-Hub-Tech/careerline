@@ -11,11 +11,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
     description: 'See how one test engine guides careers, audits teams and validates talent.',
   },
   {
-    path: '/pricing',
-    title: 'Pricing',
-    description: 'Plans for individuals, recruiters and organizations.',
-  },
-  {
     path: '/for-individuals',
     title: 'For individuals',
     description: 'Discover a career path or test your own skills and download a shareable report.',

@@ -41,7 +41,7 @@ describe('route map', () => {
   });
 
   it('shows the marketing footer on public pages only', () => {
-    const { unmount } = renderAt('/pricing');
+    const { unmount } = renderAt('/how-it-works');
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
     unmount();
 

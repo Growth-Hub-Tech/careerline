@@ -4,8 +4,10 @@ import {
   createAuthApi,
   createBeginnerApi,
   createContactApi,
+  createPaymentsApi,
   createProfileApi,
   createProgrammesApi,
+  createSubscriptionsApi,
 } from './endpoints';
 
 const setup = (body: unknown = { success: true, data: {} }) => {
@@ -185,6 +187,26 @@ describe('profile endpoints', () => {
     expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/profile');
     expect(sent(fetcher).headers.get('authorization')).toBe('Bearer token-123');
     expect(profile).toEqual({ budget: 'under_50k' });
+  });
+});
+
+describe('pricing endpoints', () => {
+  it('lists the subscription plans', async () => {
+    const { fetcher, client } = setup({ success: true, data: [{ plan_id: 1 }] });
+
+    const plans = await createSubscriptionsApi(client).listPlans();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/subscriptions/plans');
+    expect(plans).toEqual([{ plan_id: 1 }]);
+  });
+
+  it('lists the credit packs', async () => {
+    const { fetcher, client } = setup({ success: true, data: [{ pack_id: 11 }] });
+
+    const packs = await createPaymentsApi(client).listCreditPacks();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments/credit-packs');
+    expect(packs).toEqual([{ pack_id: 11 }]);
   });
 });
 

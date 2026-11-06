@@ -19,6 +19,8 @@ export type ProgrammeClickRequest = Schemas['ProgrammeClickRequest'];
 export type ProgrammeSummary = Schemas['ProgrammeSummary'];
 export type Money = Schemas['Money'];
 export type Profile = Schemas['Profile'];
+export type Plan = Schemas['Plan'];
+export type CreditPack = Schemas['CreditPack'];
 export type Budget = NonNullable<Profile['budget']>;
 
 export type LevelName = Schemas['LevelName'];

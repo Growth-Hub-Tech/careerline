@@ -7,9 +7,11 @@ import type {
   BeginnerPath,
   ContactReceipt,
   ContactRequest,
+  CreditPack,
   IntakeQuestionnaire,
   IntakeSubmission,
   LevelName,
+  Plan,
   Profile,
   Programme,
   ProgrammeClick,
@@ -59,6 +61,14 @@ export const createProgrammesApi = (client: Client) => ({
 
   recordClick: (programmeId: number, click: ProgrammeClickRequest) =>
     client.post<ProgrammeClick>(`/programmes/${programmeId}/clicks`, { body: click }),
+});
+
+export const createSubscriptionsApi = (client: Client) => ({
+  listPlans: () => client.get<Plan[]>('/subscriptions/plans'),
+});
+
+export const createPaymentsApi = (client: Client) => ({
+  listCreditPacks: () => client.get<CreditPack[]>('/payments/credit-packs'),
 });
 
 export const createProfileApi = (client: Client) => ({

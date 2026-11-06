@@ -19,6 +19,7 @@ import {
   TestAttempt,
   Reports,
   Report,
+  Pricing,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -60,6 +61,7 @@ export const getRoutes = (): RouteObject[] => [
         children: [
           { path: '/', element: <Home /> },
           { path: '/contact', element: <Contact /> },
+          { path: '/pricing', element: <Pricing /> },
           ...PUBLIC_PLACEHOLDERS.map(toRoute),
         ],
       },

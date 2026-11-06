@@ -44,11 +44,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/candidates/:candidateId',
-    title: 'Candidate report',
-    description: 'A scored report with a clear recommendation before you make an offer.',
-  },
-  {
     path: '/team',
     title: 'Team',
     description: 'Your team roster, mapped to roles and titles.',

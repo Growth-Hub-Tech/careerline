@@ -2,6 +2,7 @@ import { useCallback, useId, useRef, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
+import { DecisionNote } from '../components/DecisionNote';
 import { PageLoader } from '../components/Loader';
 import { resultsApi, type ResultDetail, type SubskillScore } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
@@ -252,13 +253,8 @@ const ResultDetails = ({ id, onOpen, pollInterval }: ResultDetailsProps) => {
 
       <SkillReport result={result} />
 
-      <div className="flex w-full max-w-[1100px] flex-col gap-2 text-[13px] leading-[1.55] text-slate-600">
-        <p>
-          <strong className="font-semibold text-slate-800">Decision support only.</strong> Use this
-          report alongside other evidence, such as interviews and work samples. It should not be the
-          only reason for a hiring or career decision.
-        </p>
-        <p>{describeBenchmark(result)}</p>
+      <div className="w-full max-w-[1100px]">
+        <DecisionNote benchmark={describeBenchmark(result)} />
       </div>
     </div>
   );

@@ -15,3 +15,4 @@ export * from './Credits';
 export * from './PaymentCheck';
 export * from './PrivacyCentre';
 export * from './Candidates';
+export * from './CandidateReport';

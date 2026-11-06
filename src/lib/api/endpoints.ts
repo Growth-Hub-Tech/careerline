@@ -2,6 +2,8 @@ import type { createApiClient } from './client';
 import type {
   Acknowledgement,
   Attempt,
+  Checkout,
+  CheckoutRequest,
   AttemptSubmission,
   AttemptSubmissionReply,
   BeginnerPath,
@@ -18,6 +20,7 @@ import type {
   ProgrammeClickRequest,
   RegisterRequest,
   StartedAttempt,
+  SubscribeRequest,
   TokenResponse,
 } from './types';
 
@@ -65,10 +68,16 @@ export const createProgrammesApi = (client: Client) => ({
 
 export const createSubscriptionsApi = (client: Client) => ({
   listPlans: () => client.get<Plan[]>('/subscriptions/plans'),
+
+  subscribe: (request: SubscribeRequest) =>
+    client.post<Checkout>('/subscriptions', { body: request }),
 });
 
 export const createPaymentsApi = (client: Client) => ({
   listCreditPacks: () => client.get<CreditPack[]>('/payments/credit-packs'),
+
+  checkout: (request: CheckoutRequest) =>
+    client.post<Checkout>('/payments/checkout', { body: request }),
 });
 
 export const createProfileApi = (client: Client) => ({

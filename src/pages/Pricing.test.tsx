@@ -2,22 +2,38 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { paymentsApi, subscriptionsApi } from '../lib/api';
+import { SessionProvider, type UserType } from '../lib/session';
+import { takeReturn } from '../lib/payments/checkoutReturn';
+import { signInAs } from '../test/session';
 import { ApiError } from '../lib/api/ApiError';
 import { CREDIT_PACKS, PLANS } from '../test/fixtures/payments';
 import { Pricing } from './Pricing';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  paymentsApi: { listCreditPacks: vi.fn() },
-  subscriptionsApi: { listPlans: vi.fn() },
+  paymentsApi: { listCreditPacks: vi.fn(), checkout: vi.fn() },
+  subscriptionsApi: { listPlans: vi.fn(), subscribe: vi.fn() },
 }));
 
-const setup = () =>
+const setup = (address = '/pricing') =>
   render(
-    <MemoryRouter initialEntries={['/pricing']}>
-      <Pricing />
+    <MemoryRouter initialEntries={[address]}>
+      <SessionProvider>
+        <Pricing onOpen={vi.fn()} />
+      </SessionProvider>
     </MemoryRouter>,
   );
+
+const plan = async (groupName: string, name: string) =>
+  within(await group(groupName)).getByRole('article', { name });
+
+const signedInAs = (userType: UserType) => {
+  signInAs(userType);
+  vi.mocked(paymentsApi.checkout).mockResolvedValue({
+    reference: 'ref-1',
+    authorization_url: 'https://pay.test/ref-1',
+  } as never);
+};
 
 const group = (name: string) => screen.findByRole('region', { name });
 
@@ -125,5 +141,64 @@ describe('Pricing', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await group('For recruiters')).toBeInTheDocument();
+  });
+
+  describe('when signed in', () => {
+    it('opens the buy dialog for a plan', async () => {
+      signedInAs('self-test');
+      setup();
+
+      await userEvent.click(
+        within(await plan('For individuals', 'Individual Monthly')).getByRole('button', {
+          name: 'Buy',
+        }),
+      );
+
+      expect(screen.getByRole('dialog')).toHaveAccessibleName('Buy Individual Monthly');
+    });
+
+    it('keeps organisation plans for organisation accounts', async () => {
+      signedInAs('self-test');
+      setup();
+
+      const team = await plan('For organisations', 'Team Audit');
+      expect(within(team).queryByRole('button', { name: 'Buy' })).not.toBeInTheDocument();
+      expect(team).toHaveTextContent('Only organisation owners and admins can buy this plan.');
+    });
+
+    it('lets an organisation account buy an organisation plan', async () => {
+      signedInAs('organization');
+      setup();
+
+      expect(
+        within(await plan('For organisations', 'Team Audit')).getByRole('button', {
+          name: 'Buy',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('comes back to the page that sent the person here after paying', async () => {
+      signedInAs('self-test');
+      setup('/pricing?return=%2Ftests%2F202');
+
+      await userEvent.click(
+        within(await plan('For individuals', 'Value pack')).getByRole('button', { name: 'Buy' }),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Pay ₦25,000' }));
+
+      expect(takeReturn()).toBe('/tests/202');
+    });
+
+    it('comes back to the credits page by default', async () => {
+      signedInAs('self-test');
+      setup('/pricing?return=https%3A%2F%2Fevil.test');
+
+      await userEvent.click(
+        within(await plan('For individuals', 'Value pack')).getByRole('button', { name: 'Buy' }),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Pay ₦25,000' }));
+
+      expect(takeReturn()).toBe('/credits');
+    });
   });
 });

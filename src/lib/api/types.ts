@@ -21,6 +21,9 @@ export type Money = Schemas['Money'];
 export type Profile = Schemas['Profile'];
 export type Plan = Schemas['Plan'];
 export type CreditPack = Schemas['CreditPack'];
+export type Checkout = Schemas['Checkout'];
+export type CheckoutRequest = Schemas['CheckoutRequest'];
+export type SubscribeRequest = Schemas['SubscribeRequest'];
 export type Budget = NonNullable<Profile['budget']>;
 
 export type LevelName = Schemas['LevelName'];

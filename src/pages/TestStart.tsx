@@ -157,6 +157,7 @@ const TestDetails = ({ id }: { id: number }) => {
         <PaymentNeeded
           priceCredits={access?.price_credits ?? test.price_credits}
           balance={access?.credits_balance}
+          buyHref={`/pricing?return=${encodeURIComponent(`/tests/${test.test_id}`)}`}
         />
       )}
     </div>

@@ -1,14 +1,17 @@
-import { useId, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useId, useState, type ReactNode } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
+import { BuyDialog, type BuyItem } from '../components/BuyDialog';
 import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
 import { paymentsApi, subscriptionsApi, type CreditPack, type Plan } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { formatMoney } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
+import { safeReturnPath } from '../lib/payments/checkoutReturn';
+import { useSession } from '../lib/session';
 import { describeCredits } from '../lib/tests/catalog';
 
 const AUDIENCES: readonly { readonly audience: Plan['audience']; readonly title: string }[] = [
@@ -70,17 +73,30 @@ const PriceCard = ({
   );
 };
 
-const GetStarted = () => (
-  <Link to="/sign-up" className={`${PRIMARY_ACTION} w-full`}>
-    Get started
-  </Link>
-);
+type BuyAction = (item: BuyItem, isForOrganisation?: boolean) => ReactNode;
 
-const PlanCard = ({ plan }: { plan: Plan }) => (
+const planItem = (plan: Plan): BuyItem => ({
+  kind: 'subscription_plan',
+  id: plan.plan_id,
+  name: plan.name,
+  price: plan.price,
+  summary: `${describeCredits(plan.credits_per_interval)} ${PER[plan.interval]}`,
+  seats: plan.seats,
+});
+
+const packItem = (pack: CreditPack): BuyItem => ({
+  kind: 'credit_pack',
+  id: pack.pack_id,
+  name: pack.name,
+  price: pack.price,
+  summary: describeCredits(pack.credits),
+});
+
+const PlanCard = ({ plan, action }: { plan: Plan; action: BuyAction }) => (
   <PriceCard
     name={plan.name}
     price={`${formatMoney(plan.price)} ${PER[plan.interval]}`}
-    action={<GetStarted />}
+    action={action(planItem(plan), plan.audience === 'organisation')}
   >
     <p>
       {describeCredits(plan.credits_per_interval)} {PER[plan.interval]}
@@ -99,8 +115,8 @@ const PlanCard = ({ plan }: { plan: Plan }) => (
   </PriceCard>
 );
 
-const PackCard = ({ pack }: { pack: CreditPack }) => (
-  <PriceCard name={pack.name} price={formatMoney(pack.price)} action={<GetStarted />}>
+const PackCard = ({ pack, action }: { pack: CreditPack; action: BuyAction }) => (
+  <PriceCard name={pack.name} price={formatMoney(pack.price)} action={action(packItem(pack))}>
     <p>{describeCredits(pack.credits)}, to use whenever you like</p>
   </PriceCard>
 );
@@ -119,8 +135,36 @@ const Enterprise = () => (
   </Group>
 );
 
-export const Pricing = () => {
+interface PricingProps {
+  readonly onOpen?: (url: string) => void;
+}
+
+export const Pricing = ({ onOpen }: PricingProps) => {
   const { state, retry } = useRequest(loadPrices);
+  const { session } = useSession();
+  const [params] = useSearchParams();
+  const [buying, setBuying] = useState<BuyItem | null>(null);
+  const returnTo = safeReturnPath(params.get('return')) ?? '/credits';
+
+  const action: BuyAction = (item, isForOrganisation = false) => {
+    if (!session) {
+      return (
+        <Link to="/sign-up" className={`${PRIMARY_ACTION} w-full`}>
+          Get started
+        </Link>
+      );
+    }
+
+    if (isForOrganisation && session.user.userType !== 'organization') {
+      return (
+        <p className="text-[13px] text-slate-500">
+          Only organisation owners and admins can buy this plan.
+        </p>
+      );
+    }
+
+    return <Button onClick={() => setBuying(item)}>Buy</Button>;
+  };
 
   let content: ReactNode;
 
@@ -151,10 +195,10 @@ export const Pricing = () => {
         {groups.map((group) => (
           <Group key={group.title} title={group.title}>
             {group.plans.map((plan) => (
-              <PlanCard key={plan.plan_id} plan={plan} />
+              <PlanCard key={plan.plan_id} plan={plan} action={action} />
             ))}
             {group.packs.map((pack) => (
-              <PackCard key={pack.pack_id} pack={pack} />
+              <PackCard key={pack.pack_id} pack={pack} action={action} />
             ))}
           </Group>
         ))}
@@ -172,6 +216,12 @@ export const Pricing = () => {
         </p>
       </header>
       {content}
+      <BuyDialog
+        item={buying}
+        returnTo={returnTo}
+        onClose={() => setBuying(null)}
+        onOpen={onOpen}
+      />
     </div>
   );
 };

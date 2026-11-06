@@ -33,3 +33,4 @@ export * from './StepList';
 export * from './QuestionCard';
 export * from './FlowHeader';
 export * from './ProgrammeCard';
+export * from './BuyDialog';

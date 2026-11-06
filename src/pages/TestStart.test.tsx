@@ -110,6 +110,18 @@ describe('TestStart', () => {
     );
   });
 
+  it('buys credits and comes back to this test', async () => {
+    vi.mocked(catalogApi.getAccess).mockResolvedValue(ACCESS_SHORT_OF_CREDITS);
+
+    setup();
+
+    const panel = await screen.findByRole('region', { name: 'Payment needed' });
+    expect(within(panel).getByRole('link', { name: 'Buy credits' })).toHaveAttribute(
+      'href',
+      '/pricing?return=%2Ftests%2F202',
+    );
+  });
+
   it('shows the payment panel when the server answers payment required', async () => {
     vi.mocked(catalogApi.getAccess).mockRejectedValue(
       new ApiError({ status: 402, code: 'payment_required', message: 'Payment required.' }),

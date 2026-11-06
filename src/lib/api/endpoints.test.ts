@@ -210,6 +210,47 @@ describe('pricing endpoints', () => {
   });
 });
 
+describe('checkout endpoints', () => {
+  const checkout = { reference: 'ref-1', authorization_url: 'https://pay.test/ref-1' };
+
+  it('starts a checkout for a credit pack', async () => {
+    const { fetcher, client } = setup({ success: true, data: checkout });
+
+    const reply = await createPaymentsApi(client).checkout({
+      item_type: 'credit_pack',
+      item_id: 12,
+      callback_url: 'https://app.test/payments/callback',
+    });
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/payments/checkout');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({
+      item_type: 'credit_pack',
+      item_id: 12,
+      callback_url: 'https://app.test/payments/callback',
+    });
+    expect(reply).toEqual(checkout);
+  });
+
+  it('subscribes to a plan', async () => {
+    const { fetcher, client } = setup({ success: true, data: checkout });
+
+    await createSubscriptionsApi(client).subscribe({
+      plan_id: 3,
+      callback_url: 'https://app.test/payments/callback',
+    });
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/subscriptions');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({
+      plan_id: 3,
+      callback_url: 'https://app.test/payments/callback',
+    });
+  });
+});
+
 describe('attempt endpoints', () => {
   it('starts an attempt for a skill at a level', async () => {
     const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });

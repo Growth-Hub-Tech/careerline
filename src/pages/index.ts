@@ -16,3 +16,4 @@ export * from './PaymentCheck';
 export * from './PrivacyCentre';
 export * from './Candidates';
 export * from './CandidateReport';
+export * from './Invitation';

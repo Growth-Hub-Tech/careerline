@@ -25,6 +25,7 @@ import {
   PrivacyCentre,
   Candidates,
   CandidateReport,
+  Invitation,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -98,6 +99,8 @@ export const getRoutes = (): RouteObject[] => [
             children: [
               guard(accessFor('/tests/:testId'), [
                 { path: '/tests/:testId', element: <TestStart /> },
+              ]),
+              guard(accessFor('/tests/:testId/attempt'), [
                 { path: '/tests/:testId/attempt', element: <TestAttempt /> },
               ]),
             ],
@@ -114,6 +117,7 @@ export const getRoutes = (): RouteObject[] => [
         element: <NoFooterLayout />,
         children: [
           { path: '/no-access', element: <NoAccess /> },
+          { path: '/invitations/:token', element: <Invitation /> },
           { path: '*', element: <NotFound /> },
         ],
       },

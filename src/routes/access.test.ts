@@ -24,8 +24,11 @@ describe('page access', () => {
   it('matches addresses that carry an id', () => {
     expect(canAccess('self-test', '/tests/abc')).toBe(true);
     expect(canAccess('beginner', '/tests/abc')).toBe(false);
+  });
+
+  it('lets anyone sent a test take it', () => {
     expect(canAccess('self-test', '/tests/abc/attempt')).toBe(true);
-    expect(canAccess('beginner', '/tests/abc/attempt')).toBe(false);
+    expect(canAccess('beginner', '/tests/abc/attempt')).toBe(true);
   });
 
   it('keeps candidates for recruiters and the team for organizations', () => {

@@ -13,12 +13,24 @@ export const rememberReturn = (path: string) => {
   }
 };
 
-export const takeReturn = () => {
+export const readReturn = () => {
   try {
-    const path = safeReturnPath(sessionStorage.getItem(RETURN_KEY));
-    sessionStorage.removeItem(RETURN_KEY);
-    return path;
+    return safeReturnPath(sessionStorage.getItem(RETURN_KEY));
   } catch {
     return null;
   }
+};
+
+export const clearReturn = () => {
+  try {
+    sessionStorage.removeItem(RETURN_KEY);
+  } catch {
+    return;
+  }
+};
+
+export const takeReturn = () => {
+  const path = readReturn();
+  clearReturn();
+  return path;
 };

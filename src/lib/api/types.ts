@@ -24,6 +24,9 @@ export type CreditPack = Schemas['CreditPack'];
 export type Checkout = Schemas['Checkout'];
 export type CheckoutRequest = Schemas['CheckoutRequest'];
 export type SubscribeRequest = Schemas['SubscribeRequest'];
+export type Payment = Schemas['Payment'];
+export type Credits = Schemas['Credits'];
+export type CreditTransaction = Schemas['CreditTransaction'];
 export type Budget = NonNullable<Profile['budget']>;
 
 export type LevelName = Schemas['LevelName'];

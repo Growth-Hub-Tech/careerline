@@ -2,6 +2,7 @@ import type { IconType } from 'react-icons';
 import {
   LuChartColumn,
   LuClipboardCheck,
+  LuWallet,
   LuLayoutDashboard,
   LuLifeBuoy,
   LuListTodo,
@@ -23,6 +24,7 @@ export interface UserNavigation {
 }
 
 const DASHBOARD: NavEntry = { label: 'Dashboard', path: '/dashboard', icon: LuLayoutDashboard };
+const CREDITS: NavEntry = { label: 'Credits', path: '/credits', icon: LuWallet };
 const TASKS: NavEntry = { label: 'Tasks', path: '/tasks', icon: LuListTodo };
 
 const FOOTER: readonly NavEntry[] = [
@@ -40,12 +42,13 @@ export const NAV_BY_TYPE: Record<UserType, UserNavigation> = {
       DASHBOARD,
       { label: 'Skill tests', path: '/tests', icon: LuClipboardCheck },
       { label: 'Reports', path: '/reports', icon: LuChartColumn },
+      CREDITS,
       TASKS,
     ],
     footer: FOOTER,
   },
   recruiter: {
-    main: [DASHBOARD, { label: 'Candidates', path: '/candidates', icon: LuUsers }, TASKS],
+    main: [DASHBOARD, { label: 'Candidates', path: '/candidates', icon: LuUsers }, CREDITS, TASKS],
     footer: FOOTER,
   },
   organization: {

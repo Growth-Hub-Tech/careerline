@@ -251,6 +251,26 @@ describe('checkout endpoints', () => {
   });
 });
 
+describe('payment check endpoints', () => {
+  it('loads one payment by its reference', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'paid' } });
+
+    const payment = await createPaymentsApi(client).get('ref/1');
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments/ref%2F1');
+    expect(payment).toEqual({ status: 'paid' });
+  });
+
+  it('loads my credits', async () => {
+    const { fetcher, client } = setup({ success: true, data: { credits_balance: 3 } });
+
+    const credits = await createPaymentsApi(client).credits();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/credits');
+    expect(credits).toEqual({ credits_balance: 3 });
+  });
+});
+
 describe('attempt endpoints', () => {
   it('starts an attempt for a skill at a level', async () => {
     const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });

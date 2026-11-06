@@ -1,8 +1,20 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { paymentsApi } from '../lib/api';
+import { ApiError } from '../lib/api/ApiError';
 import { SessionProvider, writeSession } from '../lib/session';
+import { CREDITS } from '../test/fixtures/payments';
 import { signInAs } from '../test/session';
 import { Dashboard } from './Dashboard';
+
+vi.mock('../lib/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api')>()),
+  paymentsApi: { credits: vi.fn() },
+}));
+
+beforeEach(() => {
+  vi.mocked(paymentsApi.credits).mockResolvedValue(CREDITS);
+});
 
 const setup = () =>
   render(
@@ -123,5 +135,46 @@ describe('Dashboard', () => {
     expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: link })).toHaveAttribute('href', href);
     expect(screen.queryByRole('link', { name: 'Take Assessment Test' })).not.toBeInTheDocument();
+  });
+
+  describe('credits strip', () => {
+    it.each(['self-test', 'recruiter'] as const)(
+      'shows the %s user their balance with ways to buy and see history',
+      async (userType) => {
+        signInAs(userType);
+        setup();
+
+        const strip = await screen.findByRole('region', { name: 'Your credits' });
+        expect(strip).toHaveTextContent('You have 3 credits');
+        expect(within(strip).getByRole('link', { name: 'Buy credits' })).toHaveAttribute(
+          'href',
+          '/pricing?return=%2Fdashboard',
+        );
+        expect(within(strip).getByRole('link', { name: 'View history' })).toHaveAttribute(
+          'href',
+          '/credits',
+        );
+      },
+    );
+
+    it('is not shown to beginners', async () => {
+      signInAs('beginner');
+      setup();
+
+      await screen.findByRole('heading', { level: 1 });
+      expect(screen.queryByRole('region', { name: 'Your credits' })).not.toBeInTheDocument();
+      expect(paymentsApi.credits).not.toHaveBeenCalled();
+    });
+
+    it('stays out of the way when the balance cannot be read', async () => {
+      vi.mocked(paymentsApi.credits).mockRejectedValue(
+        new ApiError({ status: 500, message: 'Down.' }),
+      );
+      signInAs('self-test');
+      setup();
+
+      await vi.waitFor(() => expect(paymentsApi.credits).toHaveBeenCalled());
+      expect(screen.queryByRole('region', { name: 'Your credits' })).not.toBeInTheDocument();
+    });
   });
 });

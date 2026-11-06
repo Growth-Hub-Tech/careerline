@@ -34,3 +34,4 @@ export * from './QuestionCard';
 export * from './FlowHeader';
 export * from './ProgrammeCard';
 export * from './BuyDialog';
+export * from './CreditsStrip';

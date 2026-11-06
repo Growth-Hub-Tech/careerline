@@ -28,4 +28,10 @@ describe('navigation per user type', () => {
 
     expect([...main, ...footer].map(({ path }) => path)).not.toContain('/');
   });
+
+  it.each(['self-test', 'recruiter'] as const)('links %s to its credits', (userType) => {
+    const { main, footer } = NAV_BY_TYPE[userType];
+
+    expect([...main, ...footer].map(({ path }) => path)).toContain('/credits');
+  });
 });

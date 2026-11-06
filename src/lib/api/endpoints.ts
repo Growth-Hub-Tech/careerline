@@ -10,9 +10,11 @@ import type {
   ContactReceipt,
   ContactRequest,
   CreditPack,
+  Credits,
   IntakeQuestionnaire,
   IntakeSubmission,
   LevelName,
+  Payment,
   Plan,
   Profile,
   Programme,
@@ -78,6 +80,10 @@ export const createPaymentsApi = (client: Client) => ({
 
   checkout: (request: CheckoutRequest) =>
     client.post<Checkout>('/payments/checkout', { body: request }),
+
+  get: (reference: string) => client.get<Payment>(`/payments/${encodeURIComponent(reference)}`),
+
+  credits: () => client.get<Credits>('/credits'),
 });
 
 export const createProfileApi = (client: Client) => ({

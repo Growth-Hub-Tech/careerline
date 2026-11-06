@@ -20,6 +20,8 @@ import {
   Reports,
   Report,
   Pricing,
+  Credits,
+  PaymentCheck,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -73,6 +75,8 @@ export const getRoutes = (): RouteObject[] => [
             element: <AppLayout />,
             children: [
               { path: '/dashboard', element: <Dashboard /> },
+              { path: '/credits', element: <Credits /> },
+              { path: '/payments/callback', element: <PaymentCheck /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
               guard(accessFor('/reports'), [
                 { path: '/reports', element: <Reports /> },

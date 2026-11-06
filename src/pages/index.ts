@@ -13,3 +13,4 @@ export * from './Report';
 export * from './Pricing';
 export * from './Credits';
 export * from './PaymentCheck';
+export * from './PrivacyCentre';

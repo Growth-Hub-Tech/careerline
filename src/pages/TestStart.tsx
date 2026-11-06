@@ -4,19 +4,12 @@ import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { PaymentNeeded } from '../components/PaymentNeeded';
-import { RadioGroup } from '../components/RadioGroup';
-import {
-  attemptsApi,
-  catalogApi,
-  type AssessmentAccess,
-  type AssessmentDetail,
-  type LevelName,
-} from '../lib/api';
+import { attemptsApi, catalogApi, type AssessmentAccess, type AssessmentDetail } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
 import { readAttempt, saveAttempt } from '../lib/tests/attemptStore';
-import { describeCredits, FORMAT_LABELS, LEVEL_LABELS } from '../lib/tests/catalog';
+import { describeCredits, FORMAT_LABELS } from '../lib/tests/catalog';
 
 const isStatus = (error: unknown, status: number) =>
   error instanceof ApiError && error.status === status;
@@ -29,7 +22,6 @@ const describeAccess = ({ reason, price_credits, credits_balance }: AssessmentAc
 
 const StartTest = ({ test }: { test: AssessmentDetail }) => {
   const navigate = useNavigate();
-  const [level, setLevel] = useState<LevelName>(test.levels[0] ?? 'BEGINNER');
   const [isStarting, setIsStarting] = useState(false);
   const [error, setError] = useState<string>();
   const starting = useRef(false);
@@ -56,8 +48,8 @@ const StartTest = ({ test }: { test: AssessmentDetail }) => {
     setError(undefined);
 
     try {
-      const attempt = await attemptsApi.start(test.skill_id, level);
-      saveAttempt({ testId: test.test_id, title: test.title, attempt, answers: [] });
+      const attempt = await attemptsApi.start(test.skill_id);
+      saveAttempt({ testId: test.test_id, title: test.title, attemptId: attempt.attempt_id });
       navigate(attemptPath);
     } catch (startError) {
       setError(describeError(startError));
@@ -68,13 +60,6 @@ const StartTest = ({ test }: { test: AssessmentDetail }) => {
 
   return (
     <div className="flex flex-col items-start gap-5">
-      <RadioGroup
-        legend="Choose your level"
-        name="level"
-        options={test.levels.map((value) => ({ value, label: LEVEL_LABELS[value] }))}
-        value={level}
-        onChange={(value) => setLevel(value as LevelName)}
-      />
       {error && <Alert variant="error">{error}</Alert>}
       <Button fullWidth={false} isLoading={isStarting} onClick={start}>
         Start test

@@ -7,6 +7,8 @@ import {
   LuLifeBuoy,
   LuListTodo,
   LuSettings,
+  LuShieldCheck,
+  LuTag,
   LuUsers,
 } from 'react-icons/lu';
 import type { UserType } from '../../lib/session';
@@ -29,7 +31,8 @@ const TASKS: NavEntry = { label: 'Tasks', path: '/tasks', icon: LuListTodo };
 
 const FOOTER: readonly NavEntry[] = [
   { label: 'Support', path: '/support', icon: LuLifeBuoy },
-  { label: 'Settings', path: '/settings', icon: LuSettings },
+  { label: 'Settings', path: '/settings', icon: LuSettings, end: true },
+  { label: 'Privacy', path: '/settings/privacy', icon: LuShieldCheck },
 ];
 
 export const NAV_BY_TYPE: Record<UserType, UserNavigation> = {
@@ -57,6 +60,7 @@ export const NAV_BY_TYPE: Record<UserType, UserNavigation> = {
       { label: 'Team', path: '/team', icon: LuUsers, end: true },
       { label: 'Capability heatmap', path: '/team/heatmap', icon: LuChartColumn },
       { label: 'Users', path: '/users', icon: LuUsers },
+      { label: 'Plans', path: '/pricing', icon: LuTag },
       TASKS,
     ],
     footer: FOOTER,

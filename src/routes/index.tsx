@@ -22,6 +22,7 @@ import {
   Pricing,
   Credits,
   PaymentCheck,
+  PrivacyCentre,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -77,6 +78,7 @@ export const getRoutes = (): RouteObject[] => [
               { path: '/dashboard', element: <Dashboard /> },
               { path: '/credits', element: <Credits /> },
               { path: '/payments/callback', element: <PaymentCheck /> },
+              { path: '/settings/privacy', element: <PrivacyCentre /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
               guard(accessFor('/reports'), [
                 { path: '/reports', element: <Reports /> },

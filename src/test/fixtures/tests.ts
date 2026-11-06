@@ -2,10 +2,9 @@ import type {
   AssessmentAccess,
   AssessmentDetail,
   AssessmentPage,
-  Attempt,
-  AttemptSubmissionReply,
+  AttemptState,
+  ServedQuestion,
   SkillsPage,
-  StartedAttempt,
 } from '../../lib/api';
 
 export const SKILLS: SkillsPage = {
@@ -122,61 +121,78 @@ export const ACCESS_SHORT_OF_CREDITS: AssessmentAccess = {
   credits_balance: 1,
 };
 
-export const STARTED_ATTEMPT: StartedAttempt = {
-  attempt_id: 12,
-  declared_level: 'BEGINNER',
-  total_questions: 3,
-  questions: [
-    {
-      question_id: 1,
-      question_text: 'What does HTML stand for?',
-      difficulty_level: 'BEGINNER',
-      subskill_id: 1,
-      options: [
-        { option_id: 3, option_text: 'Hyper Transfer Markup Language' },
-        { option_id: 1, option_text: 'Hyper Text Markup Language' },
-      ],
-    },
-    {
-      question_id: 6,
-      question_text: 'Which property is used to change the text color in CSS?',
-      difficulty_level: 'BEGINNER',
-      subskill_id: 2,
-      options: [
-        { option_id: 21, option_text: 'text-color' },
-        { option_id: 22, option_text: 'color' },
-      ],
-    },
-    {
-      question_id: 10,
-      question_text: 'What will console.log(typeof 42) output?',
-      difficulty_level: 'BEGINNER',
-      subskill_id: 3,
-      options: [
-        { option_id: 37, option_text: 'string' },
-        { option_id: 40, option_text: 'number' },
-      ],
-    },
-  ],
-};
-
-export const ATTEMPT_IN_PROGRESS: Attempt = {
-  attempt_id: 12,
-  learner_id: 2,
-  skill_id: 2,
-  attempt_status: 'in_progress',
-  overall_percentage: null,
-  start_time: '2026-10-29T11:20:49.017475',
-  end_time: null,
-};
-
-export const SUBMITTED_ATTEMPT: AttemptSubmissionReply = {
-  result: {
-    score: 2,
-    total_possible: 3,
-    percentage: 67,
-    declared_level: 'BEGINNER',
-    status: 'passed',
-    confirmed_level: 'BEGINNER',
+const QUESTIONS: readonly ServedQuestion[] = [
+  {
+    position: 1,
+    question_id: 1,
+    question_text: 'What does HTML stand for?',
+    subskill_id: 1,
+    options: [
+      { option_id: 3, option_text: 'Hyper Transfer Markup Language' },
+      { option_id: 1, option_text: 'Hyper Text Markup Language' },
+    ],
   },
+  {
+    position: 2,
+    question_id: 6,
+    question_text: 'Which property is used to change the text color in CSS?',
+    subskill_id: 2,
+    options: [
+      { option_id: 21, option_text: 'text-color' },
+      { option_id: 22, option_text: 'color' },
+    ],
+  },
+  {
+    position: 3,
+    question_id: 10,
+    question_text: 'What will console.log(typeof 42) output?',
+    subskill_id: 3,
+    options: [
+      { option_id: 37, option_text: 'string' },
+      { option_id: 40, option_text: 'number' },
+    ],
+  },
+];
+
+const inThirtyMinutes = () => new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+export const attemptAt = (position: number): AttemptState => ({
+  attempt_id: 12,
+  skill_id: 2,
+  status: 'in_progress',
+  resumed: false,
+  total_questions: 3,
+  answered: position - 1,
+  expires_at: inThirtyMinutes(),
+  question: QUESTIONS[position - 1],
+  result: null,
+  recommendations: null,
+});
+
+export const ATTEMPT_COMPLETED: AttemptState = {
+  ...attemptAt(3),
+  status: 'completed',
+  answered: 3,
+  expires_at: null,
+  question: null,
+  result: {
+    score: 67,
+    level: 'JUNIOR',
+    confidence: 0.8,
+    confidence_label: 'high',
+    answered: 3,
+    correct: 2,
+    strengths: [{ subskill_id: 1, subskill_name: 'HTML' }],
+    weaknesses: [{ subskill_id: 3, subskill_name: 'JavaScript' }],
+    subskills: [],
+    ended_by: 'finished',
+    completed_at: '2026-11-03T10:00:00Z',
+  },
+};
+
+export const ATTEMPT_EXPIRED: AttemptState = {
+  ...attemptAt(2),
+  status: 'expired',
+  expires_at: '2026-11-03T09:30:00Z',
+  question: null,
 };

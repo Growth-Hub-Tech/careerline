@@ -9,6 +9,7 @@ import {
   createBeginnerApi,
   createContactApi,
   createPaymentsApi,
+  createPrivacyApi,
   createProfileApi,
   createProgrammesApi,
   createSubscriptionsApi,
@@ -32,6 +33,7 @@ export const programmesApi = createProgrammesApi(api);
 export const profileApi = createProfileApi(api);
 export const subscriptionsApi = createSubscriptionsApi(api);
 export const paymentsApi = createPaymentsApi(api);
+export const privacyApi = createPrivacyApi(api);
 export const catalogApi = createCatalogApi(api);
 export const attemptsApi = createAttemptsApi(api);
 export const resultsApi = createResultsApi(api);

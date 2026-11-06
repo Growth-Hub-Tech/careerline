@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { paymentsApi, subscriptionsApi } from '../lib/api';
 import { SessionProvider, type UserType } from '../lib/session';
 import { takeReturn } from '../lib/payments/checkoutReturn';
@@ -110,16 +110,44 @@ describe('Pricing', () => {
     );
   });
 
-  it('asks visitors to sign up before buying', async () => {
+  it('asks visitors to log in before buying', async () => {
     setup();
 
     const plan = within(await group('For individuals')).getByRole('article', {
       name: 'Individual Monthly',
     });
-    expect(within(plan).getByRole('link', { name: 'Get started' })).toHaveAttribute(
+    expect(within(plan).getByRole('link', { name: 'Log in to buy' })).toHaveAttribute(
+      'href',
+      '/sign-in',
+    );
+    expect(screen.getByRole('link', { name: 'Create an account' })).toHaveAttribute(
       'href',
       '/sign-up',
     );
+  });
+
+  it('brings visitors back to the same prices after they log in', async () => {
+    const SignInPage = () => {
+      const { state } = useLocation() as { state: { from: { pathname: string; search: string } } };
+      return <p>Back to {state.from.pathname + state.from.search}</p>;
+    };
+    render(
+      <MemoryRouter initialEntries={['/pricing?return=%2Ftests%2F202']}>
+        <SessionProvider>
+          <Routes>
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/sign-in" element={<SignInPage />} />
+          </Routes>
+        </SessionProvider>
+      </MemoryRouter>,
+    );
+
+    const card = within(await group('For individuals')).getByRole('article', {
+      name: 'Individual Monthly',
+    });
+    await userEvent.click(within(card).getByRole('link', { name: 'Log in to buy' }));
+
+    expect(screen.getByText('Back to /pricing?return=%2Ftests%2F202')).toBeInTheDocument();
   });
 
   it('says so when there is nothing to buy yet', async () => {
@@ -164,6 +192,49 @@ describe('Pricing', () => {
       const team = await plan('For organisations', 'Team Audit');
       expect(within(team).queryByRole('button', { name: 'Buy' })).not.toBeInTheDocument();
       expect(team).toHaveTextContent('Only organisation owners and admins can buy this plan.');
+    });
+
+    it('keeps recruiter plans for recruiter accounts', async () => {
+      signedInAs('self-test');
+      setup();
+
+      const pro = await plan('For recruiters', 'Recruiter Pro');
+      expect(within(pro).queryByRole('button', { name: 'Buy' })).not.toBeInTheDocument();
+      expect(pro).toHaveTextContent('Only recruiter accounts can buy this plan.');
+    });
+
+    it('keeps individual plans for individual accounts', async () => {
+      signedInAs('recruiter');
+      setup();
+
+      const monthly = await plan('For individuals', 'Individual Monthly');
+      expect(within(monthly).queryByRole('button', { name: 'Buy' })).not.toBeInTheDocument();
+      expect(monthly).toHaveTextContent('Only individual accounts can buy this plan.');
+    });
+
+    it('lets any account buy a credit pack', async () => {
+      signedInAs('recruiter');
+      setup();
+
+      expect(
+        within(await plan('For individuals', 'Starter pack')).getByRole('button', { name: 'Buy' }),
+      ).toBeInTheDocument();
+    });
+
+    it("puts the person's own prices first", async () => {
+      signedInAs('recruiter');
+      setup();
+
+      await group('For recruiters');
+      expect(screen.getAllByRole('heading', { level: 2 })[0]).toHaveTextContent('For recruiters');
+    });
+
+    it('does not offer an account to someone signed in', async () => {
+      signedInAs('self-test');
+      setup();
+
+      await group('For individuals');
+      expect(screen.queryByRole('link', { name: 'Create an account' })).not.toBeInTheDocument();
     });
 
     it('lets an organisation account buy an organisation plan', async () => {

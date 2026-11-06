@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
@@ -11,7 +11,7 @@ import { describeError } from '../lib/api/describeError';
 import { formatMoney } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
 import { safeReturnPath } from '../lib/payments/checkoutReturn';
-import { useSession } from '../lib/session';
+import { useSession, type UserType } from '../lib/session';
 import { describeCredits } from '../lib/tests/catalog';
 
 const AUDIENCES: readonly { readonly audience: Plan['audience']; readonly title: string }[] = [
@@ -19,6 +19,19 @@ const AUDIENCES: readonly { readonly audience: Plan['audience']; readonly title:
   { audience: 'recruiter', title: 'For recruiters' },
   { audience: 'organisation', title: 'For organisations' },
 ];
+
+const AUDIENCE_OF: Record<UserType, Plan['audience']> = {
+  beginner: 'individual',
+  'self-test': 'individual',
+  recruiter: 'recruiter',
+  organization: 'organisation',
+};
+
+const ONLY_FOR: Record<Plan['audience'], string> = {
+  individual: 'Only individual accounts can buy this plan.',
+  recruiter: 'Only recruiter accounts can buy this plan.',
+  organisation: 'Only organisation owners and admins can buy this plan.',
+};
 
 const PER: Record<Plan['interval'], string> = { monthly: 'a month', yearly: 'a year' };
 
@@ -73,7 +86,7 @@ const PriceCard = ({
   );
 };
 
-type BuyAction = (item: BuyItem, isForOrganisation?: boolean) => ReactNode;
+type BuyAction = (item: BuyItem, audience?: Plan['audience']) => ReactNode;
 
 const planItem = (plan: Plan): BuyItem => ({
   kind: 'subscription_plan',
@@ -96,7 +109,7 @@ const PlanCard = ({ plan, action }: { plan: Plan; action: BuyAction }) => (
   <PriceCard
     name={plan.name}
     price={`${formatMoney(plan.price)} ${PER[plan.interval]}`}
-    action={action(planItem(plan), plan.audience === 'organisation')}
+    action={action(planItem(plan), plan.audience)}
   >
     <p>
       {describeCredits(plan.credits_per_interval)} {PER[plan.interval]}
@@ -144,23 +157,21 @@ export const Pricing = ({ onOpen }: PricingProps) => {
   const { session } = useSession();
   const [params] = useSearchParams();
   const [buying, setBuying] = useState<BuyItem | null>(null);
+  const location = useLocation();
   const returnTo = safeReturnPath(params.get('return')) ?? '/credits';
+  const ownAudience = session ? AUDIENCE_OF[session.user.userType] : null;
 
-  const action: BuyAction = (item, isForOrganisation = false) => {
+  const action: BuyAction = (item, audience) => {
     if (!session) {
       return (
-        <Link to="/sign-up" className={`${PRIMARY_ACTION} w-full`}>
-          Get started
+        <Link to="/sign-in" state={{ from: location }} className={`${PRIMARY_ACTION} w-full`}>
+          Log in to buy
         </Link>
       );
     }
 
-    if (isForOrganisation && session.user.userType !== 'organization') {
-      return (
-        <p className="text-[13px] text-slate-500">
-          Only organisation owners and admins can buy this plan.
-        </p>
-      );
+    if (audience && audience !== ownAudience) {
+      return <p className="text-[13px] text-slate-500">{ONLY_FOR[audience]}</p>;
     }
 
     return <Button onClick={() => setBuying(item)}>Buy</Button>;
@@ -181,11 +192,16 @@ export const Pricing = ({ onOpen }: PricingProps) => {
     );
   } else {
     const { plans, packs } = state.data;
-    const groups = AUDIENCES.map(({ audience, title }) => ({
-      title,
-      plans: plans.filter((plan) => plan.audience === audience),
-      packs: audience === 'individual' ? packs : [],
-    })).filter((group) => group.plans.length + group.packs.length > 0);
+    const ordered = [...AUDIENCES].sort(
+      (a, b) => Number(b.audience === ownAudience) - Number(a.audience === ownAudience),
+    );
+    const groups = ordered
+      .map(({ audience, title }) => ({
+        title,
+        plans: plans.filter((plan) => plan.audience === audience),
+        packs: audience === 'individual' ? packs : [],
+      }))
+      .filter((group) => group.plans.length + group.packs.length > 0);
 
     content = (
       <>
@@ -214,6 +230,14 @@ export const Pricing = ({ onOpen }: PricingProps) => {
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Pay for what you need: a plan that renews, or a pack of credits for one-off tests.
         </p>
+        {!session && (
+          <p className="text-[15px] text-slate-600">
+            New to CareerLine AI?{' '}
+            <Link to="/sign-up" className="font-semibold text-indigo-600 hover:underline">
+              Create an account
+            </Link>
+          </p>
+        )}
       </header>
       {content}
       <BuyDialog

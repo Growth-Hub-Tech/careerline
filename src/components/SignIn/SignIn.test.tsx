@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ApiError } from '../../lib/api/ApiError';
 import { createDevSession, readSession, SessionProvider, writeRole } from '../../lib/session';
 import { SignIn } from './SignIn';
@@ -106,5 +106,36 @@ describe('SignIn', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(await screen.findByText('Dashboard page')).toBeInTheDocument();
+  });
+
+  it('goes back to the full address it came from, query included', async () => {
+    writeRole('skye@example.com', 'self-test');
+    const Callback = () => <p>Callback {useLocation().search}</p>;
+    render(
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: '/sign-in',
+            state: { from: { pathname: '/payments/callback', search: '?reference=ref-1' } },
+          },
+        ]}
+      >
+        <SessionProvider>
+          <Routes>
+            <Route
+              path="/sign-in"
+              element={
+                <SignIn onSubmit={vi.fn().mockResolvedValue(createDevSession('self-test'))} />
+              }
+            />
+            <Route path="/payments/callback" element={<Callback />} />
+          </Routes>
+        </SessionProvider>
+      </MemoryRouter>,
+    );
+
+    await fill();
+
+    expect(await screen.findByText('Callback ?reference=ref-1')).toBeInTheDocument();
   });
 });

@@ -20,7 +20,10 @@ const signInWithApi = (values: SignInValues) => authActions.signIn(values);
 
 export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
   const navigate = useNavigate();
-  const location = useLocation() as { state: { from?: { pathname: string } } | null };
+  const location = useLocation() as {
+    state: { from?: { pathname: string; search?: string; hash?: string } } | null;
+  };
+  const from = location.state?.from;
   const { signIn } = useSession();
   const [formError, setFormError] = useState<string>();
 
@@ -42,7 +45,9 @@ export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
       if (session) {
         signIn(session);
         const next = readRole(session.user.email)
-          ? (location.state?.from?.pathname ?? '/dashboard')
+          ? from
+            ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
+            : '/dashboard'
           : AUTH_PATHS.getStarted;
         navigate(next, { replace: true });
       }

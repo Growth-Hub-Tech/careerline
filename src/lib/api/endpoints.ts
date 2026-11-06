@@ -1,19 +1,22 @@
 import type { createApiClient } from './client';
 import type {
+  AnswerRequest,
+  AttemptState,
+  AccountDeletion,
+  AccountDeletionRequest,
   Acknowledgement,
-  Attempt,
   Checkout,
   CheckoutRequest,
-  AttemptSubmission,
-  AttemptSubmissionReply,
+  ConsentChange,
+  Consents,
   BeginnerPath,
   ContactReceipt,
   ContactRequest,
   CreditPack,
   Credits,
+  DataExport,
   IntakeQuestionnaire,
   IntakeSubmission,
-  LevelName,
   Payment,
   Plan,
   Profile,
@@ -21,7 +24,6 @@ import type {
   ProgrammeClick,
   ProgrammeClickRequest,
   RegisterRequest,
-  StartedAttempt,
   SubscribeRequest,
   TokenResponse,
 } from './types';
@@ -86,19 +88,32 @@ export const createPaymentsApi = (client: Client) => ({
   credits: () => client.get<Credits>('/credits'),
 });
 
+export const createPrivacyApi = (client: Client) => ({
+  getConsents: () => client.get<Consents>('/privacy/consents'),
+
+  updateConsents: (items: readonly ConsentChange[]) =>
+    client.put<Consents>('/privacy/consents', { body: { items } }),
+
+  requestExport: () => client.post<DataExport>('/privacy/data-exports'),
+
+  getExport: (exportId: number) => client.get<DataExport>(`/privacy/data-exports/${exportId}`),
+
+  requestDeletion: (request: AccountDeletionRequest) =>
+    client.post<AccountDeletion>('/privacy/account-deletion', { body: request }),
+
+  cancelDeletion: () => client.delete<AccountDeletion>('/privacy/account-deletion'),
+});
+
 export const createProfileApi = (client: Client) => ({
   get: () => client.get<Profile>('/profile'),
 });
 
 export const createAttemptsApi = (client: Client) => ({
-  start: (skillId: number, level: LevelName) =>
-    client.post<StartedAttempt>('/attempts/start', {
-      body: { skill_id: skillId, declared_level: level },
-    }),
+  start: (skillId: number) =>
+    client.post<AttemptState>('/attempts/start', { body: { skill_id: skillId } }),
 
-  get: async (attemptId: number) =>
-    (await client.get<{ readonly attempt: Attempt }>(`/attempts/${attemptId}`)).attempt,
+  current: (attemptId: number) => client.get<AttemptState>(`/attempts/${attemptId}/question`),
 
-  submit: (submission: AttemptSubmission) =>
-    client.post<AttemptSubmissionReply>('/attempts/submit', { body: submission }),
+  answer: (attemptId: number, answer: AnswerRequest) =>
+    client.post<AttemptState>(`/attempts/${attemptId}/answer`, { body: answer }),
 });

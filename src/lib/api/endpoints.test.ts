@@ -5,6 +5,7 @@ import {
   createBeginnerApi,
   createContactApi,
   createPaymentsApi,
+  createPrivacyApi,
   createProfileApi,
   createProgrammesApi,
   createSubscriptionsApi,
@@ -271,47 +272,93 @@ describe('payment check endpoints', () => {
   });
 });
 
+describe('privacy endpoints', () => {
+  it('loads my consents', async () => {
+    const { fetcher, client } = setup({ success: true, data: { items: [] } });
+
+    await createPrivacyApi(client).getConsents();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/privacy/consents');
+  });
+
+  it('changes consents with a PUT', async () => {
+    const { fetcher, client } = setup({ success: true, data: { items: [] } });
+
+    await createPrivacyApi(client).updateConsents([{ key: 'marketing_emails', granted: true }]);
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/privacy/consents');
+    expect(init.method).toBe('PUT');
+    expect(JSON.parse(String(init.body))).toEqual({
+      items: [{ key: 'marketing_emails', granted: true }],
+    });
+  });
+
+  it('asks for a copy of my data and checks on it', async () => {
+    const { fetcher, client } = setup({ success: true, data: { export_id: 4 } });
+    const privacy = createPrivacyApi(client);
+
+    await privacy.requestExport();
+    await privacy.getExport(4);
+
+    expect(String(fetcher.mock.calls[0][0])).toBe(
+      'https://api.example.test/api/v1/privacy/data-exports',
+    );
+    expect(fetcher.mock.calls[0][1]?.method).toBe('POST');
+    expect(String(fetcher.mock.calls[1][0])).toBe(
+      'https://api.example.test/api/v1/privacy/data-exports/4',
+    );
+  });
+
+  it('asks to delete the account and cancels it', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'scheduled' } });
+    const privacy = createPrivacyApi(client);
+
+    await privacy.requestDeletion({ password: 'secret123', reason: null });
+    await privacy.cancelDeletion();
+
+    const [deleteUrl, deleteInit] = fetcher.mock.calls[0];
+    expect(String(deleteUrl)).toBe('https://api.example.test/api/v1/privacy/account-deletion');
+    expect(deleteInit?.method).toBe('POST');
+    expect(JSON.parse(String(deleteInit?.body))).toEqual({ password: 'secret123', reason: null });
+    expect(fetcher.mock.calls[1][1]?.method).toBe('DELETE');
+  });
+});
+
 describe('attempt endpoints', () => {
-  it('starts an attempt for a skill at a level', async () => {
+  it('starts the test of a skill', async () => {
     const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const attempt = await createAttemptsApi(client).start(1, 'JUNIOR');
+    const attempt = await createAttemptsApi(client).start(1);
 
     const { url, init } = sent(fetcher);
     expect(url).toBe('https://api.example.test/api/v1/attempts/start');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual({ skill_id: 1, declared_level: 'JUNIOR' });
+    expect(JSON.parse(String(init.body))).toEqual({ skill_id: 1 });
     expect(attempt).toEqual({ attempt_id: 2 });
   });
 
-  it('reads one attempt out of its wrapper', async () => {
-    const { fetcher, client } = setup({
-      success: true,
-      data: { attempt: { attempt_id: 2, attempt_status: 'in_progress' } },
-    });
+  it('reads where a test stands', async () => {
+    const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const attempt = await createAttemptsApi(client).get(2);
+    const attempt = await createAttemptsApi(client).current(2);
 
-    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/attempts/2');
-    expect(attempt).toEqual({ attempt_id: 2, attempt_status: 'in_progress' });
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/attempts/2/question');
+    expect(attempt).toEqual({ attempt_id: 2 });
   });
 
-  it('submits every answer at once', async () => {
-    const { fetcher, client } = setup({ success: true, data: { result: { percentage: 36 } } });
-    const submission = {
-      attempt_id: 2,
-      answers: [
-        { question_id: 1, selected_option_id: 3 },
-        { question_id: 6, selected_option_id: 22 },
-      ],
-    };
+  it('answers the current question', async () => {
+    const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const reply = await createAttemptsApi(client).submit(submission);
+    const attempt = await createAttemptsApi(client).answer(2, {
+      question_id: 6,
+      selected_option_id: 22,
+    });
 
     const { url, init } = sent(fetcher);
-    expect(url).toBe('https://api.example.test/api/v1/attempts/submit');
+    expect(url).toBe('https://api.example.test/api/v1/attempts/2/answer');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual(submission);
-    expect(reply).toEqual({ result: { percentage: 36 } });
+    expect(JSON.parse(String(init.body))).toEqual({ question_id: 6, selected_option_id: 22 });
+    expect(attempt).toEqual({ attempt_id: 2 });
   });
 });

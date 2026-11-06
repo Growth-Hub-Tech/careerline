@@ -79,7 +79,10 @@ describe('PaymentCheck', () => {
 
       expect(await heading('Payment not completed')).toBeInTheDocument();
       expect(screen.getByText('You have not been charged. You can try again.')).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Try again' })).toHaveAttribute('href', '/pricing');
+      expect(screen.getByRole('link', { name: 'Try again' })).toHaveAttribute(
+        'href',
+        '/pricing?return=%2Fcredits',
+      );
     },
   );
 

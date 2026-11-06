@@ -9,7 +9,6 @@ export const RESULT_SUMMARIES: readonly ResultSummary[] = [
     skill_name: 'Product Design',
     level: 'MID',
     percentage_score: 81,
-    passed: true,
     completed_at: '2026-10-20T10:15:00Z',
   },
   {
@@ -20,14 +19,14 @@ export const RESULT_SUMMARIES: readonly ResultSummary[] = [
     skill_name: 'Frontend Web Development',
     level: 'JUNIOR',
     percentage_score: 64.5,
-    passed: true,
     completed_at: '2026-10-27T15:40:00Z',
   },
 ];
 
 export const RESULT_DETAIL: ResultDetail = {
   ...RESULT_SUMMARIES[0],
-  declared_level: 'MID',
+  confidence: 0.82,
+  confidence_label: 'high',
   percentile: 72,
   subskills: [
     { subskill_id: 1, subskill_name: 'UI Design', percentage_score: 81, band: 'strong' },

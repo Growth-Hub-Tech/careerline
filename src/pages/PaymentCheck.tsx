@@ -109,7 +109,10 @@ export const PaymentCheck = ({ pollInterval = 3000, maxChecks = 10 }: PaymentChe
     content = (
       <Panel title="Payment not completed">
         <p className="text-[15px] text-slate-600">You have not been charged. You can try again.</p>
-        <Link to="/pricing" className={`${PRIMARY_ACTION} w-fit`}>
+        <Link
+          to={`/pricing?return=${encodeURIComponent(returnTo)}`}
+          className={`${PRIMARY_ACTION} w-fit`}
+        >
           Try again
         </Link>
       </Panel>

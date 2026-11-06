@@ -1,5 +1,6 @@
 import type { createApiClient } from './client';
 import type {
+  SkillHistory,
   ProgrammePage,
   AnswerRequest,
   AttemptState,
@@ -114,6 +115,9 @@ export const createPrivacyApi = (client: Client) => ({
 
 export const createProfileApi = (client: Client) => ({
   get: () => client.get<Profile>('/profile'),
+
+  skillHistory: (skillId: number) =>
+    client.get<SkillHistory>('/profile/skills/history', { query: { skill_id: skillId } }),
 });
 
 export const createAttemptsApi = (client: Client) => ({

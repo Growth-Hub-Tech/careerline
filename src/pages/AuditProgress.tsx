@@ -1,12 +1,15 @@
-import { useCallback, useId } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { useCallback, useId, useState } from 'react';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Alert } from '../components/Alert';
+import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { LoadFailed } from '../components/PageState';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
-import { organisationsApi, type Benchmark, type TeamMember } from '../lib/api';
+import { organisationsApi, type Audit, type Benchmark, type TeamMember } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
+import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
 import { AUDIT_STATUS, MEMBER_STATUS } from '../lib/organisation/labels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
@@ -98,6 +101,42 @@ const StatusCounts = ({ members }: { members: readonly TeamMember[] }) => {
   );
 };
 
+const Retest = ({ audit }: { audit: Audit }) => {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string>();
+  const [isStarting, setIsStarting] = useState(false);
+
+  const start = async () => {
+    setIsStarting(true);
+    setError(undefined);
+    try {
+      const organisation = await organisationsApi.me();
+      const retest = await organisationsApi.startAudit(organisation.organisation_id, {
+        name: `${audit.name} (re-test)`,
+        role_ids: audit.role_ids,
+        send_invitations: true,
+      });
+      navigate(`/team/audits/${retest.audit_id}`);
+    } catch (startError) {
+      setError(describeError(startError));
+      setIsStarting(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3 rounded-2xl bg-indigo-50 p-5">
+      <h2 className="text-[17px] font-semibold text-slate-900">Measure progress</h2>
+      <p className="text-[14px] text-slate-700">
+        Test the same roles again after training to see how much the team has moved.
+      </p>
+      {error && <Alert variant="error">{error}</Alert>}
+      <Button fullWidth={false} className="self-start" isLoading={isStarting} onClick={start}>
+        Request a re-test
+      </Button>
+    </section>
+  );
+};
+
 const AuditDetails = ({ id }: { id: number }) => {
   const load = useCallback(() => loadAudit(id), [id]);
   const { state, retry } = useRequest(load);
@@ -140,6 +179,8 @@ const AuditDetails = ({ id }: { id: number }) => {
           {audit.members_completed} of {audit.members_total} finished
         </p>
       </header>
+
+      {audit.status === 'completed' && <Retest audit={audit} />}
 
       <StatusCounts members={members} />
 

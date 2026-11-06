@@ -378,3 +378,15 @@ describe('programme list', () => {
     expect(programmes).toEqual([{ programme_id: 5 }]);
   });
 });
+
+describe('skill history', () => {
+  it('reads the history of one skill', async () => {
+    const { fetcher, client } = setup({ success: true, data: { entries: [] } });
+
+    await createProfileApi(client).skillHistory(13);
+
+    expect(sent(fetcher).url).toBe(
+      'https://api.example.test/api/v1/profile/skills/history?skill_id=13',
+    );
+  });
+});

@@ -1,4 +1,4 @@
-import type { ResultDetail, ResultReport, ResultSummary } from '../../lib/api';
+import type { ResultDetail, ResultReport, ResultSummary, SkillHistory } from '../../lib/api';
 
 export const RESULT_SUMMARIES: readonly ResultSummary[] = [
   {
@@ -55,3 +55,31 @@ export const REPORT_GENERATING: ResultReport = {
 };
 
 export const REPORT_FAILED: ResultReport = { ...REPORT_GENERATING, status: 'failed' };
+
+export const SKILL_HISTORY: SkillHistory = {
+  learner_id: 2,
+  entries: [
+    {
+      attempt_id: 12,
+      skill_id: 13,
+      skill_name: 'Product Design',
+      level: 'MID',
+      score: 81,
+      confidence: 0.82,
+      strengths: [],
+      weaknesses: [],
+      recorded_at: '2026-10-20T10:15:00Z',
+    },
+    {
+      attempt_id: 5,
+      skill_id: 13,
+      skill_name: 'Product Design',
+      level: 'JUNIOR',
+      score: 64,
+      confidence: 0.7,
+      strengths: [],
+      weaknesses: [],
+      recorded_at: '2026-10-01T10:15:00Z',
+    },
+  ],
+};

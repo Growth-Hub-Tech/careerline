@@ -3,6 +3,7 @@ import { expireSession, readSession } from '../session';
 import { createCatalogApi } from './catalog';
 import { createResultsApi } from './results';
 import { createInvitationsApi, createRecruiterApi } from './recruiter';
+import { createOrganisationsApi, createRolesApi } from './organisations';
 import { createApiClient } from './client';
 import {
   createAttemptsApi,
@@ -40,3 +41,5 @@ export const attemptsApi = createAttemptsApi(api);
 export const resultsApi = createResultsApi(api);
 export const recruiterApi = createRecruiterApi(api);
 export const invitationsApi = createInvitationsApi(api);
+export const organisationsApi = createOrganisationsApi(api);
+export const rolesApi = createRolesApi(api);

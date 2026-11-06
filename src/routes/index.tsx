@@ -26,6 +26,8 @@ import {
   Candidates,
   CandidateReport,
   Invitation,
+  TeamAudits,
+  StaffUpload,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -90,6 +92,10 @@ export const getRoutes = (): RouteObject[] => [
               guard(accessFor('/candidates'), [
                 { path: '/candidates', element: <Candidates /> },
                 { path: '/candidates/:candidateId', element: <CandidateReport /> },
+              ]),
+              guard(accessFor('/team'), [
+                { path: '/team', element: <TeamAudits /> },
+                { path: '/team/import', element: <StaffUpload /> },
               ]),
               ...groupByAccess(APP_PLACEHOLDERS),
             ],

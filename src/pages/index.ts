@@ -17,3 +17,5 @@ export * from './PrivacyCentre';
 export * from './Candidates';
 export * from './CandidateReport';
 export * from './Invitation';
+export * from './TeamAudits';
+export * from './StaffUpload';

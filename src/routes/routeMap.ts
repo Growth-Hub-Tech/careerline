@@ -44,16 +44,6 @@ export const PUBLIC_PLACEHOLDERS: readonly PlaceholderRoute[] = [
 
 export const APP_PLACEHOLDERS: readonly PlaceholderRoute[] = [
   {
-    path: '/team',
-    title: 'Team',
-    description: 'Your team roster, mapped to roles and titles.',
-  },
-  {
-    path: '/team/import',
-    title: 'Import team roster',
-    description: 'Upload your staff list so tests can be assigned by role.',
-  },
-  {
     path: '/team/heatmap',
     title: 'Capability heatmap',
     description: 'How your whole team measures up, skill by skill.',

@@ -85,10 +85,13 @@ export const TeamAudits = () => {
       <>
         <Seats organisation={organisation} />
         <div className="flex flex-wrap gap-3">
+          <Link to="/team/audits/new" className={`${PRIMARY_ACTION} w-fit`}>
+            Start an audit
+          </Link>
           <Link to="/team/import" className={`${SECONDARY_ACTION} w-fit`}>
             Upload staff list
           </Link>
-          <Link to="/team/heatmap" className={`${PRIMARY_ACTION} w-fit`}>
+          <Link to="/team/heatmap" className={`${SECONDARY_ACTION} w-fit`}>
             See the heatmap
           </Link>
         </div>

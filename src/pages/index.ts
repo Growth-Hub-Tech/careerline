@@ -19,3 +19,5 @@ export * from './CandidateReport';
 export * from './Invitation';
 export * from './TeamAudits';
 export * from './StaffUpload';
+export * from './StartAudit';
+export * from './AuditProgress';

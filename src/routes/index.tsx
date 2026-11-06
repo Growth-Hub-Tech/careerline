@@ -28,6 +28,8 @@ import {
   Invitation,
   TeamAudits,
   StaffUpload,
+  StartAudit,
+  AuditProgress,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -96,6 +98,8 @@ export const getRoutes = (): RouteObject[] => [
               guard(accessFor('/team'), [
                 { path: '/team', element: <TeamAudits /> },
                 { path: '/team/import', element: <StaffUpload /> },
+                { path: '/team/audits/new', element: <StartAudit /> },
+                { path: '/team/audits/:auditId', element: <AuditProgress /> },
               ]),
               ...groupByAccess(APP_PLACEHOLDERS),
             ],

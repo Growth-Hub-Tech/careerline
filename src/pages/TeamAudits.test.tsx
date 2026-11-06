@@ -43,8 +43,13 @@ describe('TeamAudits', () => {
     );
   });
 
-  it('links to the staff list upload', async () => {
+  it('links to the staff list upload and to a new audit', async () => {
     setup();
+
+    expect(await screen.findByRole('link', { name: 'Start an audit' })).toHaveAttribute(
+      'href',
+      '/team/audits/new',
+    );
 
     expect(await screen.findByRole('link', { name: 'Upload staff list' })).toHaveAttribute(
       'href',

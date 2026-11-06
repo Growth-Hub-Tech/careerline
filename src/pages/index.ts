@@ -21,3 +21,4 @@ export * from './TeamAudits';
 export * from './StaffUpload';
 export * from './StartAudit';
 export * from './AuditProgress';
+export * from './TeamHeatmap';

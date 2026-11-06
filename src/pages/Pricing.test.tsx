@@ -106,7 +106,7 @@ describe('Pricing', () => {
     const enterprise = await group('Enterprise');
     expect(within(enterprise).getByRole('link', { name: 'Request a quote' })).toHaveAttribute(
       'href',
-      '/contact?topic=organisation_audit',
+      '/quote',
     );
   });
 

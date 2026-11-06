@@ -141,7 +141,7 @@ const Enterprise = () => (
         Need more seats, your own role standards or a custom set-up for your organisation? Tell us
         what you need and we will send you a quote.
       </p>
-      <Link to="/contact?topic=organisation_audit" className={`${SECONDARY_ACTION} w-fit`}>
+      <Link to="/quote" className={`${SECONDARY_ACTION} w-fit`}>
         Request a quote
       </Link>
     </div>

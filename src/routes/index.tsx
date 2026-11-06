@@ -18,6 +18,7 @@ import {
   TestStart,
   TestAttempt,
   Invitation,
+  Quote,
 } from '../pages';
 import {
   Pricing,
@@ -78,6 +79,7 @@ export const getRoutes = (): RouteObject[] => [
           { path: '/', element: <Home /> },
           { path: '/contact', element: <Contact /> },
           { path: '/pricing', element: <Pricing /> },
+          { path: '/quote', element: <Quote /> },
           ...PUBLIC_PLACEHOLDERS.map(toRoute),
         ],
       },

@@ -25,3 +25,4 @@ export * from './TeamHeatmap';
 export * from './EmployeeReport';
 export * from './CompanyTargets';
 export * from './Billing';
+export * from './Quote';

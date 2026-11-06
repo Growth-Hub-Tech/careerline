@@ -28,6 +28,7 @@ import {
   Invitation,
   Pricing,
   PrivacyCentre,
+  Quote,
   Report,
   StaffUpload,
   StartAudit,
@@ -114,6 +115,14 @@ interface PageCase {
 }
 
 const PAGES: readonly PageCase[] = [
+  {
+    name: 'quote',
+    path: '/quote',
+    address: '/quote',
+    element: <Quote />,
+    ready: 'Request an enterprise quote',
+    userType: 'organization',
+  },
   {
     name: 'landing',
     path: '/',

@@ -46,6 +46,9 @@ export const TestimonialCard = ({
 
   return (
     <figure className="border border-white/40 bg-slate-950/25 p-6 text-white backdrop-blur-xl">
+      <p className="mb-3 text-[13px] font-medium tracking-wide text-white/80 uppercase">
+        Example profile
+      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <figcaption className="text-[28px] leading-tight font-semibold xl:text-[34px]">
           {name}

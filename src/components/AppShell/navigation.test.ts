@@ -42,4 +42,8 @@ describe('navigation per user type', () => {
   it('links organisations to the plans they can buy', () => {
     expect(NAV_BY_TYPE.organization.main.map(({ path }) => path)).toContain('/pricing');
   });
+
+  it.each(USER_TYPES)('gives %s its billing', (userType) => {
+    expect(NAV_BY_TYPE[userType].footer.map(({ path }) => path)).toContain('/billing');
+  });
 });

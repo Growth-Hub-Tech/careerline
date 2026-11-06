@@ -390,3 +390,32 @@ describe('skill history', () => {
     );
   });
 });
+
+describe('billing endpoints', () => {
+  it('reads and cancels my subscription', async () => {
+    const { fetcher, client } = setup({ success: true, data: null });
+
+    await createSubscriptionsApi(client).mine();
+    await createSubscriptionsApi(client)
+      .cancel()
+      .catch(() => undefined);
+
+    expect(String(fetcher.mock.calls[0][0])).toBe(
+      'https://api.example.test/api/v1/subscriptions/me',
+    );
+    expect(String(fetcher.mock.calls[1]?.[0] ?? '')).toBe(
+      'https://api.example.test/api/v1/subscriptions/me/cancel',
+    );
+    expect(fetcher.mock.calls[1]?.[1]?.method).toBe('POST');
+  });
+
+  it('lists my latest payments', async () => {
+    const { fetcher, client } = setup({
+      success: true,
+      data: { items: [{ reference: 'r' }], total: 1, limit: 20, offset: 0 },
+    });
+
+    expect(await createPaymentsApi(client).list()).toEqual([{ reference: 'r' }]);
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments?limit=20&offset=0');
+  });
+});

@@ -7,6 +7,7 @@ import {
   LuLifeBuoy,
   LuListTodo,
   LuSettings,
+  LuReceipt,
   LuShieldCheck,
   LuTag,
   LuTarget,
@@ -32,6 +33,7 @@ const TASKS: NavEntry = { label: 'Tasks', path: '/tasks', icon: LuListTodo };
 
 const FOOTER: readonly NavEntry[] = [
   { label: 'Support', path: '/support', icon: LuLifeBuoy },
+  { label: 'Billing', path: '/billing', icon: LuReceipt },
   { label: 'Settings', path: '/settings', icon: LuSettings, end: true },
   { label: 'Privacy', path: '/settings/privacy', icon: LuShieldCheck },
 ];

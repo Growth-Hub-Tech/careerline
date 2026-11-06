@@ -1,5 +1,7 @@
 import type { createApiClient } from './client';
 import type {
+  PaymentPage,
+  Subscription,
   SkillHistory,
   ProgrammePage,
   AnswerRequest,
@@ -84,6 +86,10 @@ export const createSubscriptionsApi = (client: Client) => ({
 
   subscribe: (request: SubscribeRequest) =>
     client.post<Checkout>('/subscriptions', { body: request }),
+
+  mine: () => client.get<Subscription | null>('/subscriptions/me'),
+
+  cancel: () => client.post<Subscription>('/subscriptions/me/cancel'),
 });
 
 export const createPaymentsApi = (client: Client) => ({
@@ -93,6 +99,9 @@ export const createPaymentsApi = (client: Client) => ({
     client.post<Checkout>('/payments/checkout', { body: request }),
 
   get: (reference: string) => client.get<Payment>(`/payments/${encodeURIComponent(reference)}`),
+
+  list: async () =>
+    (await client.get<PaymentPage>('/payments', { query: { limit: 20, offset: 0 } })).items,
 
   credits: () => client.get<Credits>('/credits'),
 });

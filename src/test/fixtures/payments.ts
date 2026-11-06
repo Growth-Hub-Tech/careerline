@@ -1,4 +1,4 @@
-import type { CreditPack, Credits, Payment, Plan } from '../../lib/api';
+import type { CreditPack, Credits, Payment, Plan, Subscription } from '../../lib/api';
 
 const naira = (amount: number) => ({ amount: amount * 100, currency: 'NGN' as const });
 
@@ -70,4 +70,16 @@ export const payment = (status: Payment['status'], creditsAdded = 10): Payment =
   credits_added: status === 'paid' ? creditsAdded : 0,
   created_at: '2026-11-03T09:00:00Z',
   paid_at: status === 'paid' ? '2026-11-03T09:01:00Z' : null,
+});
+
+export const subscription = (overrides: Partial<Subscription> = {}): Subscription => ({
+  subscription_id: 7,
+  plan_id: 1,
+  plan_name: 'Individual Monthly',
+  status: 'active',
+  current_period_start: '2026-11-01T00:00:00Z',
+  current_period_end: '2026-12-01T00:00:00Z',
+  cancel_at_period_end: false,
+  seats: null,
+  ...overrides,
 });

@@ -26,6 +26,7 @@ export type Checkout = Schemas['Checkout'];
 export type CheckoutRequest = Schemas['CheckoutRequest'];
 export type SubscribeRequest = Schemas['SubscribeRequest'];
 export type Payment = Schemas['Payment'];
+export type PaymentPage = Schemas['Page_Payment_'];
 export type Credits = Schemas['Credits'];
 export type CreditTransaction = Schemas['CreditTransaction'];
 export type Consent = Schemas['Consent'];

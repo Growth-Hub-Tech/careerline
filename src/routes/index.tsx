@@ -33,6 +33,7 @@ import {
   TeamHeatmap,
   EmployeeReport,
   CompanyTargets,
+  Billing,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -87,6 +88,7 @@ export const getRoutes = (): RouteObject[] => [
             children: [
               { path: '/dashboard', element: <Dashboard /> },
               { path: '/credits', element: <Credits /> },
+              { path: '/billing', element: <Billing /> },
               { path: '/payments/callback', element: <PaymentCheck /> },
               { path: '/settings/privacy', element: <PrivacyCentre /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),

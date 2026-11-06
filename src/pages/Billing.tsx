@@ -51,6 +51,7 @@ const load = async () => {
 };
 
 const planDate = (plan: Subscription) => {
+  if (plan.status === 'past_due') return null;
   if (plan.status === 'cancelled') return `Ended on ${formatDate(plan.current_period_end)}`;
   if (plan.cancel_at_period_end) return `Cancels on ${formatDate(plan.current_period_end)}`;
   return `Renews on ${formatDate(plan.current_period_end)}`;
@@ -99,7 +100,7 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
               {PLAN_STATUS[plan.status].label}
             </StatusLabel>
           </p>
-          <p className="text-[15px] text-slate-600">{planDate(plan)}</p>
+          {planDate(plan) && <p className="text-[15px] text-slate-600">{planDate(plan)}</p>}
           {plan.seats !== null && (
             <p className="text-[15px] text-slate-600">Up to {plan.seats} seats</p>
           )}

@@ -119,7 +119,10 @@ const Legend = () => (
     <ul className="flex flex-wrap gap-4">
       {Object.entries(BANDS).map(([band, { label, className }]) => (
         <li key={band} className="flex items-center gap-2">
-          <span aria-hidden="true" className={`size-4 rounded ${className}`} />
+          <span
+            aria-hidden="true"
+            className={`size-4 rounded border border-slate-300 ${className}`}
+          />
           {label}
         </li>
       ))}

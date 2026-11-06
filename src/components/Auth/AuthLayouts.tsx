@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import createImage from '../../assets/create.jpeg';
+import createImage from '../../assets/create.webp';
 import { AuthHeader } from './AuthHeader';
 import { TestimonialCard } from './TestimonialCard';
 
-/** Form on the left, create.jpeg + testimonial on the right (photo hidden below lg). */
+/** Form on the left, create.webp + testimonial on the right (photo hidden below lg). */
 export const SplitAuthLayout = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-dvh w-full bg-white">
     <div className="flex min-h-dvh w-full flex-col lg:w-1/2">

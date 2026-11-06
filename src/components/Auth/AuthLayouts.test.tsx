@@ -17,7 +17,7 @@ describe('SplitAuthLayout', () => {
 
     expect(container.querySelector('aside img')).toHaveAttribute(
       'src',
-      expect.stringContaining('create.jpeg'),
+      expect.stringContaining('create.webp'),
     );
   });
 

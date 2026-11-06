@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { LuBell, LuLogOut, LuMenu, LuX } from 'react-icons/lu';
 import logo from '../../assets/careerline.png';
+import { MAIN_ID, SkipLink } from '../SkipLink';
 import type { NavEntry, UserNavigation } from './navigation';
 
 interface ShellUser {
@@ -65,6 +66,7 @@ export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProp
 
   return (
     <div className="flex min-h-dvh flex-col bg-white">
+      <SkipLink />
       <header className="sticky top-0 z-40 flex h-20 shrink-0 items-center justify-between border-b border-slate-100 bg-white px-5 sm:px-8">
         <div className="flex items-center gap-3">
           <button
@@ -156,7 +158,13 @@ export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProp
           </nav>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col bg-indigo-50">{children}</main>
+        <main
+          id={MAIN_ID}
+          tabIndex={-1}
+          className="flex min-w-0 flex-1 flex-col bg-indigo-50 focus:outline-none"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

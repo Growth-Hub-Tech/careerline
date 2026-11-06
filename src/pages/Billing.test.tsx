@@ -80,6 +80,7 @@ describe('Billing', () => {
       'Your last payment failed. Pay by 1 Dec 2026 to keep your plan.',
     );
     expect(screen.getByRole('link', { name: 'Subscribe again' })).toBeInTheDocument();
+    expect(await plan()).not.toHaveTextContent('Renews on');
   });
 
   it('offers plans next to one-off prices when there is no plan', async () => {

@@ -1,12 +1,18 @@
 import { Link, Outlet } from 'react-router-dom';
 import { LuX } from 'react-icons/lu';
 import { FlowHeader } from '../../components/FlowHeader';
+import { MAIN_ID, SkipLink } from '../../components/SkipLink';
 
 export const TestFrame = () => (
   <div className="flex min-h-dvh flex-col bg-indigo-200">
+    <SkipLink />
     <FlowHeader label="Skill test" />
 
-    <main className="flex flex-1 items-center justify-center px-5 py-8 sm:px-8">
+    <main
+      id={MAIN_ID}
+      tabIndex={-1}
+      className="flex flex-1 items-center justify-center px-5 py-8 focus:outline-none sm:px-8"
+    >
       <div className="flex w-full max-w-[960px] flex-col gap-4">
         <Link
           to="/dashboard"

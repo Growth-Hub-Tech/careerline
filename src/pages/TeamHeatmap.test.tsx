@@ -121,4 +121,38 @@ describe('TeamHeatmap', () => {
 
     expect(await grid()).toBeInTheDocument();
   });
+
+  it('draws a 50-person heatmap quickly', async () => {
+    const skills = Array.from({ length: 10 }, (_, index) => ({
+      skill_id: index + 1,
+      skill_name: `Skill ${index + 1}`,
+    }));
+    vi.mocked(organisationsApi.heatmap).mockResolvedValue({
+      ...HEATMAP,
+      skills,
+      rows: Array.from({ length: 50 }, (_, person) => ({
+        key: String(person + 1),
+        label: `Person ${person + 1}`,
+        members: 1,
+        cells: skills.map(({ skill_id }) => ({
+          skill_id,
+          average_score: (person * 7 + skill_id * 3) % 100,
+          level: 'JUNIOR' as const,
+          members_tested: 1,
+          band: 'developing' as const,
+        })),
+      })),
+    });
+    const started = performance.now();
+    setup();
+
+    const rows = within(await grid())
+      .getAllByRole('row')
+      .slice(1);
+    const took = performance.now() - started;
+
+    expect(rows).toHaveLength(50);
+    expect(within(rows[49]).getAllByRole('cell')).toHaveLength(10);
+    expect(took).toBeLessThan(3000);
+  });
 });

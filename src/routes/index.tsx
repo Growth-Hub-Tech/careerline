@@ -17,15 +17,18 @@ import {
   SkillTests,
   TestStart,
   TestAttempt,
-  Reports,
-  Report,
+  Invitation,
+} from '../pages';
+import {
   Pricing,
   Credits,
   PaymentCheck,
   PrivacyCentre,
+  Billing,
+  Reports,
+  Report,
   Candidates,
   CandidateReport,
-  Invitation,
   TeamAudits,
   StaffUpload,
   StartAudit,
@@ -33,8 +36,7 @@ import {
   TeamHeatmap,
   EmployeeReport,
   CompanyTargets,
-  Billing,
-} from '../pages';
+} from './lazyPages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
 import { PlaceholderPage } from '../components/PlaceholderPage';

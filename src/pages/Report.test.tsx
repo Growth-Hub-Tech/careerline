@@ -1,19 +1,21 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { resultsApi } from '../lib/api';
+import { profileApi, resultsApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import {
   REPORT_FAILED,
   REPORT_GENERATING,
   REPORT_READY,
   RESULT_DETAIL,
+  SKILL_HISTORY,
 } from '../test/fixtures/results';
 import { Report } from './Report';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   resultsApi: { get: vi.fn(), getReport: vi.fn(), regenerateReport: vi.fn() },
+  profileApi: { skillHistory: vi.fn() },
 }));
 
 const setup = (address = '/reports/31') => {
@@ -38,6 +40,7 @@ beforeEach(() => {
   vi.mocked(resultsApi.get).mockResolvedValue(RESULT_DETAIL);
   vi.mocked(resultsApi.getReport).mockResolvedValue(REPORT_READY);
   vi.mocked(resultsApi.regenerateReport).mockResolvedValue(REPORT_GENERATING);
+  vi.mocked(profileApi.skillHistory).mockResolvedValue(SKILL_HISTORY);
 });
 
 describe('Report', () => {
@@ -254,5 +257,58 @@ describe('Report', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await report()).toBeInTheDocument();
+  });
+
+  describe('change since the last test', () => {
+    it('shows how much the score and level moved', async () => {
+      setup();
+
+      const change = await screen.findByRole('region', { name: 'Change since your last test' });
+      expect(change).toHaveTextContent('+17 points since your last test on 1 Oct 2026');
+      expect(change).toHaveTextContent('Junior → Mid');
+      expect(profileApi.skillHistory).toHaveBeenCalledWith(13);
+    });
+
+    it('shows no number for a first test', async () => {
+      vi.mocked(profileApi.skillHistory).mockResolvedValue({
+        ...SKILL_HISTORY,
+        entries: [SKILL_HISTORY.entries[0]],
+      });
+      setup();
+
+      const change = await screen.findByRole('region', { name: 'Change since your last test' });
+      expect(change).toHaveTextContent(
+        'This is your first Product Design test, so there is nothing to compare yet.',
+      );
+      expect(change).not.toHaveTextContent('points');
+    });
+
+    it('stays quiet when the history cannot be read', async () => {
+      vi.mocked(profileApi.skillHistory).mockRejectedValue(new Error('offline'));
+      setup();
+
+      await report();
+
+      expect(
+        screen.queryByRole('region', { name: 'Change since your last test' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('links to the question-by-question review', async () => {
+      setup();
+
+      expect(await screen.findByRole('link', { name: 'Review your answers' })).toHaveAttribute(
+        'href',
+        '/attempts/12/review',
+      );
+    });
+
+    it('offers to retake the test to measure progress', async () => {
+      setup();
+
+      expect(
+        await screen.findByRole('link', { name: 'Retake to measure progress' }),
+      ).toHaveAttribute('href', '/tests/213');
+    });
   });
 });

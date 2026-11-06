@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from 'react-icons/lu';
 
-export type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc';
 
-export interface TableSort {
+interface TableSort {
   readonly key: string;
   readonly direction: SortDirection;
 }

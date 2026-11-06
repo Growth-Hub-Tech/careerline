@@ -1,11 +1,15 @@
 import { createApiClient } from './client';
 import {
+  createAccountsApi,
   createAttemptsApi,
   createAuthApi,
   createBeginnerApi,
   createContactApi,
+  createPaymentsApi,
+  createPrivacyApi,
   createProfileApi,
   createProgrammesApi,
+  createSubscriptionsApi,
 } from './endpoints';
 
 const setup = (body: unknown = { success: true, data: {} }) => {
@@ -188,47 +192,292 @@ describe('profile endpoints', () => {
   });
 });
 
+describe('pricing endpoints', () => {
+  it('lists the subscription plans', async () => {
+    const { fetcher, client } = setup({ success: true, data: [{ plan_id: 1 }] });
+
+    const plans = await createSubscriptionsApi(client).listPlans();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/subscriptions/plans');
+    expect(plans).toEqual([{ plan_id: 1 }]);
+  });
+
+  it('lists the credit packs', async () => {
+    const { fetcher, client } = setup({ success: true, data: [{ pack_id: 11 }] });
+
+    const packs = await createPaymentsApi(client).listCreditPacks();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments/credit-packs');
+    expect(packs).toEqual([{ pack_id: 11 }]);
+  });
+});
+
+describe('checkout endpoints', () => {
+  const checkout = { reference: 'ref-1', authorization_url: 'https://pay.test/ref-1' };
+
+  it('starts a checkout for a credit pack', async () => {
+    const { fetcher, client } = setup({ success: true, data: checkout });
+
+    const reply = await createPaymentsApi(client).checkout({
+      item_type: 'credit_pack',
+      item_id: 12,
+      callback_url: 'https://app.test/payments/callback',
+    });
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/payments/checkout');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({
+      item_type: 'credit_pack',
+      item_id: 12,
+      callback_url: 'https://app.test/payments/callback',
+    });
+    expect(reply).toEqual(checkout);
+  });
+
+  it('subscribes to a plan', async () => {
+    const { fetcher, client } = setup({ success: true, data: checkout });
+
+    await createSubscriptionsApi(client).subscribe({
+      plan_id: 3,
+      callback_url: 'https://app.test/payments/callback',
+    });
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/subscriptions');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(String(init.body))).toEqual({
+      plan_id: 3,
+      callback_url: 'https://app.test/payments/callback',
+    });
+  });
+});
+
+describe('payment check endpoints', () => {
+  it('loads one payment by its reference', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'paid' } });
+
+    const payment = await createPaymentsApi(client).get('ref/1');
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments/ref%2F1');
+    expect(payment).toEqual({ status: 'paid' });
+  });
+
+  it('loads my credits', async () => {
+    const { fetcher, client } = setup({ success: true, data: { credits_balance: 3 } });
+
+    const credits = await createPaymentsApi(client).credits();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/credits');
+    expect(credits).toEqual({ credits_balance: 3 });
+  });
+});
+
+describe('privacy endpoints', () => {
+  it('loads my consents', async () => {
+    const { fetcher, client } = setup({ success: true, data: { items: [] } });
+
+    await createPrivacyApi(client).getConsents();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/privacy/consents');
+  });
+
+  it('changes consents with a PUT', async () => {
+    const { fetcher, client } = setup({ success: true, data: { items: [] } });
+
+    await createPrivacyApi(client).updateConsents([{ key: 'marketing_emails', granted: true }]);
+
+    const { url, init } = sent(fetcher);
+    expect(url).toBe('https://api.example.test/api/v1/privacy/consents');
+    expect(init.method).toBe('PUT');
+    expect(JSON.parse(String(init.body))).toEqual({
+      items: [{ key: 'marketing_emails', granted: true }],
+    });
+  });
+
+  it('asks for a copy of my data and checks on it', async () => {
+    const { fetcher, client } = setup({ success: true, data: { export_id: 4 } });
+    const privacy = createPrivacyApi(client);
+
+    await privacy.requestExport();
+    await privacy.getExport(4);
+
+    expect(String(fetcher.mock.calls[0][0])).toBe(
+      'https://api.example.test/api/v1/privacy/data-exports',
+    );
+    expect(fetcher.mock.calls[0][1]?.method).toBe('POST');
+    expect(String(fetcher.mock.calls[1][0])).toBe(
+      'https://api.example.test/api/v1/privacy/data-exports/4',
+    );
+  });
+
+  it('asks to delete the account and cancels it', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'scheduled' } });
+    const privacy = createPrivacyApi(client);
+
+    await privacy.requestDeletion({ password: 'secret123', reason: null });
+    await privacy.cancelDeletion();
+
+    const [deleteUrl, deleteInit] = fetcher.mock.calls[0];
+    expect(String(deleteUrl)).toBe('https://api.example.test/api/v1/privacy/account-deletion');
+    expect(deleteInit?.method).toBe('POST');
+    expect(JSON.parse(String(deleteInit?.body))).toEqual({ password: 'secret123', reason: null });
+    expect(fetcher.mock.calls[1][1]?.method).toBe('DELETE');
+  });
+});
+
 describe('attempt endpoints', () => {
-  it('starts an attempt for a skill at a level', async () => {
+  it('starts the test of a skill', async () => {
     const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const attempt = await createAttemptsApi(client).start(1, 'JUNIOR');
+    const attempt = await createAttemptsApi(client).start(1);
 
     const { url, init } = sent(fetcher);
     expect(url).toBe('https://api.example.test/api/v1/attempts/start');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual({ skill_id: 1, declared_level: 'JUNIOR' });
+    expect(JSON.parse(String(init.body))).toEqual({ skill_id: 1 });
     expect(attempt).toEqual({ attempt_id: 2 });
   });
 
-  it('reads one attempt out of its wrapper', async () => {
-    const { fetcher, client } = setup({
-      success: true,
-      data: { attempt: { attempt_id: 2, attempt_status: 'in_progress' } },
-    });
+  it('reads where a test stands', async () => {
+    const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const attempt = await createAttemptsApi(client).get(2);
+    const attempt = await createAttemptsApi(client).current(2);
 
-    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/attempts/2');
-    expect(attempt).toEqual({ attempt_id: 2, attempt_status: 'in_progress' });
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/attempts/2/question');
+    expect(attempt).toEqual({ attempt_id: 2 });
   });
 
-  it('submits every answer at once', async () => {
-    const { fetcher, client } = setup({ success: true, data: { result: { percentage: 36 } } });
-    const submission = {
-      attempt_id: 2,
-      answers: [
-        { question_id: 1, selected_option_id: 3 },
-        { question_id: 6, selected_option_id: 22 },
-      ],
-    };
+  it('answers the current question', async () => {
+    const { fetcher, client } = setup({ success: true, data: { attempt_id: 2 } });
 
-    const reply = await createAttemptsApi(client).submit(submission);
+    const attempt = await createAttemptsApi(client).answer(2, {
+      question_id: 6,
+      selected_option_id: 22,
+    });
 
     const { url, init } = sent(fetcher);
-    expect(url).toBe('https://api.example.test/api/v1/attempts/submit');
+    expect(url).toBe('https://api.example.test/api/v1/attempts/2/answer');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(String(init.body))).toEqual(submission);
-    expect(reply).toEqual({ result: { percentage: 36 } });
+    expect(JSON.parse(String(init.body))).toEqual({ question_id: 6, selected_option_id: 22 });
+    expect(attempt).toEqual({ attempt_id: 2 });
+  });
+});
+
+describe('programme list', () => {
+  it('lists up to three programmes for a role', async () => {
+    const { fetcher, client } = setup({
+      success: true,
+      data: { items: [{ programme_id: 5 }], total: 1, limit: 3, offset: 0 },
+    });
+
+    const programmes = await createProgrammesApi(client).listForRole(2);
+
+    expect(sent(fetcher).url).toBe(
+      'https://api.example.test/api/v1/programmes?role_id=2&limit=3&offset=0',
+    );
+    expect(programmes).toEqual([{ programme_id: 5 }]);
+  });
+});
+
+describe('skill history', () => {
+  it('reads the history of one skill', async () => {
+    const { fetcher, client } = setup({ success: true, data: { entries: [] } });
+
+    await createProfileApi(client).skillHistory(13);
+
+    expect(sent(fetcher).url).toBe(
+      'https://api.example.test/api/v1/profile/skills/history?skill_id=13',
+    );
+  });
+});
+
+describe('billing endpoints', () => {
+  it('reads and cancels my subscription', async () => {
+    const { fetcher, client } = setup({ success: true, data: null });
+
+    await createSubscriptionsApi(client).mine();
+    await createSubscriptionsApi(client)
+      .cancel()
+      .catch(() => undefined);
+
+    expect(String(fetcher.mock.calls[0][0])).toBe(
+      'https://api.example.test/api/v1/subscriptions/me',
+    );
+    expect(String(fetcher.mock.calls[1]?.[0] ?? '')).toBe(
+      'https://api.example.test/api/v1/subscriptions/me/cancel',
+    );
+    expect(fetcher.mock.calls[1]?.[1]?.method).toBe('POST');
+  });
+
+  it('lists my latest payments', async () => {
+    const { fetcher, client } = setup({
+      success: true,
+      data: { items: [{ reference: 'r' }], total: 1, limit: 20, offset: 0 },
+    });
+
+    expect(await createPaymentsApi(client).list()).toEqual([{ reference: 'r' }]);
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/payments?limit=20&offset=0');
+  });
+});
+
+describe('account endpoints', () => {
+  it('reads, updates and changes the password of my account', async () => {
+    const { fetcher, client } = setup({ success: true, data: { account_id: 1 } });
+    const accounts = createAccountsApi(client);
+
+    await accounts.me();
+    await accounts.update({ full_name: 'Skye Favour' });
+    await accounts.changePassword({ current_password: 'old-secret', new_password: 'new-secret' });
+
+    expect(
+      fetcher.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${String(url)}`),
+    ).toEqual([
+      'GET https://api.example.test/api/v1/accounts/me',
+      'PATCH https://api.example.test/api/v1/accounts/me',
+      'POST https://api.example.test/api/v1/accounts/me/password',
+    ]);
+    expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body))).toEqual({
+      full_name: 'Skye Favour',
+    });
+  });
+});
+
+describe('remaining endpoints', () => {
+  const calls = (fetcher: ReturnType<typeof setup>['fetcher']) =>
+    fetcher.mock.calls.map(([url, init]) => `${init?.method ?? 'GET'} ${String(url)}`);
+
+  it('signs out here or everywhere and sets a new password from the reset link', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'accepted' } });
+    const auth = createAuthApi(client);
+
+    await auth.logout();
+    await auth.logout(true);
+    await auth.confirmPasswordReset('reset-token', 'new-secret-1');
+
+    expect(calls(fetcher)).toEqual([
+      'POST https://api.example.test/api/v1/auth/logout?everywhere=false',
+      'POST https://api.example.test/api/v1/auth/logout?everywhere=true',
+      'POST https://api.example.test/api/v1/accounts/password-reset/confirm',
+    ]);
+    expect(JSON.parse(String(fetcher.mock.calls[2][1]?.body))).toEqual({
+      token: 'reset-token',
+      new_password: 'new-secret-1',
+    });
+    expect(new Headers(fetcher.mock.calls[2][1]?.headers).get('Authorization')).toBeNull();
+  });
+
+  it('reviews and cancels an attempt and reads the skill profile', async () => {
+    const { fetcher, client } = setup({ success: true, data: {} });
+
+    await createAttemptsApi(client).review(12);
+    await createAttemptsApi(client).cancel(12);
+    await createProfileApi(client).skills();
+
+    expect(calls(fetcher)).toEqual([
+      'GET https://api.example.test/api/v1/attempts/12/review',
+      'PATCH https://api.example.test/api/v1/attempts/12/cancel',
+      'GET https://api.example.test/api/v1/profile/skills',
+    ]);
   });
 });

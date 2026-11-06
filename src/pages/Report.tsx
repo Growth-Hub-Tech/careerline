@@ -1,7 +1,10 @@
 import { useCallback, useId, useRef, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
+import { ChangeBlock } from '../components/ChangeBlock';
+import { DecisionNote } from '../components/DecisionNote';
+import { SECONDARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
 import { resultsApi, type ResultDetail, type SubskillScore } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
@@ -248,17 +251,28 @@ const ResultDetails = ({ id, onOpen, pollInterval }: ResultDetailsProps) => {
           <SummaryCard title="Where to grow" items={result.gaps} tone="orange" />
         </div>
         <DownloadReport resultId={result.result_id} onOpen={onOpen} pollInterval={pollInterval} />
+        <ChangeBlock
+          skillId={result.skill_id}
+          skillName={result.skill_name}
+          attemptId={result.attempt_id}
+        />
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            to={`/attempts/${result.attempt_id}/review`}
+            className={`${SECONDARY_ACTION} w-fit`}
+          >
+            Review your answers
+          </Link>
+          <Link to={`/tests/${result.test_id}`} className={`${SECONDARY_ACTION} w-fit`}>
+            Retake to measure progress
+          </Link>
+        </div>
       </div>
 
       <SkillReport result={result} />
 
-      <div className="flex w-full max-w-[1100px] flex-col gap-2 text-[13px] leading-[1.55] text-slate-600">
-        <p>
-          <strong className="font-semibold text-slate-800">Decision support only.</strong> Use this
-          report alongside other evidence, such as interviews and work samples. It should not be the
-          only reason for a hiring or career decision.
-        </p>
-        <p>{describeBenchmark(result)}</p>
+      <div className="w-full max-w-[1100px]">
+        <DecisionNote benchmark={describeBenchmark(result)} />
       </div>
     </div>
   );

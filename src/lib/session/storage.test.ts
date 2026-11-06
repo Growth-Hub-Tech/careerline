@@ -1,4 +1,5 @@
 import {
+  wasSessionExpired,
   clearSession,
   expireSession,
   readSession,
@@ -61,5 +62,16 @@ describe('session storage', () => {
     expect(readSession()).toBeNull();
     expect(listener).toHaveBeenCalledTimes(1);
     window.removeEventListener(SESSION_EXPIRED_EVENT, listener);
+  });
+
+  it('remembers that the session ended until the next sign-in', () => {
+    writeSession(SESSION);
+    expireSession();
+
+    expect(wasSessionExpired()).toBe(true);
+
+    writeSession(SESSION);
+
+    expect(wasSessionExpired()).toBe(false);
   });
 });

@@ -1,10 +1,10 @@
 import { USER_TYPES } from '../lib/session';
 import { accessFor, canAccess, PAGE_ACCESS } from './access';
-import { APP_PLACEHOLDERS } from './routeMap';
 
 describe('page access', () => {
-  it('lists every app page explicitly', () => {
-    APP_PLACEHOLDERS.forEach(({ path }) => expect(Object.keys(PAGE_ACCESS)).toContain(path));
+  it('keeps the users page for organisations', () => {
+    expect(PAGE_ACCESS['/users']).toEqual(['organization']);
+    expect(canAccess('recruiter', '/users')).toBe(false);
   });
 
   it('opens unlisted addresses to every user type', () => {
@@ -24,8 +24,11 @@ describe('page access', () => {
   it('matches addresses that carry an id', () => {
     expect(canAccess('self-test', '/tests/abc')).toBe(true);
     expect(canAccess('beginner', '/tests/abc')).toBe(false);
+  });
+
+  it('lets anyone sent a test take it', () => {
     expect(canAccess('self-test', '/tests/abc/attempt')).toBe(true);
-    expect(canAccess('beginner', '/tests/abc/attempt')).toBe(false);
+    expect(canAccess('beginner', '/tests/abc/attempt')).toBe(true);
   });
 
   it('keeps candidates for recruiters and the team for organizations', () => {

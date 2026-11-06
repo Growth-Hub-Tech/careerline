@@ -18,7 +18,7 @@ export const PAGE_ACCESS: Readonly<Partial<Record<string, readonly UserType[]>>>
   '/programmes/:programmeId': BEGINNERS,
   '/tests': PROFESSIONALS,
   '/tests/:testId': PROFESSIONALS,
-  '/tests/:testId/attempt': PROFESSIONALS,
+  '/tests/:testId/attempt': EVERYONE,
   '/reports': PROFESSIONALS,
   '/reports/:reportId': PROFESSIONALS,
   '/candidates': RECRUITERS,
@@ -26,6 +26,10 @@ export const PAGE_ACCESS: Readonly<Partial<Record<string, readonly UserType[]>>>
   '/team': ORGANIZATIONS,
   '/team/import': ORGANIZATIONS,
   '/team/heatmap': ORGANIZATIONS,
+  '/team/audits/new': ORGANIZATIONS,
+  '/team/audits/:auditId': ORGANIZATIONS,
+  '/team/members/:memberId': ORGANIZATIONS,
+  '/team/targets': ORGANIZATIONS,
   '/users': ORGANIZATIONS,
 };
 

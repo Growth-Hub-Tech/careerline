@@ -17,39 +17,46 @@ import {
   SkillTests,
   TestStart,
   TestAttempt,
+  Invitation,
+  Quote,
+  AudiencePage,
+  HowItWorks,
+  Help,
+  PrivacyPolicy,
+  Terms,
+  Settings,
+  Support,
+  Tasks,
+  Users,
+  AttemptReview,
+} from '../pages';
+import {
+  Pricing,
+  Credits,
+  PaymentCheck,
+  PrivacyCentre,
+  Billing,
   Reports,
   Report,
-} from '../pages';
+  Candidates,
+  CandidateReport,
+  TeamAudits,
+  StaffUpload,
+  StartAudit,
+  AuditProgress,
+  TeamHeatmap,
+  EmployeeReport,
+  CompanyTargets,
+} from './lazyPages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
-import { PlaceholderPage } from '../components/PlaceholderPage';
 import { authRoutes } from '../authRoutes';
 import type { UserType } from '../lib/session';
-import { APP_PLACEHOLDERS, PUBLIC_PLACEHOLDERS, type PlaceholderRoute } from './routeMap';
-
-const toRoute = ({ path, title, description }: PlaceholderRoute): RouteObject => ({
-  path,
-  element: <PlaceholderPage title={title} description={description} />,
-});
 
 const guard = (allow: readonly UserType[], children: RouteObject[]): RouteObject => ({
   element: <RequireAccess allow={allow} />,
   children,
 });
-
-const groupByAccess = (placeholders: readonly PlaceholderRoute[]): RouteObject[] => {
-  const groups = new Map<string, { allow: readonly UserType[]; routes: RouteObject[] }>();
-
-  placeholders.forEach((placeholder) => {
-    const allow = accessFor(placeholder.path);
-    const key = allow.join(',');
-    const group = groups.get(key) ?? { allow, routes: [] };
-    group.routes.push(toRoute(placeholder));
-    groups.set(key, group);
-  });
-
-  return [...groups.values()].map(({ allow, routes }) => guard(allow, routes));
-};
 
 export const getRoutes = (): RouteObject[] => [
   {
@@ -60,7 +67,15 @@ export const getRoutes = (): RouteObject[] => [
         children: [
           { path: '/', element: <Home /> },
           { path: '/contact', element: <Contact /> },
-          ...PUBLIC_PLACEHOLDERS.map(toRoute),
+          { path: '/pricing', element: <Pricing /> },
+          { path: '/quote', element: <Quote /> },
+          { path: '/how-it-works', element: <HowItWorks /> },
+          { path: '/help', element: <Help /> },
+          { path: '/privacy', element: <PrivacyPolicy /> },
+          { path: '/terms', element: <Terms /> },
+          { path: '/for-individuals', element: <AudiencePage audience="individuals" /> },
+          { path: '/for-organizations', element: <AudiencePage audience="organizations" /> },
+          { path: '/for-recruiters', element: <AudiencePage audience="recruiters" /> },
         ],
       },
       ...authRoutes,
@@ -71,12 +86,33 @@ export const getRoutes = (): RouteObject[] => [
             element: <AppLayout />,
             children: [
               { path: '/dashboard', element: <Dashboard /> },
+              { path: '/credits', element: <Credits /> },
+              { path: '/billing', element: <Billing /> },
+              { path: '/settings', element: <Settings /> },
+              { path: '/support', element: <Support /> },
+              { path: '/payments/callback', element: <PaymentCheck /> },
+              { path: '/settings/privacy', element: <PrivacyCentre /> },
               guard(accessFor('/tests'), [{ path: '/tests', element: <SkillTests /> }]),
               guard(accessFor('/reports'), [
                 { path: '/reports', element: <Reports /> },
                 { path: '/reports/:reportId', element: <Report /> },
               ]),
-              ...groupByAccess(APP_PLACEHOLDERS),
+              guard(accessFor('/candidates'), [
+                { path: '/candidates', element: <Candidates /> },
+                { path: '/candidates/:candidateId', element: <CandidateReport /> },
+              ]),
+              guard(accessFor('/team'), [
+                { path: '/team', element: <TeamAudits /> },
+                { path: '/team/import', element: <StaffUpload /> },
+                { path: '/team/audits/new', element: <StartAudit /> },
+                { path: '/team/heatmap', element: <TeamHeatmap /> },
+                { path: '/team/members/:memberId', element: <EmployeeReport /> },
+                { path: '/team/targets', element: <CompanyTargets /> },
+                { path: '/team/audits/:auditId', element: <AuditProgress /> },
+              ]),
+              { path: '/tasks', element: <Tasks /> },
+              { path: '/attempts/:attemptId/review', element: <AttemptReview /> },
+              guard(accessFor('/users'), [{ path: '/users', element: <Users /> }]),
             ],
           },
           {
@@ -84,6 +120,8 @@ export const getRoutes = (): RouteObject[] => [
             children: [
               guard(accessFor('/tests/:testId'), [
                 { path: '/tests/:testId', element: <TestStart /> },
+              ]),
+              guard(accessFor('/tests/:testId/attempt'), [
                 { path: '/tests/:testId/attempt', element: <TestAttempt /> },
               ]),
             ],
@@ -100,6 +138,7 @@ export const getRoutes = (): RouteObject[] => [
         element: <NoFooterLayout />,
         children: [
           { path: '/no-access', element: <NoAccess /> },
+          { path: '/invitations/:token', element: <Invitation /> },
           { path: '*', element: <NotFound /> },
         ],
       },

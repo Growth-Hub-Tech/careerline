@@ -7,5 +7,3 @@ export const Home = () => (
     <PathOptions />
   </>
 );
-
-export default Home;

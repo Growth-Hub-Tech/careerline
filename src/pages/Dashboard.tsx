@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { LuBriefcase, LuCompass, LuSparkles } from 'react-icons/lu';
 import { Card } from '../components/Card';
+import { CreditsStrip } from '../components/CreditsStrip';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { useSession, type UserType } from '../lib/session';
 
@@ -118,6 +119,7 @@ export const Dashboard = () => {
         )}
       </div>
 
+      {(userType === 'self-test' || userType === 'recruiter') && <CreditsStrip />}
       {userType === 'beginner' ? <BeginnerHome /> : <AreaHome area={AREAS[userType]} />}
     </div>
   );

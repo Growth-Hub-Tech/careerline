@@ -2,8 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useRoutes } from 'react-router-dom';
 import { getRoutes } from './index';
 import { signInAs } from '../test/session';
-import { accessFor } from './access';
-import { APP_PLACEHOLDERS, PUBLIC_PLACEHOLDERS } from './routeMap';
 
 const Routes = () => useRoutes(getRoutes());
 
@@ -14,34 +12,26 @@ const renderAt = (address: string) =>
     </MemoryRouter>,
   );
 
-const withExampleParams = (path: string) => path.replace(/:[^/]+/g, 'example');
-
-const PLACEHOLDERS = [...PUBLIC_PLACEHOLDERS, ...APP_PLACEHOLDERS];
-
 describe('route map', () => {
   beforeEach(() => signInAs());
 
-  it('has no duplicate addresses', () => {
-    const paths = PLACEHOLDERS.map(({ path }) => path);
-
-    expect(new Set(paths).size).toBe(paths.length);
-  });
-
-  it('only uses absolute addresses', () => {
-    PLACEHOLDERS.forEach(({ path }) => expect(path.startsWith('/')).toBe(true));
-  });
-
-  it.each(PLACEHOLDERS)('serves $path with a placeholder page', ({ path, title, description }) => {
-    signInAs(accessFor(path)[0]);
-    renderAt(withExampleParams(path));
+  it.each([
+    ['/how-it-works', 'How it works'],
+    ['/for-individuals', 'For individuals'],
+    ['/for-organizations', 'For organizations'],
+    ['/for-recruiters', 'For recruiters'],
+    ['/help', 'Help Center'],
+    ['/privacy', 'Privacy policy'],
+    ['/terms', 'Terms of service'],
+  ])('serves %s as a real page', (path, title) => {
+    renderAt(path);
 
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
-    expect(screen.getByText(description)).toBeInTheDocument();
-    expect(screen.getByText('Coming soon')).toBeInTheDocument();
+    expect(screen.queryByText('Coming soon')).not.toBeInTheDocument();
   });
 
   it('shows the marketing footer on public pages only', () => {
-    const { unmount } = renderAt('/pricing');
+    const { unmount } = renderAt('/how-it-works');
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
     unmount();
 

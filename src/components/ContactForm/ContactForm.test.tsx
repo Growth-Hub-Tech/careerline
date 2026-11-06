@@ -83,4 +83,15 @@ describe('ContactForm', () => {
     );
     expect(screen.getByLabelText('First name')).toHaveValue('Skye');
   });
+
+  it('sends the topic it was opened with', async () => {
+    vi.mocked(contactApi.send).mockResolvedValue(RECEIPT);
+    render(<ContactForm topic="organisation_audit" />);
+
+    await fill();
+
+    expect(contactApi.send).toHaveBeenCalledWith(
+      expect.objectContaining({ topic: 'organisation_audit' }),
+    );
+  });
 });

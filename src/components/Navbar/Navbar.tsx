@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
 import logo from '../../assets/careerline.png';
+import { useSession } from '../../lib/session';
 
 interface NavChild {
   readonly label: string;
@@ -17,10 +18,10 @@ interface NavItem {
 const TAKE_TEST_PATH = '/sign-up';
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'For Individuals', path: '/sign-up' },
-  { label: 'For Organizations', path: '/sign-up' },
-  { label: 'For Recruiters', path: '/sign-up' },
-  { label: 'How it works', path: '/' },
+  { label: 'For Individuals', path: '/for-individuals' },
+  { label: 'For Organizations', path: '/for-organizations' },
+  { label: 'For Recruiters', path: '/for-recruiters' },
+  { label: 'How it works', path: '/how-it-works' },
 ];
 
 const linkBase =
@@ -28,6 +29,10 @@ const linkBase =
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const { session } = useSession();
+  const account = session
+    ? { label: 'Go to dashboard', path: '/dashboard' }
+    : { label: 'Log in', path: '/sign-in' };
   const { pathname } = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -159,9 +164,9 @@ export const Navbar = () => {
             <button
               type="button"
               className={`${linkBase} whitespace-nowrap text-[#1a1a2e] hover:text-[#6C5CCF]`}
-              onClick={() => go('/sign-in')}
+              onClick={() => go(account.path)}
             >
-              Log in
+              {account.label}
             </button>
             <button
               className="whitespace-nowrap rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700"
@@ -262,9 +267,9 @@ export const Navbar = () => {
             <button
               type="button"
               className="w-full rounded-lg border border-[#d9d5f0] px-4 py-3 text-sm font-semibold text-[#1a1a2e] hover:border-[#6C5CCF] hover:text-[#6C5CCF]"
-              onClick={() => go('/sign-in')}
+              onClick={() => go(account.path)}
             >
-              Log in
+              {account.label}
             </button>
           </div>
         </div>

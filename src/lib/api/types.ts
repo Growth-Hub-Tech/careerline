@@ -3,22 +3,39 @@ import type { components } from './schema';
 type Schemas = components['schemas'];
 
 export type RegisterRequest = Schemas['RegisterRequest'];
+export type Account = Schemas['Account'];
+export type AccountUpdate = Schemas['AccountUpdate'];
+export type ChangePasswordRequest = Schemas['ChangePasswordRequest'];
 export type TokenResponse = Schemas['TokenResponse'];
 export type Acknowledgement = Schemas['Acknowledgement'];
 export type ContactRequest = Schemas['ContactRequest'];
 export type ContactReceipt = Schemas['ContactReceipt'];
 export type ContactTopic = NonNullable<ContactRequest['topic']>;
 export type IntakeQuestionnaire = Schemas['IntakeQuestionnaire'];
-export type IntakeQuestion = Schemas['IntakeQuestion'];
 export type IntakeSubmission = Schemas['IntakeSubmission'];
 export type BeginnerPath = Schemas['BeginnerPath'];
-export type CareerPathRecommendation = Schemas['CareerPathRecommendation'];
 export type Programme = Schemas['Programme'];
 export type ProgrammeClick = Schemas['ProgrammeClick'];
 export type ProgrammeClickRequest = Schemas['ProgrammeClickRequest'];
 export type ProgrammeSummary = Schemas['ProgrammeSummary'];
+export type ProgrammePage = Schemas['Page_ProgrammeSummary_'];
 export type Money = Schemas['Money'];
 export type Profile = Schemas['Profile'];
+export type Plan = Schemas['Plan'];
+export type CreditPack = Schemas['CreditPack'];
+export type Checkout = Schemas['Checkout'];
+export type CheckoutRequest = Schemas['CheckoutRequest'];
+export type SubscribeRequest = Schemas['SubscribeRequest'];
+export type Payment = Schemas['Payment'];
+export type PaymentPage = Schemas['Page_Payment_'];
+export type Credits = Schemas['Credits'];
+export type CreditTransaction = Schemas['CreditTransaction'];
+export type Consent = Schemas['Consent'];
+export type ConsentChange = Schemas['ConsentChange'];
+export type Consents = Schemas['Consents'];
+export type DataExport = Schemas['DataExport'];
+export type AccountDeletion = Schemas['AccountDeletion'];
+export type AccountDeletionRequest = Schemas['AccountDeletionRequest'];
 export type Budget = NonNullable<Profile['budget']>;
 
 export type LevelName = Schemas['LevelName'];
@@ -31,6 +48,40 @@ export type ResultPage = Schemas['Page_ResultSummary_'];
 export type ResultDetail = Schemas['ResultDetail'];
 export type SubskillScore = Schemas['SubskillScore'];
 export type ResultReport = Schemas['Report'];
+export type Candidate = Schemas['Candidate'];
+export type CandidateCreate = Schemas['CandidateCreate'];
+export type CandidatePage = Schemas['Page_Candidate_'];
+export type CandidateReport = Schemas['CandidateReport'];
+export type CandidateTestResult = Schemas['CandidateTestResult'];
+export type Invitation = Schemas['Invitation'];
+export type InvitationCreate = Schemas['InvitationCreate'];
+export type InvitationPage = Schemas['Page_Invitation_'];
+export type InvitationPublic = Schemas['InvitationPublic'];
+export type Organisation = Schemas['Organisation'];
+export type OrganisationUser = Schemas['OrganisationUser'];
+export type OrganisationUserList = Schemas['OrganisationUserList'];
+export type OrganisationRole = OrganisationUser['role'];
+export type TeamMember = Schemas['TeamMember'];
+export type TeamMemberCreate = Schemas['TeamMemberCreate'];
+export type TeamMemberPage = Schemas['Page_TeamMember_'];
+export type RosterResult = Schemas['RosterResult'];
+export type Audit = Schemas['Audit'];
+export type AuditCreate = Schemas['AuditCreate'];
+export type AuditSummary = Schemas['AuditSummary'];
+export type AuditPage = Schemas['Page_AuditSummary_'];
+export type Benchmark = Schemas['Benchmark'];
+export type Heatmap = Schemas['Heatmap'];
+export type HeatmapCell = Schemas['HeatmapCell'];
+export type HeatmapGrouping = Heatmap['group_by'];
+export type Target = Schemas['Target'];
+export type TargetSet = Schemas['TargetSet'];
+export type Targets = Schemas['Targets'];
+export type RoleSummary = Schemas['RoleSummary'];
+export type RolePage = Schemas['Page_RoleSummary_'];
+export type Role = Schemas['Role'];
+export type RoleSkill = Schemas['RoleSkill'];
+export type SkillHistory = Schemas['SkillHistory'];
+export type Subscription = Schemas['Subscription'];
 
 export interface Skill {
   readonly skill_id: number;
@@ -46,55 +97,9 @@ export interface SkillsPage {
   readonly offset: number;
 }
 
-export interface AttemptOption {
-  readonly option_id: number;
-  readonly option_text: string;
-}
-
-export interface AttemptQuestion {
-  readonly question_id: number;
-  readonly question_text: string;
-  readonly difficulty_level: LevelName;
-  readonly subskill_id: number;
-  readonly options: readonly AttemptOption[];
-}
-
-export interface StartedAttempt {
-  readonly attempt_id: number;
-  readonly declared_level: LevelName;
-  readonly total_questions: number;
-  readonly questions: readonly AttemptQuestion[];
-}
-
-export interface Attempt {
-  readonly attempt_id: number;
-  readonly learner_id: number;
-  readonly skill_id: number;
-  readonly attempt_status: string;
-  readonly overall_percentage: number | null;
-  readonly start_time: string;
-  readonly end_time: string | null;
-}
-
-export interface AttemptAnswer {
-  readonly question_id: number;
-  readonly selected_option_id: number;
-}
-
-export interface AttemptSubmission {
-  readonly attempt_id: number;
-  readonly answers: readonly AttemptAnswer[];
-}
-
-export interface AttemptResult {
-  readonly score: number;
-  readonly total_possible: number;
-  readonly percentage: number;
-  readonly declared_level: LevelName;
-  readonly status: string;
-  readonly confirmed_level: LevelName | null;
-}
-
-export interface AttemptSubmissionReply {
-  readonly result: AttemptResult;
-}
+export type AttemptState = Schemas['AttemptState'];
+export type ServedQuestion = Schemas['ServedQuestion'];
+export type AnswerRequest = Schemas['AnswerRequest'];
+export type AttemptReview = Schemas['AttemptReview'];
+export type ReviewItem = Schemas['ReviewItem'];
+export type SkillProfile = Schemas['SkillProfile'];

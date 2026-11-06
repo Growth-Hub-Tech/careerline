@@ -1,12 +1,10 @@
 import { writeSession } from '../session';
-import { STARTED_ATTEMPT } from '../../test/fixtures/tests';
 import { clearAttempt, readAttempt, saveAttempt, type SavedAttempt } from './attemptStore';
 
 const SAVED: SavedAttempt = {
   testId: 202,
   title: 'Backend Development',
-  attempt: STARTED_ATTEMPT,
-  answers: [{ question_id: 1, selected_option_id: 1 }],
+  attemptId: 12,
 };
 
 const signInAs = (email: string) =>
@@ -42,6 +40,20 @@ describe('attempt store', () => {
 
   it('ignores something that is not an attempt', () => {
     window.localStorage.setItem('careerline.attempt.skye@example.com.202', '{"answers":3}');
+
+    expect(readAttempt(202)).toBeNull();
+  });
+
+  it('ignores an attempt saved before tests moved to one question at a time', () => {
+    window.localStorage.setItem(
+      'careerline.attempt.skye@example.com.202',
+      JSON.stringify({
+        testId: 202,
+        title: 'Backend Development',
+        attempt: { attempt_id: 8, questions: [] },
+        answers: [],
+      }),
+    );
 
     expect(readAttempt(202)).toBeNull();
   });

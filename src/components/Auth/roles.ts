@@ -1,9 +1,9 @@
 import type { IconType } from 'react-icons';
 import { LuBadgeCheck, LuCompass, LuPuzzle, LuSearchCheck } from 'react-icons/lu';
 
-export type RoleKey = 'beginner' | 'self-test' | 'recruiter' | 'organization';
+type RoleKey = 'beginner' | 'self-test' | 'recruiter' | 'organization';
 
-export interface Role {
+interface Role {
   readonly key: RoleKey;
   readonly title: string;
   readonly description: string;

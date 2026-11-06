@@ -362,3 +362,19 @@ describe('attempt endpoints', () => {
     expect(attempt).toEqual({ attempt_id: 2 });
   });
 });
+
+describe('programme list', () => {
+  it('lists up to three programmes for a role', async () => {
+    const { fetcher, client } = setup({
+      success: true,
+      data: { items: [{ programme_id: 5 }], total: 1, limit: 3, offset: 0 },
+    });
+
+    const programmes = await createProgrammesApi(client).listForRole(2);
+
+    expect(sent(fetcher).url).toBe(
+      'https://api.example.test/api/v1/programmes?role_id=2&limit=3&offset=0',
+    );
+    expect(programmes).toEqual([{ programme_id: 5 }]);
+  });
+});

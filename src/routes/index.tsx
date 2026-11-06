@@ -31,6 +31,8 @@ import {
   StartAudit,
   AuditProgress,
   TeamHeatmap,
+  EmployeeReport,
+  CompanyTargets,
 } from '../pages';
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
@@ -101,6 +103,8 @@ export const getRoutes = (): RouteObject[] => [
                 { path: '/team/import', element: <StaffUpload /> },
                 { path: '/team/audits/new', element: <StartAudit /> },
                 { path: '/team/heatmap', element: <TeamHeatmap /> },
+                { path: '/team/members/:memberId', element: <EmployeeReport /> },
+                { path: '/team/targets', element: <CompanyTargets /> },
                 { path: '/team/audits/:auditId', element: <AuditProgress /> },
               ]),
               ...groupByAccess(APP_PLACEHOLDERS),

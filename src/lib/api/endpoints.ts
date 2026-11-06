@@ -1,5 +1,6 @@
 import type { createApiClient } from './client';
 import type {
+  ProgrammePage,
   AnswerRequest,
   AttemptState,
   AccountDeletion,
@@ -65,6 +66,13 @@ export const createBeginnerApi = (client: Client) => ({
 
 export const createProgrammesApi = (client: Client) => ({
   get: (programmeId: number) => client.get<Programme>(`/programmes/${programmeId}`),
+
+  listForRole: async (roleId: number) =>
+    (
+      await client.get<ProgrammePage>('/programmes', {
+        query: { role_id: roleId, limit: 3, offset: 0 },
+      })
+    ).items,
 
   recordClick: (programmeId: number, click: ProgrammeClickRequest) =>
     client.post<ProgrammeClick>(`/programmes/${programmeId}/clicks`, { body: click }),

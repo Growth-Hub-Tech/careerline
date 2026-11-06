@@ -3,6 +3,7 @@ import type {
   AuditSummary,
   Heatmap,
   Organisation,
+  Role,
   RoleSummary,
   Targets,
   TeamMember,
@@ -128,3 +129,19 @@ export const TARGETS: Targets = {
     },
   ],
 };
+
+export const roleWithSkills = (roleId: number): Role => ({
+  ...ROLES[roleId - 1],
+  description: '',
+  skills:
+    roleId === 1
+      ? [
+          { skill_id: 1, skill_name: 'Frontend Web Development', target_level: 'MID' },
+          { skill_id: 2, skill_name: 'Backend Development', target_level: 'JUNIOR' },
+        ]
+      : [
+          { skill_id: 2, skill_name: 'Backend Development', target_level: 'MID' },
+          { skill_id: 3, skill_name: 'Databases', target_level: 'JUNIOR' },
+        ],
+  test_ids: [],
+});

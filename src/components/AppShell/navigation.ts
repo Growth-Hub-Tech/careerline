@@ -9,6 +9,7 @@ import {
   LuSettings,
   LuShieldCheck,
   LuTag,
+  LuTarget,
   LuUsers,
 } from 'react-icons/lu';
 import type { UserType } from '../../lib/session';
@@ -59,6 +60,7 @@ export const NAV_BY_TYPE: Record<UserType, UserNavigation> = {
       DASHBOARD,
       { label: 'Team', path: '/team', icon: LuUsers, end: true },
       { label: 'Capability heatmap', path: '/team/heatmap', icon: LuChartColumn },
+      { label: 'Targets', path: '/team/targets', icon: LuTarget },
       { label: 'Users', path: '/users', icon: LuUsers },
       { label: 'Plans', path: '/pricing', icon: LuTag },
       TASKS,

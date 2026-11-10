@@ -21,7 +21,7 @@ const originOf = (name: string, value: string | undefined) => {
 
 // Netlify reads dist/_headers. The Content-Security-Policy is written there at build time, so
 // connect-src names exactly the API (and error monitoring) this build talks to.
-const securityHeaders = (connectTo: readonly string[]): Plugin => {
+const securityHeaders = (connectTo: readonly string[], noindex: boolean): Plugin => {
   let headersFile = '';
 
   return {
@@ -29,6 +29,11 @@ const securityHeaders = (connectTo: readonly string[]): Plugin => {
     apply: 'build',
     configResolved(config) {
       headersFile = resolve(config.root, config.build.outDir, '_headers');
+    },
+    transformIndexHtml() {
+      return noindex
+        ? [{ tag: 'meta', attrs: { name: 'robots', content: 'noindex' }, injectTo: 'head' }]
+        : [];
     },
     writeBundle() {
       const policy = [
@@ -43,7 +48,9 @@ const securityHeaders = (connectTo: readonly string[]): Plugin => {
         "form-action 'self'",
         "object-src 'none'",
       ].join('; ');
-      appendFileSync(headersFile, `\n/*\n  Content-Security-Policy: ${policy}\n`);
+      const lines = ['/*', `  Content-Security-Policy: ${policy}`];
+      if (noindex) lines.push('  X-Robots-Tag: noindex');
+      appendFileSync(headersFile, `\n${lines.join('\n')}\n`);
     },
   };
 };
@@ -54,7 +61,7 @@ export default defineConfig(({ command, mode }) => {
   // A build without the API address would call the website's own host instead: refuse it
   if (command === 'build') {
     const env = loadEnv(mode, process.cwd(), 'VITE_');
-    plugins.push(securityHeaders([originOf('VITE_API_URL', env.VITE_API_URL)]));
+    plugins.push(securityHeaders([originOf('VITE_API_URL', env.VITE_API_URL)], mode === 'staging'));
   }
 
   return {

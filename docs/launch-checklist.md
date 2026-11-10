@@ -4,7 +4,10 @@ Work through this list before the site goes live, and again before any big relea
 
 ## Settings
 
-- [ ] In Netlify, set `VITE_API_URL` to the live API address (ends in `/api/v1`).
+- [ ] In Netlify, set `VITE_API_URL` to the live API address (ends in `/api/v1`) for every deploy context: a build without it fails.
+- [ ] The site and the API share a domain (for example `careerline.ng` and `api.careerline.ng`): the sign-in cookie is only sent to the API from the same site. The API's `CORS_ORIGINS` lists the site's origin.
+- [ ] The API that sets the sign-in cookie is deployed before this site (an older API only accepts the bearer token the site no longer keeps).
+- [ ] In Netlify, set `VITE_SENTRY_DSN` so errors from real users reach Sentry, and turn on Sentry's server-side data scrubbing.
 - [ ] Nothing to change for the Content-Security-Policy: the build writes it into `dist/_headers` with `connect-src` set to the API in `VITE_API_URL`.
 - [ ] Set the contact settings from `.env.example` in Netlify.
 - [ ] Paystack: the callback address is `<site>/payments/callback`. Confirm Paystack is in live mode with Joshua.

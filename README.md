@@ -17,23 +17,23 @@ Scores are decision support only. Every report says so.
 git clone https://github.com/Growth-Hub-Tech/careerline.git
 cd careerline
 npm ci
-cp .env.example .env.local
 npm run dev
 ```
 
-`.env.example` lists the settings. `VITE_API_URL` points at the API; the default is the test server.
+`npm run dev` talks to an API on your machine (`http://localhost:8000/api/v1`, from `.env.development`). To use the test server instead, copy `.env.example` to `.env.local`: it sets `VITE_API_URL` to the test API. `.env.example` lists every setting.
 
 ## Scripts
 
-| Command              | What it does                                                   |
-| -------------------- | -------------------------------------------------------------- |
-| `npm run dev`        | Starts the site at http://localhost:5173                       |
-| `npm run test`       | Runs every test, including the four journeys and accessibility |
-| `npm run type-check` | Checks the TypeScript types                                    |
-| `npm run lint`       | Checks the code style rules                                    |
-| `npm run build`      | Builds the site into `dist/`                                   |
-| `npm run size`       | Fails if a built file is over its size limit (run after build) |
-| `npm run api:types`  | Regenerates the API types from `docs/openapi.json`             |
+| Command                 | What it does                                                   |
+| ----------------------- | -------------------------------------------------------------- |
+| `npm run dev`           | Starts the site at http://localhost:5173                       |
+| `npm run test`          | Runs every test, including the four journeys and accessibility |
+| `npm run type-check`    | Checks the TypeScript types                                    |
+| `npm run lint`          | Checks the code style rules                                    |
+| `npm run build`         | Builds the site into `dist/` (needs `VITE_API_URL` set)        |
+| `npm run build:staging` | Builds the test site, talking to the test API (`.env.staging`) |
+| `npm run size`          | Fails if a built file is over its size limit (run after build) |
+| `npm run api:types`     | Regenerates the API types from `docs/openapi.json`             |
 
 CI runs lint, format, type-check, tests, build and the size check on every pull request.
 
@@ -65,4 +65,4 @@ npm run api:types
 
 ## Deploying
 
-The site is deployed on Netlify from `main`. `netlify.toml` sets the build, the single-page redirect, security headers and caching. After each deploy, the **Live check** workflow opens the site and the API health check. See `docs/launch-checklist.md` before a release.
+The site is deployed on Netlify from `main`, and the test site from `dev` (`npm run build:staging`). A build fails unless `VITE_API_URL` is set, so set it in Netlify for every deploy context. `netlify.toml` sets the build, the single-page redirect, security headers and caching. After each deploy, the **Live check** workflow opens the site and the API health check. See `docs/launch-checklist.md` before a release.

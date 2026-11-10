@@ -5,6 +5,10 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# The test site: branch deploys of dev talk to the test API (.env.staging)
+[context.dev]
+  command = "npm run build:staging"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

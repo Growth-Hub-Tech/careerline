@@ -40,6 +40,8 @@ jobs:
 
       - name: 🏗️ Build
         run: npm run build
+        env:
+          VITE_API_URL: https://careerline-api.onrender.com/api/v1
 
       - name: 📏 Check file sizes
         run: npm run size

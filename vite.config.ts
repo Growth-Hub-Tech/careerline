@@ -61,7 +61,9 @@ export default defineConfig(({ command, mode }) => {
   // A build without the API address would call the website's own host instead: refuse it
   if (command === 'build') {
     const env = loadEnv(mode, process.cwd(), 'VITE_');
-    plugins.push(securityHeaders([originOf('VITE_API_URL', env.VITE_API_URL)], mode === 'staging'));
+    const connectTo = [originOf('VITE_API_URL', env.VITE_API_URL)];
+    if (env.VITE_SENTRY_DSN) connectTo.push(originOf('VITE_SENTRY_DSN', env.VITE_SENTRY_DSN));
+    plugins.push(securityHeaders(connectTo, mode === 'staging'));
   }
 
   return {
@@ -72,6 +74,7 @@ export default defineConfig(({ command, mode }) => {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
             forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+            monitoring: ['@sentry/react'],
           },
         },
       },

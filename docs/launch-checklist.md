@@ -15,7 +15,6 @@ Work through this list before the site goes live, and again before any big relea
 
 - [ ] `npm run test`, `npm run type-check`, `npm run lint` and `npm run build` pass on `main`.
 - [ ] `npm run size` passes.
-- [ ] Joshua confirms no endpoint used by the site still returns sample data (`X-Sample-Data`).
 - [ ] Walk the four journeys on the test site with Omotoke:
   - [ ] Professional: sign up, take a skill test, download the report.
   - [ ] Beginner: answer the questionnaire, see career paths, open a programme.

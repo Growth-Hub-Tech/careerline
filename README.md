@@ -54,12 +54,10 @@ docs/openapi.json  the API description the types are generated from
 
 Replies come as `{ success, data }`. Errors become an `ApiError` with a status, code, message and reference.
 
-Some endpoints still return sample data from the test server (they send `X-Sample-Data: true`): test catalogue, profile, beginner path, programmes, privacy, payments, credits, subscriptions, recruiter, invitations and organisation audit. Their shape will not change when they become real.
-
-To update the types after the API changes:
+To update the types after the API changes, copy `openapi.json` from the careerline-api repository (the test server also serves it at `/openapi.json`; production does not), then regenerate them:
 
 ```bash
-curl -sS https://careerline-api.onrender.com/openapi.json -o docs/openapi.json
+cp ../careerline-api/openapi.json docs/openapi.json
 npm run api:types
 ```
 

@@ -122,9 +122,18 @@ const CandidateDetails = ({ id }: { id: number }) => {
                 <span className="text-[36px] font-bold text-slate-900">{percent(overall)}</span>
               </p>
             )}
-            <a href={report.report_url} className={`${PRIMARY_ACTION} w-fit`}>
-              Download PDF
-            </a>
+            {report.report_url ? (
+              <a href={report.report_url} className={`${PRIMARY_ACTION} w-fit`}>
+                Download PDF
+              </a>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-[15px] text-slate-600">The PDF is being made.</p>
+                <Button variant="transparent" border="solid" fullWidth={false} onClick={retry}>
+                  Check again
+                </Button>
+              </div>
+            )}
           </div>
 
           <Section title="Recommendation">

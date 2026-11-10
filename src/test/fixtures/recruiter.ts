@@ -14,6 +14,7 @@ export const ADA_RESULT: CandidateTestResult = {
   passed: true,
   completed_at: '2026-11-02T10:00:00Z',
   result_id: 91,
+  shared: true,
 };
 
 export const candidate = (id: number, overrides: Partial<Candidate> = {}): Candidate => ({

@@ -1,10 +1,9 @@
 import type { IconType } from 'react-icons';
 import { LuBadgeCheck, LuCompass, LuPuzzle, LuSearchCheck } from 'react-icons/lu';
-
-type RoleKey = 'beginner' | 'self-test' | 'recruiter' | 'organization';
+import type { UserType } from '../../lib/session';
 
 interface Role {
-  readonly key: RoleKey;
+  readonly key: UserType;
   readonly title: string;
   readonly description: string;
   readonly icon: IconType;

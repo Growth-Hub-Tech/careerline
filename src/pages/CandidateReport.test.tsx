@@ -163,4 +163,47 @@ describe('CandidateReport', () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it('hides a result the candidate has not shared and leaves it out of the score', async () => {
+    vi.mocked(recruiterApi.getReport).mockResolvedValue({
+      ...CANDIDATE_REPORT,
+      results: [
+        ADA_RESULT,
+        {
+          ...ADA_RESULT,
+          result_id: 92,
+          test_id: 202,
+          test_title: 'Backend Development',
+          percentage_score: 20,
+          shared: false,
+        },
+      ],
+    });
+    setup();
+
+    const hidden = await screen.findByRole('article', { name: 'Backend Development' });
+    expect(hidden).toHaveTextContent('The candidate has not shared this result.');
+    expect(hidden).not.toHaveTextContent('20%');
+    expect(screen.getByText('Overall score').parentElement).toHaveTextContent('78%');
+  });
+
+  it('shows no overall score when nothing is shared', async () => {
+    vi.mocked(recruiterApi.getReport).mockResolvedValue({
+      ...CANDIDATE_REPORT,
+      results: [{ ...ADA_RESULT, shared: false }],
+    });
+    setup();
+
+    await screen.findByRole('article', { name: ADA_RESULT.test_title });
+
+    expect(screen.queryByText('Overall score')).not.toBeInTheDocument();
+  });
+
+  it('says when the PDF is not ready yet', async () => {
+    vi.mocked(recruiterApi.getReport).mockResolvedValue({ ...CANDIDATE_REPORT, report_url: null });
+    setup();
+
+    expect(await screen.findByText('The PDF is not ready yet.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Download PDF' })).not.toBeInTheDocument();
+  });
 });

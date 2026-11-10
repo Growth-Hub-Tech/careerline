@@ -7,6 +7,5 @@ export const sessionFromToken = (
   email: string,
   userType?: UserType,
 ): Session => ({
-  token: token.access_token,
   user: { name: token.full_name, email, userType: userType ?? readRole(email) ?? 'beginner' },
 });

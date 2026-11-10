@@ -8,12 +8,12 @@ const json = (body: unknown, init: ResponseInit = {}) =>
     ...init,
   });
 
-const setup = (respond: () => Response, token: string | null = 'token-123') => {
+const setup = (respond: () => Response, signedIn = true) => {
   const fetcher = vi.fn<typeof fetch>(() => Promise.resolve(respond()));
   const onUnauthorized = vi.fn();
   const client = createApiClient({
     baseUrl: 'https://api.example.test/',
-    getToken: () => token,
+    isSignedIn: () => signedIn,
     onUnauthorized,
     fetcher,
   });
@@ -57,28 +57,21 @@ describe('api client', () => {
     expect(sent(fetcher).headers.get('accept')).toBe('application/json');
   });
 
-  it('adds the sign-in token', async () => {
+  it('sends the session cookie and never a token header', async () => {
     const { client, fetcher } = setup(() => json({}));
 
     await client.get('/tests');
 
-    expect(sent(fetcher).headers.get('authorization')).toBe('Bearer token-123');
-  });
-
-  it('sends no token when signed out', async () => {
-    const { client, fetcher } = setup(() => json({}), null);
-
-    await client.get('/tests');
-
+    expect(sent(fetcher).init.credentials).toBe('include');
     expect(sent(fetcher).headers.has('authorization')).toBe(false);
   });
 
-  it('can skip the token for one request', async () => {
-    const { client, fetcher } = setup(() => json({}));
+  it('sends cookies on a request that needs no session, so signing in can set one', async () => {
+    const { client, fetcher } = setup(() => json({}), false);
 
-    await client.get('/prices', { auth: false });
+    await client.post('/auth/login', { auth: false });
 
-    expect(sent(fetcher).headers.has('authorization')).toBe(false);
+    expect(sent(fetcher).init.credentials).toBe('include');
   });
 
   it('sends a body as JSON', async () => {
@@ -174,7 +167,6 @@ describe('api client', () => {
     const fetcher = vi.fn<typeof fetch>(() => Promise.reject(new TypeError('Failed to fetch')));
     const client = createApiClient({
       baseUrl: 'https://api.example.test',
-      getToken: () => null,
       fetcher,
     });
 
@@ -200,13 +192,20 @@ describe('api client', () => {
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
   });
 
+  it('does not treat a refusal as an expired session while signed out', async () => {
+    const { client, onUnauthorized } = setup(() => json({}, { status: 401 }), false);
+
+    await failureOf(client.get('/accounts/me'));
+
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
   it('does not treat a refused sign-in as an expired session', async () => {
-    const { client, onUnauthorized } = setup(
-      () => json({ message: 'Wrong password' }, { status: 401 }),
-      null,
+    const { client, onUnauthorized } = setup(() =>
+      json({ message: 'Wrong password' }, { status: 401 }),
     );
 
-    const error = await failureOf(client.post('/sign-in'));
+    const error = await failureOf(client.post('/sign-in', { auth: false }));
 
     expect(error.message).toBe('Wrong password');
     expect(onUnauthorized).not.toHaveBeenCalled();
@@ -218,7 +217,6 @@ describe('api client', () => {
     );
     const client = createApiClient({
       baseUrl: 'https://api.example.test',
-      getToken: () => null,
       fetcher,
     });
 
@@ -268,7 +266,7 @@ describe('api client timeout', () => {
   );
 
   const clientWith = (fetcher: typeof fetch) =>
-    createApiClient({ baseUrl: 'https://api.example.test', getToken: () => null, fetcher });
+    createApiClient({ baseUrl: 'https://api.example.test', fetcher });
 
   it('gives up on a stalled request after 20 seconds with the network error', async () => {
     const request = clientWith(hangingFetch).get('/tests');

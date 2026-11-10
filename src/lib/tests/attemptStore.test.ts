@@ -8,7 +8,7 @@ const SAVED: SavedAttempt = {
 };
 
 const signInAs = (email: string) =>
-  writeSession({ token: 't', user: { name: 'Skye', email, userType: 'self-test' } });
+  writeSession({ user: { name: 'Skye', email, userType: 'self-test' } });
 
 beforeEach(() => signInAs('skye@example.com'));
 

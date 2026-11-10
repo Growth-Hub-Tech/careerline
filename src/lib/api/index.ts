@@ -22,7 +22,7 @@ export type * from './types';
 
 const api = createApiClient({
   baseUrl: config.apiUrl,
-  getToken: () => readSession()?.token,
+  isSignedIn: () => readSession() !== null,
   onUnauthorized: expireSession,
 });
 

@@ -19,7 +19,7 @@ export const REQUEST_TIMEOUT_MS = 20_000;
 
 interface ApiClientOptions {
   readonly baseUrl: string;
-  readonly getToken: () => string | null | undefined;
+  readonly isSignedIn?: () => boolean;
   readonly onUnauthorized?: () => void;
   readonly fetcher?: typeof fetch;
 }
@@ -46,18 +46,18 @@ const isAbort = (error: unknown) => error instanceof DOMException && error.name 
 
 const networkError = () => new ApiError({ status: 0, message: NETWORK_MESSAGE, code: 'network' });
 
+// The session is the API's HttpOnly cookie, sent with every request (credentials: 'include'):
+// page scripts never see the token. auth: false marks a request that needs no session (signing
+// in, the contact form), so its 401 is not a session that ended.
 export const createApiClient = ({
   baseUrl,
-  getToken,
+  isSignedIn = () => false,
   onUnauthorized,
   fetcher = (...args) => fetch(...args),
 }: ApiClientOptions) => {
   const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { method = 'GET', body, query, headers: extra, signal, auth = true } = options;
-    const token = auth ? getToken() : null;
     const headers = new Headers({ Accept: 'application/json', ...extra });
-
-    if (token) headers.set('Authorization', `Bearer ${token}`);
 
     let payload: BodyInit | undefined;
     if (body instanceof FormData || body instanceof URLSearchParams) {
@@ -92,6 +92,7 @@ export const createApiClient = ({
           method,
           headers,
           body: payload,
+          credentials: 'include',
           signal: controller.signal,
         });
       } catch (error) {
@@ -99,7 +100,7 @@ export const createApiClient = ({
       }
 
       if (!response.ok) {
-        if (response.status === 401 && token) onUnauthorized?.();
+        if (response.status === 401 && auth && isSignedIn()) onUnauthorized?.();
         throw await readError(response);
       }
 

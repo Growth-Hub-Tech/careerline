@@ -6,7 +6,6 @@ import type { Session } from './types';
 import { useSession } from './useSession';
 
 const SESSION: Session = {
-  token: 'abc123',
   user: { name: 'Skye Favour', email: 'skye@example.com', userType: 'beginner' },
 };
 

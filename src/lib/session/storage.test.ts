@@ -10,7 +10,6 @@ import {
 import type { Session } from './types';
 
 const SESSION: Session = {
-  token: 'abc123',
   user: { name: 'Skye Favour', email: 'skye@example.com', userType: 'beginner' },
 };
 
@@ -39,10 +38,17 @@ describe('session storage', () => {
     expect(readSession()).toBeNull();
   });
 
-  it('ignores a session without a token', () => {
-    window.localStorage.setItem(SESSION_KEY, JSON.stringify({ user: SESSION.user }));
+  it('signs out a session saved with a token from before the cookie, and removes the token', () => {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify({ token: 'abc123', ...SESSION }));
 
     expect(readSession()).toBeNull();
+    expect(window.localStorage.getItem(SESSION_KEY)).toBeNull();
+  });
+
+  it('keeps only who is signed in, never a token', () => {
+    writeSession(SESSION);
+
+    expect(window.localStorage.getItem(SESSION_KEY)).not.toMatch(/token/i);
   });
 
   it('ignores a session with an unknown user type', () => {

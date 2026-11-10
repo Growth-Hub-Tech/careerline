@@ -23,7 +23,6 @@ const setup = (body: unknown = { success: true, data: {} }) => {
   );
   const client = createApiClient({
     baseUrl: 'https://api.example.test/api/v1',
-    getToken: () => 'token-123',
     fetcher,
   });
 
@@ -93,7 +92,7 @@ describe('email verification endpoints', () => {
     expect(result).toEqual({ status: 'accepted' });
   });
 
-  it('asks for the email to be sent again with the sign-in token', async () => {
+  it('asks for the email to be sent again, signed in by the session cookie', async () => {
     const { fetcher, client } = setup({ success: true, data: { status: 'accepted' } });
 
     await createAuthApi(client).resendVerification();
@@ -101,7 +100,8 @@ describe('email verification endpoints', () => {
     const { url, init, headers } = sent(fetcher);
     expect(url).toBe('https://api.example.test/api/v1/accounts/verify-email/resend');
     expect(init.method).toBe('POST');
-    expect(headers.get('authorization')).toBe('Bearer token-123');
+    expect(init.credentials).toBe('include');
+    expect(headers.has('authorization')).toBe(false);
   });
 });
 
@@ -126,14 +126,14 @@ describe('contact endpoint', () => {
 });
 
 describe('beginner path endpoints', () => {
-  it('loads the questionnaire with the token', async () => {
+  it('loads the questionnaire with the session cookie', async () => {
     const { fetcher, client } = setup({ success: true, data: { version: 'v1', questions: [] } });
 
     const result = await createBeginnerApi(client).getIntake();
 
-    const { url, headers } = sent(fetcher);
+    const { url, init } = sent(fetcher);
     expect(url).toBe('https://api.example.test/api/v1/beginner-path/intake');
-    expect(headers.get('authorization')).toBe('Bearer token-123');
+    expect(init.credentials).toBe('include');
     expect(result).toEqual({ version: 'v1', questions: [] });
   });
 
@@ -187,7 +187,7 @@ describe('profile endpoints', () => {
     const profile = await createProfileApi(client).get();
 
     expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/profile');
-    expect(sent(fetcher).headers.get('authorization')).toBe('Bearer token-123');
+    expect(sent(fetcher).init.credentials).toBe('include');
     expect(profile).toEqual({ budget: 'under_50k' });
   });
 });

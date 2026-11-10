@@ -13,7 +13,6 @@ const setup = (pages: unknown[]) => {
   );
   const client = createApiClient({
     baseUrl: 'https://api.example.test/api/v1',
-    getToken: () => 'token-123',
     fetcher,
   });
 

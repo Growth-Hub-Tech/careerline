@@ -12,7 +12,6 @@ const reply = (body: unknown, init: ResponseInit = {}) =>
 const clientFor = (response: Response) =>
   createApiClient({
     baseUrl: 'https://api.example.test/api/v1',
-    getToken: () => null,
     fetcher: vi.fn<typeof fetch>(() => Promise.resolve(response)),
   });
 

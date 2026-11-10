@@ -11,7 +11,6 @@ const TOKEN = {
 describe('sessionFromToken', () => {
   it('builds a session from the login reply and the email that was typed', () => {
     expect(sessionFromToken(TOKEN, 'skye@example.com')).toEqual({
-      token: 'abc123',
       user: { name: 'Skye Favour', email: 'skye@example.com', userType: 'beginner' },
     });
   });

@@ -54,6 +54,8 @@ docs/openapi.json  the API description the types are generated from
 
 Replies come as `{ success, data }`. Errors become an `ApiError` with a status, code, message and reference.
 
+Signing in sets the API's `careerline_session` cookie (HttpOnly, so page scripts never see the token), and every request is sent with `credentials: 'include'`. The browser only keeps the user's name, email and type. The API must list the site's origin in its `CORS_ORIGINS`, and in production the site and the API must share a domain (for example `careerline.ng` and `api.careerline.ng`) for the cookie to be sent.
+
 To update the types after the API changes, copy `openapi.json` from the careerline-api repository (the test server also serves it at `/openapi.json`; production does not), then regenerate them:
 
 ```bash

@@ -14,7 +14,6 @@ const setup = (...bodies: unknown[]) => {
   bodies.forEach((body) => fetcher.mockResolvedValueOnce(reply(body)));
   const client = createApiClient({
     baseUrl: 'https://api.example.test/api/v1',
-    getToken: () => 'token-123',
     fetcher,
   });
 

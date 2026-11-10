@@ -24,7 +24,6 @@ describe('auth actions', () => {
 
     expect(authApi.login).toHaveBeenCalledWith('skye@example.com', 'secret123');
     expect(session).toEqual({
-      token: 'abc123',
       user: { name: 'Skye Favour', email: 'skye@example.com', userType: 'beginner' },
     });
   });
@@ -46,7 +45,7 @@ describe('auth actions', () => {
       password: 'longenough1',
     });
     expect(authApi.login).toHaveBeenCalledWith('skye@example.com', 'longenough1');
-    expect(session?.token).toBe('abc123');
+    expect(session?.user.email).toBe('skye@example.com');
   });
 
   it('does not try to sign in when registering fails', async () => {

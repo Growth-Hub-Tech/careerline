@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ApiError } from '../../lib/api/ApiError';
+import { SESSION_COOKIE_BLOCKED } from '../../lib/api/describeError';
 import {
   createDevSession,
   expireSession,
@@ -81,6 +82,15 @@ describe('SignIn', () => {
     expect(screen.queryByText('Dashboard page')).not.toBeInTheDocument();
   });
 
+  it('opens the dashboard for an organisation member signing in on a new device', async () => {
+    setup(vi.fn().mockResolvedValue(createDevSession('organization')));
+
+    await fill();
+
+    expect(await screen.findByText('Dashboard page')).toBeInTheDocument();
+    expect(readSession()?.user.userType).toBe('organization');
+  });
+
   it.each([
     [401, 'invalid_credentials', 'That email and password do not match. Check them and try again.'],
     [
@@ -96,6 +106,20 @@ describe('SignIn', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(message);
     expect(screen.queryByText('Dashboard page')).not.toBeInTheDocument();
+  });
+
+  it('says when the browser refused the sign-in cookie, not that the password was wrong', async () => {
+    const message =
+      'Your browser did not keep you signed in. Allow cookies for this site and try again.';
+    setup(
+      vi
+        .fn()
+        .mockRejectedValue(new ApiError({ status: 401, code: SESSION_COOKIE_BLOCKED, message })),
+    );
+
+    await fill();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(message);
   });
 
   it('clears the message when the person tries again', async () => {

@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
 import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { readRole, useSession, wasSessionExpired, type Session } from '../../lib/session';
+import { needsUserType, useSession, wasSessionExpired, type Session } from '../../lib/session';
 import { signInSchema, type SignInValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
@@ -45,11 +45,11 @@ export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
       const session = await onSubmit(values);
       if (session) {
         signIn(session);
-        const next = readRole(session.user.email)
-          ? from
+        const next = needsUserType(session)
+          ? AUTH_PATHS.getStarted
+          : from
             ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
-            : '/dashboard'
-          : AUTH_PATHS.getStarted;
+            : '/dashboard';
         navigate(next, { replace: true });
       }
     } catch (error) {

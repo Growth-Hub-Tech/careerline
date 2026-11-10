@@ -419,6 +419,15 @@ describe('billing endpoints', () => {
     expect(fetcher.mock.calls[1]?.[1]?.method).toBe('POST');
   });
 
+  it('resumes a subscription that was set to cancel', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'active' } });
+
+    await createSubscriptionsApi(client).resume();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/subscriptions/me/resume');
+    expect(sent(fetcher).init.method).toBe('POST');
+  });
+
   it('lists my latest payments', async () => {
     const { fetcher, client } = setup({
       success: true,

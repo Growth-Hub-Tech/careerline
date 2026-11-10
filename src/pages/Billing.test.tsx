@@ -8,7 +8,7 @@ import { Billing } from './Billing';
 
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
-  subscriptionsApi: { mine: vi.fn(), cancel: vi.fn() },
+  subscriptionsApi: { mine: vi.fn(), cancel: vi.fn(), resume: vi.fn() },
   paymentsApi: { list: vi.fn() },
 }));
 
@@ -59,13 +59,69 @@ describe('Billing', () => {
     expect(screen.queryByRole('button', { name: 'Cancel plan' })).not.toBeInTheDocument();
   });
 
-  it('explains how to keep a plan that is set to cancel', async () => {
+  it('keeps a plan that is set to cancel', async () => {
     vi.mocked(subscriptionsApi.mine).mockResolvedValue(
       subscription({ cancel_at_period_end: true }),
     );
+    vi.mocked(subscriptionsApi.resume).mockResolvedValue(subscription());
     setup();
 
     expect(await plan()).toHaveTextContent('Cancels on 1 Dec 2026');
+    // subscribing again is refused while the plan runs, so it is not offered
+    expect(screen.queryByRole('link', { name: 'Subscribe again' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Keep my plan' }));
+
+    expect(subscriptionsApi.resume).toHaveBeenCalledTimes(1);
+    expect(await plan()).toHaveTextContent('Renews on 1 Dec 2026');
+    expect(screen.queryByRole('button', { name: 'Keep my plan' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel plan' })).toBeInTheDocument();
+  });
+
+  it('says when the plan could not be kept and lets the person try again', async () => {
+    vi.mocked(subscriptionsApi.mine).mockResolvedValue(
+      subscription({ cancel_at_period_end: true }),
+    );
+    vi.mocked(subscriptionsApi.resume).mockRejectedValue(
+      new ApiError({
+        status: 409,
+        code: 'conflict',
+        message: 'Your plan is not cancelled, so there is nothing to resume',
+      }),
+    );
+    setup();
+
+    const keep = await screen.findByRole('button', { name: 'Keep my plan' });
+    await userEvent.click(keep);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Your plan is not cancelled, so there is nothing to resume',
+    );
+    expect(keep).toBeEnabled();
+  });
+
+  it('sends one request however often Keep my plan is pressed', async () => {
+    vi.mocked(subscriptionsApi.mine).mockResolvedValue(
+      subscription({ cancel_at_period_end: true }),
+    );
+    vi.mocked(subscriptionsApi.resume).mockReturnValue(new Promise(() => undefined));
+    setup();
+
+    const keep = await screen.findByRole('button', { name: 'Keep my plan' });
+    await userEvent.click(keep);
+    await userEvent.click(keep);
+
+    expect(keep).toBeDisabled();
+    expect(subscriptionsApi.resume).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers no Keep my plan for an ended plan, only subscribing again', async () => {
+    vi.mocked(subscriptionsApi.mine).mockResolvedValue(
+      subscription({ status: 'cancelled', cancel_at_period_end: true }),
+    );
+    setup();
+
+    expect(await plan()).toHaveTextContent('Ended on 1 Dec 2026');
+    expect(screen.queryByRole('button', { name: 'Keep my plan' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Subscribe again' })).toHaveAttribute(
       'href',
       '/pricing?return=%2Fbilling',

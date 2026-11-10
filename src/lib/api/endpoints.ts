@@ -113,6 +113,8 @@ export const createSubscriptionsApi = (client: Client) => ({
   mine: () => client.get<Subscription | null>('/subscriptions/me'),
 
   cancel: () => client.post<Subscription>('/subscriptions/me/cancel'),
+
+  resume: () => client.post<Subscription>('/subscriptions/me/resume'),
 });
 
 export const createPaymentsApi = (client: Client) => ({

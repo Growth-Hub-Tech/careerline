@@ -1,4 +1,3 @@
-import { matchPath } from 'react-router-dom';
 import { USER_TYPES, type UserType } from '../lib/session';
 
 const EVERYONE: readonly UserType[] = USER_TYPES;
@@ -34,9 +33,3 @@ export const PAGE_ACCESS: Readonly<Partial<Record<string, readonly UserType[]>>>
 };
 
 export const accessFor = (path: string): readonly UserType[] => PAGE_ACCESS[path] ?? EVERYONE;
-
-export const canAccess = (userType: UserType, pathname: string) => {
-  const pattern = Object.keys(PAGE_ACCESS).find((path) => matchPath({ path, end: true }, pathname));
-
-  return pattern ? accessFor(pattern).includes(userType) : true;
-};

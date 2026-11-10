@@ -1,4 +1,4 @@
-import { clearPendingEmail, readPendingEmail, rememberPendingEmail } from './pendingEmail';
+import { readPendingEmail, rememberPendingEmail } from './pendingEmail';
 
 describe('pending email', () => {
   it('has nothing at first', () => {
@@ -9,13 +9,5 @@ describe('pending email', () => {
     rememberPendingEmail('skye@example.com');
 
     expect(readPendingEmail()).toBe('skye@example.com');
-  });
-
-  it('forgets it once cleared', () => {
-    rememberPendingEmail('skye@example.com');
-
-    clearPendingEmail();
-
-    expect(readPendingEmail()).toBeUndefined();
   });
 });

@@ -1,40 +1,33 @@
 import { USER_TYPES } from '../lib/session';
-import { accessFor, canAccess, PAGE_ACCESS } from './access';
+import { accessFor, PAGE_ACCESS } from './access';
 
+// The routes ask accessFor with their own path patterns (src/routes/index.tsx)
 describe('page access', () => {
   it('keeps the users page for organisations', () => {
     expect(PAGE_ACCESS['/users']).toEqual(['organization']);
-    expect(canAccess('recruiter', '/users')).toBe(false);
+    expect(accessFor('/users')).not.toContain('recruiter');
   });
 
   it('opens unlisted addresses to every user type', () => {
     expect(accessFor('/anything-else')).toEqual(USER_TYPES);
-  });
-
-  it.each(USER_TYPES)('opens the dashboard to %s', (userType) => {
-    expect(canAccess(userType, '/dashboard')).toBe(true);
+    expect(accessFor('/dashboard')).toEqual(USER_TYPES);
   });
 
   it('keeps the assessment and programmes for beginners', () => {
-    expect(canAccess('beginner', '/assessment/results')).toBe(true);
-    expect(canAccess('beginner', '/programmes/product-design')).toBe(true);
-    expect(canAccess('recruiter', '/assessment')).toBe(false);
+    expect(accessFor('/assessment')).toEqual(['beginner']);
+    expect(accessFor('/programmes/:programmeId')).toContain('beginner');
   });
 
-  it('matches addresses that carry an id', () => {
-    expect(canAccess('self-test', '/tests/abc')).toBe(true);
-    expect(canAccess('beginner', '/tests/abc')).toBe(false);
-  });
-
-  it('lets anyone sent a test take it', () => {
-    expect(canAccess('self-test', '/tests/abc/attempt')).toBe(true);
-    expect(canAccess('beginner', '/tests/abc/attempt')).toBe(true);
+  it('keeps a test page for professionals and lets anyone sent a test take it', () => {
+    expect(accessFor('/tests/:testId')).toContain('self-test');
+    expect(accessFor('/tests/:testId')).not.toContain('beginner');
+    expect(accessFor('/tests/:testId/attempt')).toEqual(USER_TYPES);
   });
 
   it('keeps candidates for recruiters and the team for organizations', () => {
-    expect(canAccess('recruiter', '/candidates/abc')).toBe(true);
-    expect(canAccess('organization', '/candidates')).toBe(false);
-    expect(canAccess('organization', '/team/heatmap')).toBe(true);
-    expect(canAccess('recruiter', '/team/heatmap')).toBe(false);
+    expect(accessFor('/candidates')).toContain('recruiter');
+    expect(accessFor('/candidates')).not.toContain('organization');
+    expect(accessFor('/team/heatmap')).toContain('organization');
+    expect(accessFor('/team/heatmap')).not.toContain('recruiter');
   });
 });

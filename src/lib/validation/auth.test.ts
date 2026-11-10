@@ -1,4 +1,11 @@
-import { completeProfileSchema, forgotPasswordSchema, signInSchema, signUpSchema } from './auth';
+import {
+  completeProfileSchema,
+  forgotPasswordSchema,
+  LIMITS,
+  newPassword,
+  signInSchema,
+  signUpSchema,
+} from './auth';
 
 const messagesOf = (result: { success: boolean; error?: { issues: { message: string }[] } }) =>
   result.error?.issues.map((issue) => issue.message) ?? [];
@@ -88,5 +95,53 @@ describe('completeProfileSchema', () => {
     const result = completeProfileSchema.safeParse({ ...valid, confirmPassword: 'different123' });
 
     expect(messagesOf(result)).toEqual(['Passwords do not match']);
+  });
+});
+
+describe('the limits the API accepts', () => {
+  const profile = {
+    fullName: 'Skye Favour',
+    phone: '08012345678',
+    password: 'long-enough-1',
+    confirmPassword: 'long-enough-1',
+  };
+  const emailOf = (length: number) => `${'a'.repeat(length - '@example.com'.length)}@example.com`;
+
+  it('accepts values that fill each field', () => {
+    const password = 'p'.repeat(LIMITS.password);
+    expect(
+      completeProfileSchema.safeParse({
+        fullName: 'N'.repeat(LIMITS.name),
+        phone: '0'.repeat(LIMITS.phone),
+        password,
+        confirmPassword: password,
+      }).success,
+    ).toBe(true);
+    expect(signUpSchema.safeParse({ email: emailOf(LIMITS.email) }).success).toBe(true);
+  });
+
+  it.each([
+    ['fullName', 'N'.repeat(101), 'Use 100 characters or fewer'],
+    ['phone', '0'.repeat(21), 'Use 20 characters or fewer'],
+  ])('refuses a %s one character too long', (field, value, message) => {
+    expect(messagesOf(completeProfileSchema.safeParse({ ...profile, [field]: value }))).toContain(
+      message,
+    );
+  });
+
+  it('refuses a password over 128 characters, as the API does', () => {
+    const long = 'p'.repeat(129);
+    expect(
+      messagesOf(
+        completeProfileSchema.safeParse({ ...profile, password: long, confirmPassword: long }),
+      ),
+    ).toContain('Use 128 characters or fewer');
+    expect(newPassword.safeParse(long).success).toBe(false);
+  });
+
+  it('refuses an email over 100 characters', () => {
+    expect(messagesOf(signUpSchema.safeParse({ email: emailOf(101) }))).toEqual([
+      'Use 100 characters or fewer',
+    ]);
   });
 });

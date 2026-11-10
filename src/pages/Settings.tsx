@@ -14,6 +14,7 @@ import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
 import { useSession } from '../lib/session';
+import { fullName, newPassword, phone } from '../lib/validation/auth';
 
 const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
 
@@ -33,8 +34,8 @@ const Card = ({ title, children }: { title: string; children: ReactNode }) => {
 };
 
 const detailsSchema = z.object({
-  fullName: z.string().trim().min(1, 'Enter your name').max(120, 'Use 120 characters or fewer'),
-  phone: z.string().trim().max(32, 'Use 32 characters or fewer'),
+  fullName: fullName.min(1, 'Enter your name'),
+  phone,
 });
 
 type DetailsValues = z.infer<typeof detailsSchema>;
@@ -141,7 +142,7 @@ const Details = ({ account }: { account: Account }) => {
 const passwordSchema = z
   .object({
     current: z.string().min(1, 'Enter your current password'),
-    next: z.string().min(8, 'Use at least 8 characters'),
+    next: newPassword,
     repeat: z.string(),
   })
   .refine((values) => values.next === values.repeat, {

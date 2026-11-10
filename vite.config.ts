@@ -1,4 +1,6 @@
-import { loadEnv } from 'vite';
+import { appendFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { loadEnv, type Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -17,14 +19,46 @@ const originOf = (name: string, value: string | undefined) => {
   );
 };
 
+// Netlify reads dist/_headers. The Content-Security-Policy is written there at build time, so
+// connect-src names exactly the API (and error monitoring) this build talks to.
+const securityHeaders = (connectTo: readonly string[]): Plugin => {
+  let headersFile = '';
+
+  return {
+    name: 'careerline:security-headers',
+    apply: 'build',
+    configResolved(config) {
+      headersFile = resolve(config.root, config.build.outDir, '_headers');
+    },
+    writeBundle() {
+      const policy = [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
+        "font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com",
+        "img-src 'self' data: blob:",
+        `connect-src 'self' ${connectTo.join(' ')}`,
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ].join('; ');
+      appendFileSync(headersFile, `\n/*\n  Content-Security-Policy: ${policy}\n`);
+    },
+  };
+};
+
 export default defineConfig(({ command, mode }) => {
+  const plugins = [react(), tailwindcss()];
+
   // A build without the API address would call the website's own host instead: refuse it
   if (command === 'build') {
-    originOf('VITE_API_URL', loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL);
+    const env = loadEnv(mode, process.cwd(), 'VITE_');
+    plugins.push(securityHeaders([originOf('VITE_API_URL', env.VITE_API_URL)]));
   }
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins,
     build: {
       rollupOptions: {
         output: {

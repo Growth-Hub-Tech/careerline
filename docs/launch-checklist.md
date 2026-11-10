@@ -5,7 +5,7 @@ Work through this list before the site goes live, and again before any big relea
 ## Settings
 
 - [ ] In Netlify, set `VITE_API_URL` to the live API address (ends in `/api/v1`).
-- [ ] If the live API is not `careerline-api.onrender.com`, add its address to `connect-src` in the Content-Security-Policy in `netlify.toml`.
+- [ ] Nothing to change for the Content-Security-Policy: the build writes it into `dist/_headers` with `connect-src` set to the API in `VITE_API_URL`.
 - [ ] Set the contact settings from `.env.example` in Netlify.
 - [ ] Paystack: the callback address is `<site>/payments/callback`. Confirm Paystack is in live mode with Joshua.
 

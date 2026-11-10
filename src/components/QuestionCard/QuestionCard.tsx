@@ -3,7 +3,7 @@ import { LuArrowLeft, LuArrowRight } from 'react-icons/lu';
 import { Button } from '../Button';
 import { ProgressBar } from '../ProgressBar';
 
-export interface QuestionOption {
+interface QuestionOption {
   readonly value: string;
   readonly label: string;
 }

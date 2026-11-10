@@ -1,11 +1,9 @@
-import type { AttemptAnswer, StartedAttempt } from '../api/types';
 import { readSession } from '../session';
 
 export interface SavedAttempt {
   readonly testId: number;
   readonly title: string;
-  readonly attempt: StartedAttempt;
-  readonly answers: readonly AttemptAnswer[];
+  readonly attemptId: number;
 }
 
 const keyFor = (testId: number) =>
@@ -14,14 +12,8 @@ const keyFor = (testId: number) =>
 const isSavedAttempt = (value: unknown): value is SavedAttempt => {
   if (typeof value !== 'object' || value === null) return false;
 
-  const { testId, title, attempt, answers } = value as Record<string, unknown>;
-  if (typeof testId !== 'number' || typeof title !== 'string' || !Array.isArray(answers)) {
-    return false;
-  }
-  if (typeof attempt !== 'object' || attempt === null) return false;
-
-  const { attempt_id, questions } = attempt as Record<string, unknown>;
-  return typeof attempt_id === 'number' && Array.isArray(questions);
+  const { testId, title, attemptId } = value as Record<string, unknown>;
+  return typeof testId === 'number' && typeof title === 'string' && typeof attemptId === 'number';
 };
 
 export const readAttempt = (testId: number): SavedAttempt | null => {

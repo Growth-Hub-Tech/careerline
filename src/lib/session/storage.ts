@@ -27,7 +27,27 @@ export const readSession = (): Session | null => {
   }
 };
 
+const EXPIRED_KEY = 'careerline.session.expired';
+
+export const wasSessionExpired = () => {
+  try {
+    return window.sessionStorage.getItem(EXPIRED_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const markExpired = (expired: boolean) => {
+  try {
+    if (expired) window.sessionStorage.setItem(EXPIRED_KEY, '1');
+    else window.sessionStorage.removeItem(EXPIRED_KEY);
+  } catch {
+    return;
+  }
+};
+
 export const writeSession = (session: Session) => {
+  markExpired(false);
   try {
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   } catch {
@@ -45,5 +65,6 @@ export const clearSession = () => {
 
 export const expireSession = () => {
   clearSession();
+  markExpired(true);
   window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 };

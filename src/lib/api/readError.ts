@@ -13,7 +13,7 @@ const MESSAGES: Readonly<Partial<Record<number, string>>> = {
 export const NETWORK_MESSAGE =
   'We could not reach the server. Check your connection and try again.';
 
-export const messageForStatus = (status: number) =>
+const messageForStatus = (status: number) =>
   MESSAGES[status] ??
   (status >= 500
     ? 'Something went wrong on our side. Try again in a moment.'

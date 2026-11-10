@@ -35,5 +35,11 @@ jobs:
       - name: 🧪 Type check
         run: npm run type-check
 
+      - name: ✅ Run tests, including the accessibility checks
+        run: npm run test
+
       - name: 🏗️ Build
         run: npm run build
+
+      - name: 📏 Check file sizes
+        run: npm run size

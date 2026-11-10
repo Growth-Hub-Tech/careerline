@@ -1,25 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { SkillQuestion } from '../components/SkillQuestion';
-import { attemptsApi, resultsApi, type AttemptAnswer, type AttemptResult } from '../lib/api';
+import { attemptsApi, type AttemptState } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
-import { useRequest } from '../lib/hooks/useRequest';
-import {
-  clearAttempt,
-  readAttempt,
-  saveAttempt,
-  type SavedAttempt,
-} from '../lib/tests/attemptStore';
+import { clearAttempt, readAttempt, type SavedAttempt } from '../lib/tests/attemptStore';
 
-const ENDED_STATUSES = [404, 409, 410];
-
-const hasEnded = (error: unknown) =>
-  error instanceof ApiError &&
-  (ENDED_STATUSES.includes(error.status) || error.code?.toLowerCase() === 'expired');
+const isStatus = (error: unknown, ...statuses: number[]) =>
+  error instanceof ApiError && statuses.includes(error.status);
 
 const LINK_CLASS =
   'inline-flex h-12 w-fit items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
@@ -31,12 +22,20 @@ const Panel = ({ title, children }: { title: string; children: ReactNode }) => (
   </div>
 );
 
-const TestEnded = ({ testId }: { testId: number }) => {
+const TestEnded = ({
+  testId,
+  title,
+  message,
+}: {
+  testId: number;
+  title: string;
+  message: string;
+}) => {
   useEffect(() => clearAttempt(testId), [testId]);
 
   return (
-    <Panel title="This test has ended">
-      <p className="text-[15px] text-slate-600">Start the test again to get a result.</p>
+    <Panel title={title}>
+      <p className="text-[15px] text-slate-600">{message}</p>
       <Link to={`/tests/${testId}`} className={LINK_CLASS}>
         Back to the test
       </Link>
@@ -44,84 +43,89 @@ const TestEnded = ({ testId }: { testId: number }) => {
   );
 };
 
-const TestSubmitted = ({ result }: { result: AttemptResult }) => (
-  <Panel title="Test submitted">
-    <p className="text-[15px] text-slate-600">
-      You scored {result.percentage}%, with {result.score} of {result.total_possible} answers
-      correct.
+const formatTimeLeft = (milliseconds: number) => {
+  const seconds = Math.ceil(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
+};
+
+const Countdown = ({ expiresAt, onTimeUp }: { expiresAt: string; onTimeUp: () => void }) => {
+  const [now, setNow] = useState(() => Date.now());
+  const timeLeft = Math.max(0, Date.parse(expiresAt) - now);
+  const isUp = timeLeft === 0;
+  const reported = useRef(false);
+
+  useEffect(() => {
+    if (isUp) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [isUp]);
+
+  useEffect(() => {
+    if (!isUp || reported.current) return;
+    reported.current = true;
+    onTimeUp();
+  }, [isUp, onTimeUp]);
+
+  return (
+    <p role="timer" className="text-[14px] font-medium text-slate-600">
+      Time left {formatTimeLeft(timeLeft)}
     </p>
-    <Link to="/tests" className={LINK_CLASS}>
-      Back to tests
-    </Link>
-  </Panel>
-);
+  );
+};
 
-const Player = ({ saved }: { saved: SavedAttempt }) => {
-  const { testId, title, attempt } = saved;
-  const navigate = useNavigate();
-  const [answers, setAnswers] = useState<readonly AttemptAnswer[]>(saved.answers);
+interface PlayerProps {
+  readonly title: string;
+  readonly attempt: AttemptState;
+  readonly onReply: (attempt: AttemptState) => void;
+  readonly onOutOfStep: () => void;
+}
+
+const Player = ({ title, attempt, onReply, onOutOfStep }: PlayerProps) => {
   const [selected, setSelected] = useState<string>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string>();
-  const [result, setResult] = useState<AttemptResult>();
-  const [ended, setEnded] = useState(false);
-  const submitting = useRef(false);
+  const sending = useRef(false);
+  const question = attempt.question;
 
-  if (ended) return <TestEnded testId={testId} />;
-  if (result) return <TestSubmitted result={result} />;
+  if (!question) return null;
 
-  const index = Math.min(answers.length, attempt.questions.length - 1);
-  const question = attempt.questions[index];
-  const isLast = index === attempt.questions.length - 1;
-
-  const submit = async (all: readonly AttemptAnswer[]) => {
-    if (submitting.current) return;
-    submitting.current = true;
-    setIsSubmitting(true);
+  const next = async () => {
+    if (selected === undefined || sending.current) return;
+    sending.current = true;
+    setIsSending(true);
     setError(undefined);
 
     try {
-      const reply = await attemptsApi.submit({ attempt_id: attempt.attempt_id, answers: all });
-      clearAttempt(testId);
-      const listed = await resultsApi
-        .list()
-        .then((results) => results.find((item) => item.attempt_id === attempt.attempt_id))
-        .catch(() => undefined);
-      if (listed) navigate(`/reports/${listed.result_id}`, { replace: true });
-      else setResult(reply.result);
-    } catch (submitError) {
-      if (hasEnded(submitError)) setEnded(true);
-      else setError(describeError(submitError));
-      submitting.current = false;
-      setIsSubmitting(false);
+      onReply(
+        await attemptsApi.answer(attempt.attempt_id, {
+          question_id: question.question_id,
+          selected_option_id: Number(selected),
+        }),
+      );
+    } catch (answerError) {
+      if (isStatus(answerError, 409, 410)) {
+        onOutOfStep();
+        return;
+      }
+      setError(describeError(answerError));
+      sending.current = false;
+      setIsSending(false);
     }
-  };
-
-  const next = () => {
-    if (selected === undefined) return;
-
-    const choice = { question_id: question.question_id, selected_option_id: Number(selected) };
-    if (isLast) {
-      void submit([...answers, choice]);
-      return;
-    }
-
-    const updated = [...answers, choice];
-    saveAttempt({ ...saved, answers: updated });
-    setAnswers(updated);
-    setSelected(undefined);
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-[28px] leading-[1.25] font-bold text-slate-700 sm:text-[36px]">
-        {title} Skill Test
-      </h1>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-[28px] leading-[1.25] font-bold text-slate-700 sm:text-[36px]">
+          {title} Skill Test
+        </h1>
+        {attempt.expires_at && <Countdown expiresAt={attempt.expires_at} onTimeUp={onOutOfStep} />}
+      </div>
       {error && <Alert variant="error">{error}</Alert>}
       <SkillQuestion
-        key={question.question_id}
-        questionNumber={index + 1}
-        questionCount={attempt.questions.length}
+        questionNumber={question.position}
+        questionCount={attempt.total_questions}
         text={question.question_text}
         options={question.options.map((option) => ({
           value: String(option.option_id),
@@ -130,38 +134,99 @@ const Player = ({ saved }: { saved: SavedAttempt }) => {
         selected={selected}
         onChange={setSelected}
         onNext={next}
-        isLast={isLast}
-        isSubmitting={isSubmitting}
+        isLast={question.position === attempt.total_questions}
+        isSubmitting={isSending}
       />
     </div>
   );
 };
 
-const AttemptCheck = ({ saved }: { saved: SavedAttempt }) => {
-  const attemptId = saved.attempt.attempt_id;
-  const load = useCallback(() => attemptsApi.get(attemptId), [attemptId]);
-  const { state, retry } = useRequest(load);
+const Attempt = ({ saved }: { saved: SavedAttempt }) => {
+  const { testId, title, attemptId } = saved;
+  const [attempt, setAttempt] = useState<AttemptState>();
+  const [loadError, setLoadError] = useState<unknown>();
+  const [isMissing, setIsMissing] = useState(false);
 
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading your test" className="flex-1" />;
+  const show = useCallback(
+    (next: AttemptState) => {
+      if (next.status !== 'in_progress') clearAttempt(testId);
+      setAttempt(next);
+    },
+    [testId],
+  );
+
+  const reload = useCallback(async () => {
+    setAttempt(undefined);
+    setLoadError(undefined);
+
+    try {
+      show(await attemptsApi.current(attemptId));
+    } catch (error) {
+      if (isStatus(error, 403, 404)) setIsMissing(true);
+      else setLoadError(error);
+    }
+  }, [attemptId, show]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  if (isMissing) {
+    return (
+      <TestEnded
+        testId={testId}
+        title="This test has ended"
+        message="Start the test again to get a result."
+      />
+    );
   }
 
-  if (state.status === 'error') {
-    if (hasEnded(state.error)) return <TestEnded testId={saved.testId} />;
-
+  if (loadError) {
     return (
       <div className="flex w-full max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
+        <Alert variant="error">{describeError(loadError)}</Alert>
+        <Button fullWidth={false} onClick={() => void reload()}>
           Try again
         </Button>
       </div>
     );
   }
 
-  if (state.data.attempt_status !== 'in_progress') return <TestEnded testId={saved.testId} />;
+  if (!attempt) return <PageLoader title="Loading your test" className="flex-1" />;
 
-  return <Player saved={saved} />;
+  if (attempt.status === 'completed') {
+    return <Navigate to={`/reports/${attempt.attempt_id}`} replace />;
+  }
+
+  if (attempt.status === 'expired') {
+    return (
+      <TestEnded
+        testId={testId}
+        title="Your time ran out"
+        message="You did not answer enough questions in time for a result. Start the test again to get one."
+      />
+    );
+  }
+
+  if (attempt.status !== 'in_progress' || !attempt.question) {
+    return (
+      <TestEnded
+        testId={testId}
+        title="This test has ended"
+        message="Start the test again to get a result."
+      />
+    );
+  }
+
+  return (
+    <Player
+      key={attempt.question.question_id}
+      title={title}
+      attempt={attempt}
+      onReply={show}
+      onOutOfStep={() => void reload()}
+    />
+  );
 };
 
 export const TestAttempt = () => {
@@ -175,5 +240,5 @@ export const TestAttempt = () => {
   const saved = readAttempt(id);
   if (!saved) return <Navigate to={`/tests/${id}`} replace />;
 
-  return <AttemptCheck key={id} saved={saved} />;
+  return <Attempt key={saved.attemptId} saved={saved} />;
 };

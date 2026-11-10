@@ -35,8 +35,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -45,8 +45,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "400": {
+            "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
               "application/json": {
                 "schema": {
@@ -106,8 +106,8 @@
               }
             }
           },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -116,8 +116,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
             "content": {
               "application/json": {
                 "schema": {
@@ -191,6 +191,42 @@
         }
       }
     },
+    "/api/v1/learners/me": {
+      "get": {
+        "tags": [
+          "Learners"
+        ],
+        "summary": "Get My Profile",
+        "operationId": "get_my_profile_api_v1_learners_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/learners/{learner_id}": {
       "get": {
         "tags": [
@@ -198,6 +234,7 @@
         ],
         "summary": "Get Learner Profile",
         "operationId": "get_learner_profile_api_v1_learners__learner_id__get",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -225,6 +262,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -247,16 +294,6 @@
           },
           "404": {
             "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -297,8 +334,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -307,8 +344,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -348,6 +385,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -370,16 +417,6 @@
           },
           "404": {
             "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -478,12 +515,68 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "tags": [
+          "Skills and roles"
+        ],
+        "summary": "List Roles",
+        "operationId": "list_roles_api_v1_roles_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Page_RoleSummary__"
                 }
               }
             }
@@ -501,12 +594,87 @@
         }
       }
     },
+    "/api/v1/roles/{role_id}": {
+      "get": {
+        "tags": [
+          "Skills and roles"
+        ],
+        "summary": "Get Role",
+        "operationId": "get_role_api_v1_roles__role_id__get",
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Role Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Role_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/job-titles": {
+      "get": {
+        "tags": [
+          "Skills and roles"
+        ],
+        "summary": "List Job Titles",
+        "description": "The job-title ladder, lowest first, with the level expected at each title. A role skill's target_level is the level at the mid title; for another title it moves by as many steps as that title's expected_level is from MID (never below BEGINNER or above ADVANCED).",
+        "operationId": "list_job_titles_api_v1_job_titles_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_JobTitleList_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/attempts/start": {
       "post": {
         "tags": [
           "Attempts"
         ],
         "summary": "Start Test Attempt",
+        "description": "Starts the adaptive test of a skill and returns its first question, or resumes the test already in progress for that skill (resumed: true, the same question). 16 questions, harder after a right answer and easier after a wrong one; 30 minutes. declared_level is retired and ignored. 409 skill_not_ready: the skill cannot be tested yet.",
         "operationId": "start_test_attempt_api_v1_attempts_start_post",
         "requestBody": {
           "content": {
@@ -524,13 +692,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                  "$ref": "#/components/schemas/ApiResponse_AttemptState_"
                 }
               }
             }
           },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -559,8 +727,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "409": {
+            "description": "Conflict: e.g. this attempt was already submitted",
             "content": {
               "application/json": {
                 "schema": {
@@ -577,22 +745,117 @@
         ]
       }
     },
-    "/api/v1/attempts/submit": {
+    "/api/v1/attempts/{attempt_id}/question": {
+      "get": {
+        "tags": [
+          "Attempts"
+        ],
+        "summary": "Get Current Question",
+        "description": "Where the test stands: the question to answer now (status in_progress), the result (completed), or expired (the time ran out before enough answers for a result).",
+        "operationId": "get_current_question_api_v1_attempts__attempt_id__question_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attempt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Attempt Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AttemptState_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/answer": {
       "post": {
         "tags": [
           "Attempts"
         ],
-        "summary": "Submit Answers",
-        "operationId": "submit_answers_api_v1_attempts_submit_post",
+        "summary": "Answer Current Question",
+        "description": "Answers the question to answer now and returns the next one, or, after the last question, the result (status completed, with result and recommendations). 409 not_current_question: that question is not the one to answer now (already answered, or never served); 409 attempt_finished: the test is over; 410 expired: the time ran out (details.status says whether it was scored: completed, or expired).",
+        "operationId": "answer_current_question_api_v1_attempts__attempt_id__answer_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attempt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Attempt Id"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubmitRequest"
+                "$ref": "#/components/schemas/AnswerRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -600,7 +863,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                  "$ref": "#/components/schemas/ApiResponse_AttemptState_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -655,6 +928,54 @@
               }
             }
           },
+          "410": {
+            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/review": {
+      "get": {
+        "tags": [
+          "Attempts"
+        ],
+        "summary": "Review Attempt",
+        "description": "A finished test question by question: the options in the order they were shown, the person's choice, the right answer and an explanation. 409 attempt_not_finished while the test is running (nothing about the answers is shown before the end). explanation_source ai: written by the AI (once per question, then kept); standard: the plain explanation. ai_explanations generating: ask again in a few seconds.",
+        "operationId": "review_attempt_api_v1_attempts__attempt_id__review_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "attempt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Attempt Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_AttemptReview_"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
@@ -664,13 +985,168 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: e.g. this attempt was already submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/attempts/submit": {
+      "post": {
+        "tags": [
+          "Attempts"
+        ],
+        "summary": "Submit Answers",
+        "operationId": "submit_answers_api_v1_attempts_submit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
+        "deprecated": true
+      }
+    },
+    "/api/v1/attempts/me": {
+      "get": {
+        "tags": [
+          "Attempts"
+        ],
+        "summary": "Get My Attempts",
+        "operationId": "get_my_attempts_api_v1_attempts_me_get",
         "security": [
           {
             "OAuth2PasswordBearer": []
           }
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/attempts/{attempt_id}": {
@@ -707,6 +1183,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -736,16 +1222,6 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         }
       }
@@ -757,6 +1233,7 @@
         ],
         "summary": "Get Learner Attempts",
         "operationId": "get_learner_attempts_api_v1_attempts_learner__learner_id__get",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -804,6 +1281,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -816,16 +1303,6 @@
           },
           "403": {
             "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -871,6 +1348,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -910,9 +1397,101 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/skills": {
+      "get": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Get My Skill Profile",
+        "description": "My level in each skill tested: the latest result per skill, newest first.",
+        "operationId": "get_my_skill_profile_api_v1_profile_skills_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_SkillProfile_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/profile/skills/history": {
+      "get": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Get My Skill History",
+        "description": "Every finished test, newest first (optionally for one skill): level, score, confidence, strengths and weaknesses.",
+        "operationId": "get_my_skill_history_api_v1_profile_skills_history_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skill_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Skill Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_SkillHistory_"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
             "content": {
               "application/json": {
                 "schema": {
@@ -924,6 +1503,428 @@
         }
       }
     },
+    "/api/v1/results": {
+      "get": {
+        "tags": [
+          "Results"
+        ],
+        "summary": "List My Results",
+        "operationId": "list_my_results_api_v1_results_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Page_ResultSummary__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/results/{result_id}": {
+      "get": {
+        "tags": [
+          "Results"
+        ],
+        "summary": "Get Result",
+        "description": "404: no finished test of yours with this id.",
+        "operationId": "get_result_api_v1_results__result_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "result_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Result Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_ResultDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/results/{result_id}/report": {
+      "get": {
+        "tags": [
+          "Results"
+        ],
+        "summary": "Get Result Report",
+        "description": "The first call starts making the PDF (status generating); poll every 2-3 s until ready, then open download_url (works without a token until expires_at; poll again for a fresh link). failed: ask again with POST.",
+        "operationId": "get_result_report_api_v1_results__result_id__report_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "result_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Result Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Report_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Results"
+        ],
+        "summary": "Regenerate Result Report",
+        "description": "Makes the PDF again (older download links stop working). Already being made: nothing new is started.",
+        "operationId": "regenerate_result_report_api_v1_results__result_id__report_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "result_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Result Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Report_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{token}": {
+      "get": {
+        "tags": [
+          "Results"
+        ],
+        "summary": "Download Result Report",
+        "description": "The PDF itself, as an attachment. No login token: the link is the proof. 410 expired: the link is too old, or the report was made again since.",
+        "operationId": "download_result_report_api_v1_reports__token__get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The PDF",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/pathway/me/{skill_id}": {
+      "get": {
+        "tags": [
+          "Recommendations"
+        ],
+        "summary": "My Learning Pathway",
+        "operationId": "my_learning_pathway_api_v1_recommendations_pathway_me__skill_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "skill_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Skill Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/levels/me": {
+      "get": {
+        "tags": [
+          "Recommendations"
+        ],
+        "summary": "Get My Levels",
+        "operationId": "get_my_levels_api_v1_recommendations_levels_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Any_"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/recommendations/pathway/{learner_id}/{skill_id}": {
       "get": {
         "tags": [
@@ -931,6 +1932,7 @@
         ],
         "summary": "Learning Pathway",
         "operationId": "learning_pathway_api_v1_recommendations_pathway__learner_id___skill_id__get",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -967,6 +1969,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -996,16 +2008,6 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         }
       }
@@ -1017,6 +2019,7 @@
         ],
         "summary": "Get Learner Levels",
         "operationId": "get_learner_levels_api_v1_recommendations_levels__learner_id__get",
+        "deprecated": true,
         "security": [
           {
             "OAuth2PasswordBearer": []
@@ -1044,6 +2047,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -1056,16 +2069,6 @@
           },
           "403": {
             "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1191,8 +2194,8 @@
               }
             }
           },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1201,8 +2204,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
             "content": {
               "application/json": {
                 "schema": {
@@ -1248,6 +2251,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -1260,16 +2273,6 @@
           },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1357,8 +2360,8 @@
               }
             }
           },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1367,8 +2370,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "410": {
+            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1409,8 +2412,8 @@
               }
             }
           },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1419,8 +2422,8 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
+          "410": {
+            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1479,6 +2482,372 @@
         ]
       }
     },
+    "/api/v1/organisations/{organisation_id}/users": {
+      "get": {
+        "tags": [
+          "Organisations: accounts and roles"
+        ],
+        "summary": "List Organisation Users",
+        "description": "The organisation's accounts and their roles. Owners and admins.",
+        "operationId": "list_organisation_users_api_v1_organisations__organisation_id__users_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organisation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Organisation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_OrganisationUserList_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Organisations: accounts and roles"
+        ],
+        "summary": "Add Organisation User",
+        "description": "Gives an existing account a role in the organisation (it must have signed up). Owners and admins; only an owner can add an owner. 409 if the account already belongs to an organisation.",
+        "operationId": "add_organisation_user_api_v1_organisations__organisation_id__users_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organisation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Organisation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganisationUserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_OrganisationUser_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: e.g. this attempt was already submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organisations/{organisation_id}/users/{learner_id}": {
+      "patch": {
+        "tags": [
+          "Organisations: accounts and roles"
+        ],
+        "summary": "Change Organisation User Role",
+        "description": "Changes an account's role. Only an owner changes an owner's role or makes an owner; the last owner can't be demoted (409).",
+        "operationId": "change_organisation_user_role_api_v1_organisations__organisation_id__users__learner_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organisation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Organisation Id"
+            }
+          },
+          {
+            "name": "learner_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Learner Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganisationUserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_OrganisationUser_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: e.g. this attempt was already submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Organisations: accounts and roles"
+        ],
+        "summary": "Remove Organisation User",
+        "description": "Removes an account from the organisation (the account itself stays). Only an owner removes an owner; the last owner can't leave (409).",
+        "operationId": "remove_organisation_user_api_v1_organisations__organisation_id__users__learner_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "organisation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Organisation Id"
+            }
+          },
+          {
+            "name": "learner_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Learner Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse_Acknowledgement_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not logged in: missing, invalid or expired token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not allowed: e.g. this belongs to another person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict: e.g. this attempt was already submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/test-mailbox": {
       "get": {
         "tags": [
@@ -1525,6 +2894,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -1537,16 +2916,6 @@
           },
           "404": {
             "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1590,6 +2959,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Not logged in: missing, invalid or expired token",
             "content": {
@@ -1602,16 +2981,6 @@
           },
           "404": {
             "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1621,332 +2990,6 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/roles": {
-      "get": {
-        "tags": [
-          "Sample: Skills and roles"
-        ],
-        "summary": "List Roles",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).",
-        "operationId": "list_roles_api_v1_roles_get",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 20,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Offset"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Page_RoleSummary__"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow",
-          "empty"
-        ]
-      }
-    },
-    "/api/v1/roles/{role_id}": {
-      "get": {
-        "tags": [
-          "Sample: Skills and roles"
-        ],
-        "summary": "Get Role",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.",
-        "operationId": "get_role_api_v1_roles__role_id__get",
-        "parameters": [
-          {
-            "name": "role_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Role Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Role_"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow"
-        ]
       }
     },
     "/api/v1/tests": {
@@ -2022,6 +3065,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -2084,16 +3137,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2180,6 +3223,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -2242,16 +3295,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2342,6 +3385,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -2404,16 +3457,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2468,666 +3511,6 @@
           "slow"
         ],
         "x-sample-note": "Test 202 and 203 cost 2 credits and the sample balance is 3, so they can start; send `payment_required` to see the 402 error."
-      }
-    },
-    "/api/v1/results": {
-      "get": {
-        "tags": [
-          "Sample: Results"
-        ],
-        "summary": "List My Results",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).",
-        "operationId": "list_my_results_api_v1_results_get",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 20,
-              "title": "Limit"
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Offset"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Page_ResultSummary__"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow",
-          "empty"
-        ]
-      }
-    },
-    "/api/v1/results/{result_id}": {
-      "get": {
-        "tags": [
-          "Sample: Results"
-        ],
-        "summary": "Get Result",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.",
-        "operationId": "get_result_api_v1_results__result_id__get",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "result_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Result Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_ResultDetail_"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow"
-        ]
-      }
-    },
-    "/api/v1/results/{result_id}/report": {
-      "get": {
-        "tags": [
-          "Sample: Results"
-        ],
-        "summary": "Get Result Report",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `generating` (the report is still being generated), `failed` (the payment or job failed).",
-        "operationId": "get_result_report_api_v1_results__result_id__report_get",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "result_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Result Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Report_"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow",
-          "generating",
-          "failed"
-        ]
-      },
-      "post": {
-        "tags": [
-          "Sample: Results"
-        ],
-        "summary": "Regenerate Result Report",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.",
-        "operationId": "regenerate_result_report_api_v1_results__result_id__report_post",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "result_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Result Id"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_Report_"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow"
-        ]
       }
     },
     "/api/v1/profile": {
@@ -3298,6 +3681,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -3360,16 +3753,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -3427,148 +3810,6 @@
           "server_error",
           "unavailable",
           "slow"
-        ]
-      }
-    },
-    "/api/v1/profile/skills": {
-      "get": {
-        "tags": [
-          "Sample: Profile"
-        ],
-        "summary": "Get My Skill Profile",
-        "description": "**Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.\n\nForce an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).",
-        "operationId": "get_my_skill_profile_api_v1_profile_skills_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse_SkillProfile_"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request: invalid input (the message says what is wrong)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Not logged in: missing, invalid or expired token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Payment required: not enough credits or no active subscription",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Not allowed: e.g. this belongs to another person",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict: e.g. this attempt was already submitted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "410": {
-            "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests: slow down and retry after the Retry-After seconds",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error: something went wrong on our side",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service unavailable: try again shortly",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "x-sample": true,
-        "x-sample-scenarios": [
-          "unauthenticated",
-          "payment_required",
-          "forbidden",
-          "not_found",
-          "conflict",
-          "expired",
-          "validation_error",
-          "rate_limited",
-          "server_error",
-          "unavailable",
-          "slow",
-          "empty"
         ]
       }
     },
@@ -3735,6 +3976,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -3797,16 +4048,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4066,6 +4307,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -4128,16 +4379,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4224,6 +4465,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -4286,16 +4537,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4396,6 +4637,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -4458,16 +4709,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4691,6 +4932,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -4753,16 +5004,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -4999,6 +5240,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -5061,16 +5312,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -5157,6 +5398,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -5219,16 +5470,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -5593,6 +5834,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -5655,16 +5906,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -5772,6 +6013,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -5834,16 +6085,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -5935,6 +6176,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -5997,16 +6248,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6095,6 +6336,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -6157,16 +6408,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6674,6 +6915,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -6736,16 +6987,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7009,6 +7250,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7071,16 +7322,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7170,6 +7411,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7232,16 +7483,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7333,6 +7574,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7395,16 +7646,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7496,6 +7737,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7558,16 +7809,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7658,6 +7899,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7720,16 +7971,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7830,6 +8071,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -7892,16 +8143,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -7993,6 +8234,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -8055,16 +8306,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8156,6 +8397,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -8218,16 +8469,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8313,6 +8554,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -8375,16 +8626,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8476,6 +8717,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -8538,16 +8789,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8817,6 +9058,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -8879,16 +9130,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -8989,6 +9230,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9051,16 +9302,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -9172,6 +9413,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9234,16 +9485,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -9344,6 +9585,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9406,16 +9657,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -9516,6 +9757,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9578,16 +9829,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -9710,6 +9951,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9772,16 +10023,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -9874,6 +10115,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -9936,16 +10187,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -10046,6 +10287,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -10108,16 +10359,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -10219,8 +10460,15 @@
               }
             }
           },
-          "302": {
-            "description": "Back to callback_url?reference=...&trxref=..."
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
@@ -10292,16 +10540,6 @@
               }
             }
           },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "429": {
             "description": "Too many requests: slow down and retry after the Retry-After seconds",
             "content": {
@@ -10331,6 +10569,9 @@
                 }
               }
             }
+          },
+          "302": {
+            "description": "Back to callback_url?reference=...&trxref=..."
           }
         },
         "x-sample": true,
@@ -10380,6 +10621,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -10442,16 +10693,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -10538,6 +10779,16 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error: the request body or parameters are invalid (see details)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad request: invalid input (the message says what is wrong)",
             "content": {
@@ -10600,16 +10851,6 @@
           },
           "410": {
             "description": "Gone or expired: this old route is retired, or the link/offer has expired (see the message)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error: the request body or parameters are invalid (see details)",
             "content": {
               "application/json": {
                 "schema": {
@@ -10901,6 +11142,23 @@
             ],
             "title": "Organisation Id"
           },
+          "organisation_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "owner",
+                  "admin",
+                  "recruiter"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organisation Role",
+            "description": "The role in organisation_id (owner and admin = organisation_admin)"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -11043,6 +11301,24 @@
           "selected_option_id"
         ],
         "title": "AnswerItem"
+      },
+      "AnswerRequest": {
+        "properties": {
+          "question_id": {
+            "type": "integer",
+            "title": "Question Id"
+          },
+          "selected_option_id": {
+            "type": "integer",
+            "title": "Selected Option Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "selected_option_id"
+        ],
+        "title": "AnswerRequest"
       },
       "ApiResponse_AccountDeletion_": {
         "properties": {
@@ -11234,6 +11510,72 @@
         },
         "type": "object",
         "title": "ApiResponse[AssessmentDetail]"
+      },
+      "ApiResponse_AttemptReview_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AttemptReview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[AttemptReview]"
+      },
+      "ApiResponse_AttemptState_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AttemptState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[AttemptState]"
       },
       "ApiResponse_Audit_": {
         "properties": {
@@ -11663,6 +12005,105 @@
         },
         "type": "object",
         "title": "ApiResponse[Invitation]"
+      },
+      "ApiResponse_JobTitleList_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobTitleList"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[JobTitleList]"
+      },
+      "ApiResponse_OrganisationUserList_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationUserList"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[OrganisationUserList]"
+      },
+      "ApiResponse_OrganisationUser_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrganisationUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[OrganisationUser]"
       },
       "ApiResponse_Organisation_": {
         "properties": {
@@ -12258,6 +12699,39 @@
         "type": "object",
         "title": "ApiResponse[RosterResult]"
       },
+      "ApiResponse_SkillHistory_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true,
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillHistory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "ApiResponse[SkillHistory]"
+      },
       "ApiResponse_SkillProfile_": {
         "properties": {
           "success": {
@@ -12760,6 +13234,243 @@
         ],
         "title": "AssessmentSummary"
       },
+      "AttemptResult": {
+        "properties": {
+          "score": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelName"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "0-1: how sure the level is"
+          },
+          "confidence_label": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Confidence Label"
+          },
+          "answered": {
+            "type": "integer",
+            "title": "Answered"
+          },
+          "correct": {
+            "type": "integer",
+            "title": "Correct"
+          },
+          "strengths": {
+            "items": {
+              "$ref": "#/components/schemas/SubskillRef"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "weaknesses": {
+            "items": {
+              "$ref": "#/components/schemas/SubskillRef"
+            },
+            "type": "array",
+            "title": "Weaknesses"
+          },
+          "subskills": {
+            "items": {
+              "$ref": "#/components/schemas/SubskillOutcome"
+            },
+            "type": "array",
+            "title": "Subskills"
+          },
+          "ended_by": {
+            "type": "string",
+            "enum": [
+              "finished",
+              "time_up"
+            ],
+            "title": "Ended By"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "level",
+          "confidence",
+          "confidence_label",
+          "answered",
+          "correct",
+          "strengths",
+          "weaknesses",
+          "subskills",
+          "ended_by",
+          "completed_at"
+        ],
+        "title": "AttemptResult",
+        "description": "The result of a finished test. No pass or fail: a score, a level and how sure we are."
+      },
+      "AttemptReview": {
+        "properties": {
+          "attempt_id": {
+            "type": "integer",
+            "title": "Attempt Id"
+          },
+          "skill_id": {
+            "type": "integer",
+            "title": "Skill Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "expired",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AttemptResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ai_explanations": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "generating",
+              "unavailable"
+            ],
+            "title": "Ai Explanations",
+            "description": "ready: every item has its AI explanation; generating: being written now (ask again in a few seconds); unavailable: standard explanations only"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_id",
+          "skill_id",
+          "status",
+          "result",
+          "ai_explanations",
+          "items"
+        ],
+        "title": "AttemptReview",
+        "description": "A finished test question by question. Only once the test is over (409\nattempt_not_finished before)."
+      },
+      "AttemptState": {
+        "properties": {
+          "attempt_id": {
+            "type": "integer",
+            "title": "Attempt Id"
+          },
+          "skill_id": {
+            "type": "integer",
+            "title": "Skill Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "completed",
+              "expired",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "resumed": {
+            "type": "boolean",
+            "title": "Resumed",
+            "default": false
+          },
+          "total_questions": {
+            "type": "integer",
+            "title": "Total Questions"
+          },
+          "answered": {
+            "type": "integer",
+            "title": "Answered"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ServedQuestion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AttemptResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recommendations": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendations",
+            "description": "Only in the answer that finishes the test"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_id",
+          "skill_id",
+          "status",
+          "total_questions",
+          "answered",
+          "expires_at"
+        ],
+        "title": "AttemptState",
+        "description": "Where a test stands. status in_progress: answer `question`; completed: see `result`;\nexpired: the time ran out before enough answers for a result."
+      },
       "Audit": {
         "properties": {
           "audit_id": {
@@ -13004,8 +13715,17 @@
       "BehaviouralAnswersRequest": {
         "properties": {
           "learner_id": {
-            "type": "integer",
-            "title": "Learner Id"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learner Id",
+            "description": "Not needed: the learner is the one signed in. If sent, it must be yours.",
+            "deprecated": true
           },
           "attempt_id": {
             "type": "integer",
@@ -13021,7 +13741,6 @@
         },
         "type": "object",
         "required": [
-          "learner_id",
           "attempt_id",
           "answers"
         ],
@@ -13371,8 +14090,8 @@
           },
           "match_score": {
             "type": "integer",
-            "maximum": 100,
-            "minimum": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
             "title": "Match Score"
           },
           "reasons": {
@@ -14410,8 +15129,8 @@
           },
           "expires_in_days": {
             "type": "integer",
-            "maximum": 30,
-            "minimum": 1,
+            "maximum": 30.0,
+            "minimum": 1.0,
             "title": "Expires In Days",
             "default": 7
           }
@@ -14505,6 +15224,60 @@
         "title": "InvitationPublic",
         "description": "What the invitee sees from the link, before and after logging in."
       },
+      "JobTitleItem": {
+        "properties": {
+          "title_id": {
+            "type": "integer",
+            "title": "Title Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "expected_level": {
+            "$ref": "#/components/schemas/LevelName"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title_id",
+          "slug",
+          "name",
+          "rank",
+          "expected_level",
+          "description"
+        ],
+        "title": "JobTitleItem",
+        "description": "One step of the job-title ladder and the level expected at it."
+      },
+      "JobTitleList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/JobTitleItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "JobTitleList"
+      },
       "LevelName": {
         "type": "string",
         "enum": [
@@ -14595,6 +15368,109 @@
           "created_at"
         ],
         "title": "Organisation"
+      },
+      "OrganisationUser": {
+        "properties": {
+          "learner_id": {
+            "type": "integer",
+            "title": "Learner Id"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "recruiter"
+            ],
+            "title": "Role"
+          },
+          "added_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Added At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "learner_id",
+          "full_name",
+          "email",
+          "role",
+          "added_at"
+        ],
+        "title": "OrganisationUser",
+        "description": "An account of the organisation and its role (not the audit roster: see /members)."
+      },
+      "OrganisationUserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "recruiter"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "role"
+        ],
+        "title": "OrganisationUserCreate"
+      },
+      "OrganisationUserList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrganisationUser"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "OrganisationUserList"
+      },
+      "OrganisationUserUpdate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "admin",
+              "recruiter"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "OrganisationUserUpdate"
       },
       "Page_AssessmentSummary_": {
         "properties": {
@@ -15186,8 +16062,8 @@
           },
           "completeness": {
             "type": "integer",
-            "maximum": 100,
-            "minimum": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
             "title": "Completeness",
             "description": "How complete the profile is, in percent"
           },
@@ -15257,8 +16133,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 60,
-                "minimum": 0
+                "maximum": 60.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -15284,8 +16160,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 80,
-                "minimum": 0
+                "maximum": 80.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -15634,7 +16510,8 @@
           },
           "test_id": {
             "type": "integer",
-            "title": "Test Id"
+            "title": "Test Id",
+            "description": "200 + skill_id, as in GET /roles"
           },
           "skill_id": {
             "type": "integer",
@@ -15651,17 +16528,26 @@
             "type": "number",
             "title": "Percentage Score"
           },
-          "passed": {
-            "type": "boolean",
-            "title": "Passed"
-          },
           "completed_at": {
             "type": "string",
             "format": "date-time",
             "title": "Completed At"
           },
-          "declared_level": {
-            "$ref": "#/components/schemas/LevelName"
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "0-1: how sure the level is"
+          },
+          "confidence_label": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Confidence Label"
           },
           "percentile": {
             "anyOf": [
@@ -15672,7 +16558,8 @@
                 "type": "null"
               }
             ],
-            "title": "Percentile"
+            "title": "Percentile",
+            "description": "Share of all results of this skill (in %) with a lower score; null until the skill has enough results to compare"
           },
           "subskills": {
             "items": {
@@ -15712,9 +16599,9 @@
           "skill_name",
           "level",
           "percentage_score",
-          "passed",
           "completed_at",
-          "declared_level",
+          "confidence",
+          "confidence_label",
           "percentile",
           "subskills",
           "strengths",
@@ -15764,7 +16651,8 @@
           },
           "test_id": {
             "type": "integer",
-            "title": "Test Id"
+            "title": "Test Id",
+            "description": "200 + skill_id, as in GET /roles"
           },
           "skill_id": {
             "type": "integer",
@@ -15781,10 +16669,6 @@
             "type": "number",
             "title": "Percentage Score"
           },
-          "passed": {
-            "type": "boolean",
-            "title": "Passed"
-          },
           "completed_at": {
             "type": "string",
             "format": "date-time",
@@ -15800,10 +16684,137 @@
           "skill_name",
           "level",
           "percentage_score",
-          "passed",
           "completed_at"
         ],
-        "title": "ResultSummary"
+        "title": "ResultSummary",
+        "description": "A finished test (Day 12: real; result_id is the attempt_id). No pass or fail."
+      },
+      "ReviewItem": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "question_id": {
+            "type": "integer",
+            "title": "Question Id"
+          },
+          "question_text": {
+            "type": "string",
+            "title": "Question Text"
+          },
+          "subskill_id": {
+            "type": "integer",
+            "title": "Subskill Id"
+          },
+          "subskill_name": {
+            "type": "string",
+            "title": "Subskill Name"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LevelName"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewOption"
+            },
+            "type": "array",
+            "title": "Options",
+            "description": "In the order they were shown"
+          },
+          "selected_option_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Option Id",
+            "description": "null: not answered before the end"
+          },
+          "correct_option_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option Id"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "title": "Is Correct"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "explanation_source": {
+            "type": "string",
+            "enum": [
+              "ai",
+              "standard"
+            ],
+            "title": "Explanation Source",
+            "description": "ai: written by the AI; standard: the plain explanation (no AI key, AI still working, or the AI failed)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "question_id",
+          "question_text",
+          "subskill_id",
+          "subskill_name",
+          "level",
+          "options",
+          "selected_option_id",
+          "correct_option_id",
+          "is_correct",
+          "explanation",
+          "explanation_source"
+        ],
+        "title": "ReviewItem"
+      },
+      "ReviewOption": {
+        "properties": {
+          "option_id": {
+            "type": "integer",
+            "title": "Option Id"
+          },
+          "option_text": {
+            "type": "string",
+            "title": "Option Text"
+          },
+          "is_correct": {
+            "type": "boolean",
+            "title": "Is Correct"
+          },
+          "chosen": {
+            "type": "boolean",
+            "title": "Chosen",
+            "description": "The option the person picked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "option_id",
+          "option_text",
+          "is_correct",
+          "chosen"
+        ],
+        "title": "ReviewOption"
       },
       "Role": {
         "properties": {
@@ -15861,7 +16872,8 @@
           "skills",
           "test_ids"
         ],
-        "title": "Role"
+        "title": "Role",
+        "description": "skills: the main skill first. test_ids: the tests to take for this role, only for skills\nthat can be tested now; until GET /tests is real a test id is 200 + skill_id."
       },
       "RoleSkill": {
         "properties": {
@@ -15883,7 +16895,8 @@
           "skill_name",
           "target_level"
         ],
-        "title": "RoleSkill"
+        "title": "RoleSkill",
+        "description": "target_level: the level the role needs in this skill at the mid title (see /job-titles)."
       },
       "RoleSummary": {
         "properties": {
@@ -15963,6 +16976,143 @@
         ],
         "title": "RosterUpload"
       },
+      "ServedOption": {
+        "properties": {
+          "option_id": {
+            "type": "integer",
+            "title": "Option Id"
+          },
+          "option_text": {
+            "type": "string",
+            "title": "Option Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "option_id",
+          "option_text"
+        ],
+        "title": "ServedOption"
+      },
+      "ServedQuestion": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position",
+            "description": "1 for the first question"
+          },
+          "question_id": {
+            "type": "integer",
+            "title": "Question Id"
+          },
+          "question_text": {
+            "type": "string",
+            "title": "Question Text"
+          },
+          "subskill_id": {
+            "type": "integer",
+            "title": "Subskill Id"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/ServedOption"
+            },
+            "type": "array",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "question_id",
+          "question_text",
+          "subskill_id",
+          "options"
+        ],
+        "title": "ServedQuestion",
+        "description": "The question to answer now. Never carries the answer."
+      },
+      "SkillHistory": {
+        "properties": {
+          "learner_id": {
+            "type": "integer",
+            "title": "Learner Id"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/SkillHistoryEntry"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "type": "object",
+        "required": [
+          "learner_id",
+          "entries"
+        ],
+        "title": "SkillHistory",
+        "description": "Every finished test, newest first: how the person's level in each skill moved."
+      },
+      "SkillHistoryEntry": {
+        "properties": {
+          "attempt_id": {
+            "type": "integer",
+            "title": "Attempt Id"
+          },
+          "skill_id": {
+            "type": "integer",
+            "title": "Skill Id"
+          },
+          "skill_name": {
+            "type": "string",
+            "title": "Skill Name"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelName"
+          },
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "strengths": {
+            "items": {
+              "$ref": "#/components/schemas/SubskillRef"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "weaknesses": {
+            "items": {
+              "$ref": "#/components/schemas/SubskillRef"
+            },
+            "type": "array",
+            "title": "Weaknesses"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recorded At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_id",
+          "skill_id",
+          "skill_name",
+          "level",
+          "score",
+          "confidence",
+          "strengths",
+          "weaknesses",
+          "recorded_at"
+        ],
+        "title": "SkillHistoryEntry"
+      },
       "SkillLevel": {
         "properties": {
           "skill_id": {
@@ -16025,14 +17175,22 @@
             "title": "Skill Id"
           },
           "declared_level": {
-            "type": "string",
-            "title": "Declared Level"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declared Level",
+            "description": "Retired (Day 10): ignored. The test finds the level itself.",
+            "deprecated": true
           }
         },
         "type": "object",
         "required": [
-          "skill_id",
-          "declared_level"
+          "skill_id"
         ],
         "title": "StartAttemptRequest"
       },
@@ -16143,6 +17301,67 @@
         ],
         "title": "Subscription"
       },
+      "SubskillOutcome": {
+        "properties": {
+          "subskill_id": {
+            "type": "integer",
+            "title": "Subskill Id"
+          },
+          "subskill_name": {
+            "type": "string",
+            "title": "Subskill Name"
+          },
+          "answered": {
+            "type": "integer",
+            "title": "Answered"
+          },
+          "correct": {
+            "type": "integer",
+            "title": "Correct"
+          },
+          "percentage_score": {
+            "type": "number",
+            "title": "Percentage Score"
+          },
+          "band": {
+            "type": "string",
+            "enum": [
+              "strong",
+              "developing",
+              "weak"
+            ],
+            "title": "Band"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subskill_id",
+          "subskill_name",
+          "answered",
+          "correct",
+          "percentage_score",
+          "band"
+        ],
+        "title": "SubskillOutcome"
+      },
+      "SubskillRef": {
+        "properties": {
+          "subskill_id": {
+            "type": "integer",
+            "title": "Subskill Id"
+          },
+          "subskill_name": {
+            "type": "string",
+            "title": "Subskill Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subskill_id",
+          "subskill_name"
+        ],
+        "title": "SubskillRef"
+      },
       "SubskillScore": {
         "properties": {
           "subskill_id": {
@@ -16219,8 +17438,8 @@
           },
           "progress_percent": {
             "type": "integer",
-            "maximum": 100,
-            "minimum": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
             "title": "Progress Percent"
           }
         },

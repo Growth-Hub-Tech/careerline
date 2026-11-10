@@ -28,4 +28,22 @@ describe('navigation per user type', () => {
 
     expect([...main, ...footer].map(({ path }) => path)).not.toContain('/');
   });
+
+  it.each(['self-test', 'recruiter'] as const)('links %s to its credits', (userType) => {
+    const { main, footer } = NAV_BY_TYPE[userType];
+
+    expect([...main, ...footer].map(({ path }) => path)).toContain('/credits');
+  });
+
+  it.each(USER_TYPES)('gives %s the privacy centre', (userType) => {
+    expect(NAV_BY_TYPE[userType].footer.map(({ path }) => path)).toContain('/settings/privacy');
+  });
+
+  it('links organisations to the plans they can buy', () => {
+    expect(NAV_BY_TYPE.organization.main.map(({ path }) => path)).toContain('/pricing');
+  });
+
+  it.each(USER_TYPES)('gives %s its billing', (userType) => {
+    expect(NAV_BY_TYPE[userType].footer.map(({ path }) => path)).toContain('/billing');
+  });
 });

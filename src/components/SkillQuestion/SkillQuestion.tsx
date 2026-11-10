@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { Button } from '../Button';
 
-export interface SkillOption {
+interface SkillOption {
   readonly value: string;
   readonly label: string;
 }

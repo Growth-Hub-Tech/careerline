@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { contactApi, type ContactReceipt, type ContactRequest } from '../../lib/api';
+import {
+  contactApi,
+  type ContactReceipt,
+  type ContactRequest,
+  type ContactTopic,
+} from '../../lib/api';
 import { describeError } from '../../lib/api/describeError';
 import { Alert } from '../Alert';
 import { Button } from '../Button';
@@ -27,11 +32,12 @@ type ContactFormData = z.infer<typeof contactFormSchema>;
 
 interface ContactFormProps {
   readonly onSubmit?: (message: ContactRequest) => Promise<ContactReceipt>;
+  readonly topic?: ContactTopic;
 }
 
 const sendWithApi = (message: ContactRequest) => contactApi.send(message);
 
-const ContactForm = ({ onSubmit = sendWithApi }: ContactFormProps) => {
+const ContactForm = ({ onSubmit = sendWithApi, topic = 'general' }: ContactFormProps) => {
   const [formError, setFormError] = useState<string>();
   const [receipt, setReceipt] = useState<ContactReceipt>();
 
@@ -59,7 +65,7 @@ const ContactForm = ({ onSubmit = sendWithApi }: ContactFormProps) => {
       const result = await onSubmit({
         full_name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
-        topic: 'general',
+        topic,
         message: data.message,
       });
       setReceipt(result);

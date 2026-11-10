@@ -1,7 +1,7 @@
 import { useId, type SelectHTMLAttributes } from 'react';
 import { LuChevronDown } from 'react-icons/lu';
 
-export interface SelectOption {
+interface SelectOption {
   readonly value: string;
   readonly label: string;
   readonly disabled?: boolean;

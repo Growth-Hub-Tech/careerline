@@ -64,6 +64,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/learners/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Profile */
+        get: operations["get_my_profile_api_v1_learners_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/learners/{learner_id}": {
         parameters: {
             query?: never;
@@ -71,7 +88,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Learner Profile */
+        /**
+         * Get Learner Profile
+         * @deprecated
+         */
         get: operations["get_learner_profile_api_v1_learners__learner_id__get"];
         put?: never;
         post?: never;
@@ -149,6 +169,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Roles */
+        get: operations["list_roles_api_v1_roles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roles/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Role */
+        get: operations["get_role_api_v1_roles__role_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/job-titles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Job Titles
+         * @description The job-title ladder, lowest first, with the level expected at each title. A role skill's target_level is the level at the mid title; for another title it moves by as many steps as that title's expected_level is from MID (never below BEGINNER or above ADVANCED).
+         */
+        get: operations["list_job_titles_api_v1_job_titles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/attempts/start": {
         parameters: {
             query?: never;
@@ -158,8 +232,71 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start Test Attempt */
+        /**
+         * Start Test Attempt
+         * @description Starts the adaptive test of a skill and returns its first question, or resumes the test already in progress for that skill (resumed: true, the same question). 16 questions, harder after a right answer and easier after a wrong one; 30 minutes. declared_level is retired and ignored. 409 skill_not_ready: the skill cannot be tested yet.
+         */
         post: operations["start_test_attempt_api_v1_attempts_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/question": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Current Question
+         * @description Where the test stands: the question to answer now (status in_progress), the result (completed), or expired (the time ran out before enough answers for a result).
+         */
+        get: operations["get_current_question_api_v1_attempts__attempt_id__question_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Answer Current Question
+         * @description Answers the question to answer now and returns the next one, or, after the last question, the result (status completed, with result and recommendations). 409 not_current_question: that question is not the one to answer now (already answered, or never served); 409 attempt_finished: the test is over; 410 expired: the time ran out (details.status says whether it was scored: completed, or expired).
+         */
+        post: operations["answer_current_question_api_v1_attempts__attempt_id__answer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review Attempt
+         * @description A finished test question by question: the options in the order they were shown, the person's choice, the right answer and an explanation. 409 attempt_not_finished while the test is running (nothing about the answers is shown before the end). explanation_source ai: written by the AI (once per question, then kept); standard: the plain explanation. ai_explanations generating: ask again in a few seconds.
+         */
+        get: operations["review_attempt_api_v1_attempts__attempt_id__review_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -175,8 +312,28 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Submit Answers */
+        /**
+         * Submit Answers
+         * @deprecated
+         */
         post: operations["submit_answers_api_v1_attempts_submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Attempts */
+        get: operations["get_my_attempts_api_v1_attempts_me_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -207,7 +364,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Learner Attempts */
+        /**
+         * Get Learner Attempts
+         * @deprecated
+         */
         get: operations["get_learner_attempts_api_v1_attempts_learner__learner_id__get"];
         put?: never;
         post?: never;
@@ -234,6 +394,161 @@ export interface paths {
         patch: operations["cancel_attempt_api_v1_attempts__attempt_id__cancel_patch"];
         trace?: never;
     };
+    "/api/v1/profile/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Skill Profile
+         * @description My level in each skill tested: the latest result per skill, newest first.
+         */
+        get: operations["get_my_skill_profile_api_v1_profile_skills_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/skills/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Skill History
+         * @description Every finished test, newest first (optionally for one skill): level, score, confidence, strengths and weaknesses.
+         */
+        get: operations["get_my_skill_history_api_v1_profile_skills_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List My Results */
+        get: operations["list_my_results_api_v1_results_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/results/{result_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Result
+         * @description 404: no finished test of yours with this id.
+         */
+        get: operations["get_result_api_v1_results__result_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/results/{result_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Result Report
+         * @description The first call starts making the PDF (status generating); poll every 2-3 s until ready, then open download_url (works without a token until expires_at; poll again for a fresh link). failed: ask again with POST.
+         */
+        get: operations["get_result_report_api_v1_results__result_id__report_get"];
+        put?: never;
+        /**
+         * Regenerate Result Report
+         * @description Makes the PDF again (older download links stop working). Already being made: nothing new is started.
+         */
+        post: operations["regenerate_result_report_api_v1_results__result_id__report_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Result Report
+         * @description The PDF itself, as an attachment. No login token: the link is the proof. 410 expired: the link is too old, or the report was made again since.
+         */
+        get: operations["download_result_report_api_v1_reports__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recommendations/pathway/me/{skill_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My Learning Pathway */
+        get: operations["my_learning_pathway_api_v1_recommendations_pathway_me__skill_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recommendations/levels/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Levels */
+        get: operations["get_my_levels_api_v1_recommendations_levels_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/recommendations/pathway/{learner_id}/{skill_id}": {
         parameters: {
             query?: never;
@@ -241,7 +556,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Learning Pathway */
+        /**
+         * Learning Pathway
+         * @deprecated
+         */
         get: operations["learning_pathway_api_v1_recommendations_pathway__learner_id___skill_id__get"];
         put?: never;
         post?: never;
@@ -258,7 +576,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Learner Levels */
+        /**
+         * Get Learner Levels
+         * @deprecated
+         */
         get: operations["get_learner_levels_api_v1_recommendations_levels__learner_id__get"];
         put?: never;
         post?: never;
@@ -406,6 +727,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organisations/{organisation_id}/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Organisation Users
+         * @description The organisation's accounts and their roles. Owners and admins.
+         */
+        get: operations["list_organisation_users_api_v1_organisations__organisation_id__users_get"];
+        put?: never;
+        /**
+         * Add Organisation User
+         * @description Gives an existing account a role in the organisation (it must have signed up). Owners and admins; only an owner can add an owner. 409 if the account already belongs to an organisation.
+         */
+        post: operations["add_organisation_user_api_v1_organisations__organisation_id__users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organisations/{organisation_id}/users/{learner_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Organisation User
+         * @description Removes an account from the organisation (the account itself stays). Only an owner removes an owner; the last owner can't leave (409).
+         */
+        delete: operations["remove_organisation_user_api_v1_organisations__organisation_id__users__learner_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Change Organisation User Role
+         * @description Changes an account's role. Only an owner changes an owner's role or makes an owner; the last owner can't be demoted (409).
+         */
+        patch: operations["change_organisation_user_role_api_v1_organisations__organisation_id__users__learner_id__patch"];
+        trace?: never;
+    };
     "/api/v1/test-mailbox": {
         parameters: {
             query?: never;
@@ -425,50 +794,6 @@ export interface paths {
          * @description Delete the emails sent to one address (start a test with an empty mailbox).
          */
         delete: operations["clear_test_mailbox_api_v1_test_mailbox_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Roles
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).
-         */
-        get: operations["list_roles_api_v1_roles_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/roles/{role_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Role
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
-         */
-        get: operations["get_role_api_v1_roles__role_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -542,78 +867,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/results": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List My Results
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).
-         */
-        get: operations["list_my_results_api_v1_results_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/results/{result_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Result
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
-         */
-        get: operations["get_result_api_v1_results__result_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/results/{result_id}/report": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Result Report
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `generating` (the report is still being generated), `failed` (the payment or job failed).
-         */
-        get: operations["get_result_report_api_v1_results__result_id__report_get"];
-        put?: never;
-        /**
-         * Regenerate Result Report
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
-         */
-        post: operations["regenerate_result_report_api_v1_results__result_id__report_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/profile": {
         parameters: {
             query?: never;
@@ -640,28 +893,6 @@ export interface paths {
          *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`.
          */
         patch: operations["update_my_profile_api_v1_profile_patch"];
-        trace?: never;
-    };
-    "/api/v1/profile/skills": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get My Skill Profile
-         * @description **Sample data** (header `X-Sample-Data: true`): a realistic, typed sample answer until this endpoint is built for real. The response shape will not change.
-         *
-         *     Force an edge case with the `X-Mock-Scenario` header: `unauthenticated`, `payment_required`, `forbidden`, `not_found`, `conflict`, `expired`, `validation_error`, `rate_limited`, `server_error`, `unavailable`, `slow`, and for this route `empty` (lists come back empty).
-         */
-        get: operations["get_my_skill_profile_api_v1_profile_skills_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/v1/beginner-path/intake": {
@@ -1639,6 +1870,11 @@ export interface components {
             /** Organisation Id */
             organisation_id?: number | null;
             /**
+             * Organisation Role
+             * @description The role in organisation_id (owner and admin = organisation_admin)
+             */
+            organisation_role?: ("owner" | "admin" | "recruiter") | null;
+            /**
              * Created At
              * Format: date-time
              */
@@ -1693,6 +1929,13 @@ export interface components {
         };
         /** AnswerItem */
         AnswerItem: {
+            /** Question Id */
+            question_id: number;
+            /** Selected Option Id */
+            selected_option_id: number;
+        };
+        /** AnswerRequest */
+        AnswerRequest: {
             /** Question Id */
             question_id: number;
             /** Selected Option Id */
@@ -1770,6 +2013,30 @@ export interface components {
             /** Message */
             message?: string | null;
             data?: components["schemas"]["AssessmentDetail"] | null;
+        };
+        /** ApiResponse[AttemptReview] */
+        ApiResponse_AttemptReview_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["AttemptReview"] | null;
+        };
+        /** ApiResponse[AttemptState] */
+        ApiResponse_AttemptState_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["AttemptState"] | null;
         };
         /** ApiResponse[Audit] */
         ApiResponse_Audit_: {
@@ -1926,6 +2193,42 @@ export interface components {
             /** Message */
             message?: string | null;
             data?: components["schemas"]["Invitation"] | null;
+        };
+        /** ApiResponse[JobTitleList] */
+        ApiResponse_JobTitleList_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["JobTitleList"] | null;
+        };
+        /** ApiResponse[OrganisationUserList] */
+        ApiResponse_OrganisationUserList_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["OrganisationUserList"] | null;
+        };
+        /** ApiResponse[OrganisationUser] */
+        ApiResponse_OrganisationUser_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["OrganisationUser"] | null;
         };
         /** ApiResponse[Organisation] */
         ApiResponse_Organisation_: {
@@ -2143,6 +2446,18 @@ export interface components {
             message?: string | null;
             data?: components["schemas"]["RosterResult"] | null;
         };
+        /** ApiResponse[SkillHistory] */
+        ApiResponse_SkillHistory_: {
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+            /** Message */
+            message?: string | null;
+            data?: components["schemas"]["SkillHistory"] | null;
+        };
         /** ApiResponse[SkillProfile] */
         ApiResponse_SkillProfile_: {
             /**
@@ -2330,6 +2645,106 @@ export interface components {
             /** Role Ids */
             role_ids: number[];
         };
+        /**
+         * AttemptResult
+         * @description The result of a finished test. No pass or fail: a score, a level and how sure we are.
+         */
+        AttemptResult: {
+            /** Score */
+            score: number;
+            level: components["schemas"]["LevelName"];
+            /**
+             * Confidence
+             * @description 0-1: how sure the level is
+             */
+            confidence: number;
+            /**
+             * Confidence Label
+             * @enum {string}
+             */
+            confidence_label: "low" | "medium" | "high";
+            /** Answered */
+            answered: number;
+            /** Correct */
+            correct: number;
+            /** Strengths */
+            strengths: components["schemas"]["SubskillRef"][];
+            /** Weaknesses */
+            weaknesses: components["schemas"]["SubskillRef"][];
+            /** Subskills */
+            subskills: components["schemas"]["SubskillOutcome"][];
+            /**
+             * Ended By
+             * @enum {string}
+             */
+            ended_by: "finished" | "time_up";
+            /**
+             * Completed At
+             * Format: date-time
+             */
+            completed_at: string;
+        };
+        /**
+         * AttemptReview
+         * @description A finished test question by question. Only once the test is over (409
+         *     attempt_not_finished before).
+         */
+        AttemptReview: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Skill Id */
+            skill_id: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "completed" | "expired" | "cancelled";
+            result: components["schemas"]["AttemptResult"] | null;
+            /**
+             * Ai Explanations
+             * @description ready: every item has its AI explanation; generating: being written now (ask again in a few seconds); unavailable: standard explanations only
+             * @enum {string}
+             */
+            ai_explanations: "ready" | "generating" | "unavailable";
+            /** Items */
+            items: components["schemas"]["ReviewItem"][];
+        };
+        /**
+         * AttemptState
+         * @description Where a test stands. status in_progress: answer `question`; completed: see `result`;
+         *     expired: the time ran out before enough answers for a result.
+         */
+        AttemptState: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Skill Id */
+            skill_id: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "in_progress" | "completed" | "expired" | "cancelled";
+            /**
+             * Resumed
+             * @default false
+             */
+            resumed: boolean;
+            /** Total Questions */
+            total_questions: number;
+            /** Answered */
+            answered: number;
+            /** Expires At */
+            expires_at: string | null;
+            question?: components["schemas"]["ServedQuestion"] | null;
+            result?: components["schemas"]["AttemptResult"] | null;
+            /**
+             * Recommendations
+             * @description Only in the answer that finishes the test
+             */
+            recommendations?: {
+                [key: string]: unknown;
+            } | null;
+        };
         /** Audit */
         Audit: {
             /** Audit Id */
@@ -2414,8 +2829,12 @@ export interface components {
         };
         /** BehaviouralAnswersRequest */
         BehaviouralAnswersRequest: {
-            /** Learner Id */
-            learner_id: number;
+            /**
+             * Learner Id
+             * @deprecated
+             * @description Not needed: the learner is the one signed in. If sent, it must be yours.
+             */
+            learner_id?: number | null;
             /** Attempt Id */
             attempt_id: number;
             /** Answers */
@@ -2988,6 +3407,28 @@ export interface components {
             attempt_id: number | null;
         };
         /**
+         * JobTitleItem
+         * @description One step of the job-title ladder and the level expected at it.
+         */
+        JobTitleItem: {
+            /** Title Id */
+            title_id: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Rank */
+            rank: number;
+            expected_level: components["schemas"]["LevelName"];
+            /** Description */
+            description: string;
+        };
+        /** JobTitleList */
+        JobTitleList: {
+            /** Items */
+            items: components["schemas"]["JobTitleItem"][];
+        };
+        /**
          * LevelName
          * @enum {string}
          */
@@ -3025,6 +3466,56 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * OrganisationUser
+         * @description An account of the organisation and its role (not the audit roster: see /members).
+         */
+        OrganisationUser: {
+            /** Learner Id */
+            learner_id: number;
+            /** Full Name */
+            full_name: string;
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "owner" | "admin" | "recruiter";
+            /**
+             * Added At
+             * Format: date-time
+             */
+            added_at: string;
+        };
+        /** OrganisationUserCreate */
+        OrganisationUserCreate: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "owner" | "admin" | "recruiter";
+        };
+        /** OrganisationUserList */
+        OrganisationUserList: {
+            /** Items */
+            items: components["schemas"]["OrganisationUser"][];
+            /** Total */
+            total: number;
+        };
+        /** OrganisationUserUpdate */
+        OrganisationUserUpdate: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "owner" | "admin" | "recruiter";
         };
         /** Page[AssessmentSummary] */
         Page_AssessmentSummary_: {
@@ -3387,7 +3878,10 @@ export interface components {
             result_id: number;
             /** Attempt Id */
             attempt_id: number;
-            /** Test Id */
+            /**
+             * Test Id
+             * @description 200 + skill_id, as in GET /roles
+             */
             test_id: number;
             /** Skill Id */
             skill_id: number;
@@ -3396,15 +3890,25 @@ export interface components {
             level: components["schemas"]["LevelName"];
             /** Percentage Score */
             percentage_score: number;
-            /** Passed */
-            passed: boolean;
             /**
              * Completed At
              * Format: date-time
              */
             completed_at: string;
-            declared_level: components["schemas"]["LevelName"];
-            /** Percentile */
+            /**
+             * Confidence
+             * @description 0-1: how sure the level is
+             */
+            confidence: number;
+            /**
+             * Confidence Label
+             * @enum {string}
+             */
+            confidence_label: "low" | "medium" | "high";
+            /**
+             * Percentile
+             * @description Share of all results of this skill (in %) with a lower score; null until the skill has enough results to compare
+             */
             percentile: number | null;
             /** Subskills */
             subskills: components["schemas"]["SubskillScore"][];
@@ -3424,13 +3928,19 @@ export interface components {
             /** Programme Id */
             programme_id?: number | null;
         };
-        /** ResultSummary */
+        /**
+         * ResultSummary
+         * @description A finished test (Day 12: real; result_id is the attempt_id). No pass or fail.
+         */
         ResultSummary: {
             /** Result Id */
             result_id: number;
             /** Attempt Id */
             attempt_id: number;
-            /** Test Id */
+            /**
+             * Test Id
+             * @description 200 + skill_id, as in GET /roles
+             */
             test_id: number;
             /** Skill Id */
             skill_id: number;
@@ -3439,15 +3949,67 @@ export interface components {
             level: components["schemas"]["LevelName"];
             /** Percentage Score */
             percentage_score: number;
-            /** Passed */
-            passed: boolean;
             /**
              * Completed At
              * Format: date-time
              */
             completed_at: string;
         };
-        /** Role */
+        /** ReviewItem */
+        ReviewItem: {
+            /** Position */
+            position: number;
+            /** Question Id */
+            question_id: number;
+            /** Question Text */
+            question_text: string;
+            /** Subskill Id */
+            subskill_id: number;
+            /** Subskill Name */
+            subskill_name: string;
+            level: components["schemas"]["LevelName"] | null;
+            /**
+             * Options
+             * @description In the order they were shown
+             */
+            options: components["schemas"]["ReviewOption"][];
+            /**
+             * Selected Option Id
+             * @description null: not answered before the end
+             */
+            selected_option_id: number | null;
+            /** Correct Option Id */
+            correct_option_id: number | null;
+            /** Is Correct */
+            is_correct: boolean;
+            /** Explanation */
+            explanation: string;
+            /**
+             * Explanation Source
+             * @description ai: written by the AI; standard: the plain explanation (no AI key, AI still working, or the AI failed)
+             * @enum {string}
+             */
+            explanation_source: "ai" | "standard";
+        };
+        /** ReviewOption */
+        ReviewOption: {
+            /** Option Id */
+            option_id: number;
+            /** Option Text */
+            option_text: string;
+            /** Is Correct */
+            is_correct: boolean;
+            /**
+             * Chosen
+             * @description The option the person picked
+             */
+            chosen: boolean;
+        };
+        /**
+         * Role
+         * @description skills: the main skill first. test_ids: the tests to take for this role, only for skills
+         *     that can be tested now; until GET /tests is real a test id is 200 + skill_id.
+         */
         Role: {
             /** Role Id */
             role_id: number;
@@ -3469,7 +4031,10 @@ export interface components {
             /** Test Ids */
             test_ids: number[];
         };
-        /** RoleSkill */
+        /**
+         * RoleSkill
+         * @description target_level: the level the role needs in this skill at the mid title (see /job-titles).
+         */
         RoleSkill: {
             /** Skill Id */
             skill_id: number;
@@ -3507,6 +4072,65 @@ export interface components {
             /** Members */
             members: components["schemas"]["TeamMemberCreate"][];
         };
+        /** ServedOption */
+        ServedOption: {
+            /** Option Id */
+            option_id: number;
+            /** Option Text */
+            option_text: string;
+        };
+        /**
+         * ServedQuestion
+         * @description The question to answer now. Never carries the answer.
+         */
+        ServedQuestion: {
+            /**
+             * Position
+             * @description 1 for the first question
+             */
+            position: number;
+            /** Question Id */
+            question_id: number;
+            /** Question Text */
+            question_text: string;
+            /** Subskill Id */
+            subskill_id: number;
+            /** Options */
+            options: components["schemas"]["ServedOption"][];
+        };
+        /**
+         * SkillHistory
+         * @description Every finished test, newest first: how the person's level in each skill moved.
+         */
+        SkillHistory: {
+            /** Learner Id */
+            learner_id: number;
+            /** Entries */
+            entries: components["schemas"]["SkillHistoryEntry"][];
+        };
+        /** SkillHistoryEntry */
+        SkillHistoryEntry: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Skill Id */
+            skill_id: number;
+            /** Skill Name */
+            skill_name: string;
+            level: components["schemas"]["LevelName"];
+            /** Score */
+            score: number;
+            /** Confidence */
+            confidence: number;
+            /** Strengths */
+            strengths: components["schemas"]["SubskillRef"][];
+            /** Weaknesses */
+            weaknesses: components["schemas"]["SubskillRef"][];
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+        };
         /** SkillLevel */
         SkillLevel: {
             /** Skill Id */
@@ -3536,8 +4160,12 @@ export interface components {
         StartAttemptRequest: {
             /** Skill Id */
             skill_id: number;
-            /** Declared Level */
-            declared_level: string;
+            /**
+             * Declared Level
+             * @deprecated
+             * @description Retired (Day 10): ignored. The test finds the level itself.
+             */
+            declared_level?: string | null;
         };
         /** SubmitRequest */
         SubmitRequest: {
@@ -3580,6 +4208,31 @@ export interface components {
             cancel_at_period_end: boolean;
             /** Seats */
             seats: number | null;
+        };
+        /** SubskillOutcome */
+        SubskillOutcome: {
+            /** Subskill Id */
+            subskill_id: number;
+            /** Subskill Name */
+            subskill_name: string;
+            /** Answered */
+            answered: number;
+            /** Correct */
+            correct: number;
+            /** Percentage Score */
+            percentage_score: number;
+            /**
+             * Band
+             * @enum {string}
+             */
+            band: "strong" | "developing" | "weak";
+        };
+        /** SubskillRef */
+        SubskillRef: {
+            /** Subskill Id */
+            subskill_id: number;
+            /** Subskill Name */
+            subskill_name: string;
         };
         /** SubskillScore */
         SubskillScore: {
@@ -3893,6 +4546,35 @@ export interface operations {
             };
         };
     };
+    get_my_profile_api_v1_learners_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_learner_profile_api_v1_learners__learner_id__get: {
         parameters: {
             query?: never;
@@ -4123,6 +4805,98 @@ export interface operations {
             };
         };
     };
+    list_roles_api_v1_roles_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Page_RoleSummary__"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_role_api_v1_roles__role_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Role_"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_job_titles_api_v1_job_titles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_JobTitleList_"];
+                };
+            };
+        };
+    };
     start_test_attempt_api_v1_attempts_start_post: {
         parameters: {
             query?: never;
@@ -4142,11 +4916,11 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                    "application/json": components["schemas"]["ApiResponse_AttemptState_"];
                 };
             };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4154,8 +4928,66 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_current_question_api_v1_attempts__attempt_id__question_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_AttemptState_"];
+                };
+            };
             /** @description Not logged in: missing, invalid or expired token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4183,16 +5015,18 @@ export interface operations {
             };
         };
     };
-    submit_answers_api_v1_attempts_submit_post: {
+    answer_current_question_api_v1_attempts__attempt_id__answer_post: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                attempt_id: number;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SubmitRequest"];
+                "application/json": components["schemas"]["AnswerRequest"];
             };
         };
         responses: {
@@ -4202,7 +5036,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                    "application/json": components["schemas"]["ApiResponse_AttemptState_"];
                 };
             };
             /** @description Bad request: invalid input (the message says what is wrong) */
@@ -4243,6 +5077,165 @@ export interface operations {
             };
             /** @description Conflict: e.g. this attempt was already submitted */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    review_attempt_api_v1_attempts__attempt_id__review_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_AttemptReview_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    submit_answers_api_v1_attempts_submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                };
+            };
+            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_attempts_api_v1_attempts_me_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4429,6 +5422,381 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_skill_profile_api_v1_profile_skills_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_SkillProfile_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_skill_history_api_v1_profile_skills_history_get: {
+        parameters: {
+            query?: {
+                skill_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_SkillHistory_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_my_results_api_v1_results_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Page_ResultSummary__"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_result_api_v1_results__result_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                result_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_ResultDetail_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_result_report_api_v1_results__result_id__report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                result_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Report_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    regenerate_result_report_api_v1_results__result_id__report_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                result_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Report_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    download_result_report_api_v1_reports__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The PDF */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    my_learning_pathway_api_v1_recommendations_pathway_me__skill_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                skill_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_levels_api_v1_recommendations_levels_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Any_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4865,6 +6233,266 @@ export interface operations {
             };
         };
     };
+    list_organisation_users_api_v1_organisations__organisation_id__users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organisation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_OrganisationUserList_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_organisation_user_api_v1_organisations__organisation_id__users_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organisation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganisationUserCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_OrganisationUser_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_organisation_user_api_v1_organisations__organisation_id__users__learner_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organisation_id: number;
+                learner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    change_organisation_user_role_api_v1_organisations__organisation_id__users__learner_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organisation_id: number;
+                learner_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrganisationUserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_OrganisationUser_"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     read_test_mailbox_api_v1_test_mailbox_get: {
         parameters: {
             query: {
@@ -4957,249 +6585,6 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    list_roles_api_v1_roles_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Page_RoleSummary__"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_role_api_v1_roles__role_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                role_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Role_"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5575,491 +6960,6 @@ export interface operations {
             };
         };
     };
-    list_my_results_api_v1_results_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Page_ResultSummary__"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_result_api_v1_results__result_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                result_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_ResultDetail_"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_result_report_api_v1_results__result_id__report_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                result_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Report_"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    regenerate_result_report_api_v1_results__result_id__report_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                result_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Report_"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     get_my_profile_api_v1_profile_get: {
         parameters: {
             query?: never;
@@ -6257,116 +7157,6 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error: something went wrong on our side */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Service unavailable: try again shortly */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_my_skill_profile_api_v1_profile_skills_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_SkillProfile_"];
-                };
-            };
-            /** @description Bad request: invalid input (the message says what is wrong) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Payment required: not enough credits or no active subscription */
-            402: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not allowed: e.g. this belongs to another person */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Conflict: e.g. this attempt was already submitted */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
                 headers: {
                     [name: string]: unknown;
                 };

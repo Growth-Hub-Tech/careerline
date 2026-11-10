@@ -1,6 +1,9 @@
+import { Suspense } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { PageLoader } from '../../components/Loader';
 import { AppShell } from '../../components/AppShell';
 import { NAV_BY_TYPE } from '../../components/AppShell/navigation';
+import { authApi } from '../../lib/api';
 import { USER_TYPE_LABELS, useSession } from '../../lib/session';
 
 export const AppLayout = () => {
@@ -12,6 +15,7 @@ export const AppLayout = () => {
   const { name, userType } = session.user;
 
   const onSignOut = () => {
+    void authApi.logout().catch(() => undefined);
     signOut();
     navigate('/sign-in', { replace: true });
   };
@@ -22,7 +26,9 @@ export const AppLayout = () => {
       navigation={NAV_BY_TYPE[userType]}
       onSignOut={onSignOut}
     >
-      <Outlet />
+      <Suspense fallback={<PageLoader title="Loading" className="flex-1" />}>
+        <Outlet />
+      </Suspense>
     </AppShell>
   );
 };

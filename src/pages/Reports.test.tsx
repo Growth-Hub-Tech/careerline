@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { resultsApi } from '../lib/api';
+import { profileApi, resultsApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { RESULT_SUMMARIES } from '../test/fixtures/results';
 import { Reports } from './Reports';
@@ -9,6 +9,7 @@ import { Reports } from './Reports';
 vi.mock('../lib/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../lib/api')>()),
   resultsApi: { list: vi.fn() },
+  profileApi: { skills: vi.fn() },
 }));
 
 const setup = () =>
@@ -25,6 +26,18 @@ const rows = async () =>
 
 beforeEach(() => {
   vi.mocked(resultsApi.list).mockResolvedValue([...RESULT_SUMMARIES]);
+  vi.mocked(profileApi.skills).mockResolvedValue({
+    learner_id: 2,
+    skills: [
+      {
+        skill_id: 13,
+        skill_name: 'Product Design',
+        level: 'MID',
+        percentage_score: 81,
+        confirmed_at: '2026-10-20T10:15:00Z',
+      },
+    ],
+  });
 });
 
 describe('Reports', () => {
@@ -92,5 +105,23 @@ describe('Reports', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await rows()).toHaveLength(2);
+  });
+
+  it('shows the confirmed level in each skill', async () => {
+    setup();
+
+    const levels = await screen.findByRole('region', { name: 'Your skill levels' });
+    expect(levels).toHaveTextContent('Product Design');
+    expect(levels).toHaveTextContent('Mid');
+    expect(levels).toHaveTextContent('81%');
+  });
+
+  it('leaves out the skill levels when they cannot be read', async () => {
+    vi.mocked(profileApi.skills).mockRejectedValue(new Error('offline'));
+    setup();
+
+    await screen.findByRole('table');
+
+    expect(screen.queryByRole('region', { name: 'Your skill levels' })).not.toBeInTheDocument();
   });
 });

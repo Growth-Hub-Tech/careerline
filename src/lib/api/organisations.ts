@@ -3,6 +3,8 @@ import { fetchAll } from './fetchAll';
 import type {
   Audit,
   AuditCreate,
+  AuditDeltas,
+  AuditRetest,
   AuditPage,
   Heatmap,
   HeatmapGrouping,
@@ -64,6 +66,18 @@ export const createOrganisationsApi = (client: Client) => ({
 
   getAudit: (organisationId: number, auditId: number) =>
     client.get<Audit>(`/organisations/${organisationId}/audits/${auditId}`),
+
+  retestAudit: (
+    organisationId: number,
+    auditId: number,
+    retest: AuditRetest = { send_invitations: true },
+  ) =>
+    client.post<Audit>(`/organisations/${organisationId}/audits/${auditId}/retest`, {
+      body: retest,
+    }),
+
+  auditDeltas: (organisationId: number, auditId: number) =>
+    client.get<AuditDeltas>(`/organisations/${organisationId}/audits/${auditId}/deltas`),
 
   heatmap: (organisationId: number, groupBy: HeatmapGrouping, auditId?: number) =>
     client.get<Heatmap>(`/organisations/${organisationId}/heatmap`, {

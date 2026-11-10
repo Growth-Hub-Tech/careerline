@@ -60,6 +60,19 @@ describe('organisations api', () => {
     expect(bodyOf(fetcher, 1)).toEqual({ name: 'Q4', role_ids: [1], send_invitations: true });
   });
 
+  it("re-tests an audit and reads each person's change", async () => {
+    const { fetcher, organisations } = setup({ audit_id: 4 }, { items: [] });
+
+    await organisations.retestAudit(41, 3);
+    await organisations.auditDeltas(41, 4);
+
+    expect(calls(fetcher)).toEqual([
+      'POST https://api.example.test/api/v1/organisations/41/audits/3/retest',
+      'GET https://api.example.test/api/v1/organisations/41/audits/4/deltas',
+    ]);
+    expect(bodyOf(fetcher, 0)).toEqual({ send_invitations: true });
+  });
+
   it('reads the heatmap for a grouping and an audit', async () => {
     const { fetcher, organisations } = setup({ rows: [] }, { rows: [] });
 

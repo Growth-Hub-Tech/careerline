@@ -14,6 +14,9 @@ interface RequestOptions {
 
 type ShortcutOptions = Omit<RequestOptions, 'method'>;
 
+// A stalled API must not leave a spinner running forever
+export const REQUEST_TIMEOUT_MS = 20_000;
+
 interface ApiClientOptions {
   readonly baseUrl: string;
   readonly getToken: () => string | null | undefined;
@@ -41,6 +44,8 @@ const isEnvelope = (value: unknown): value is { success: true; data: unknown } =
 
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
 
+const networkError = () => new ApiError({ status: 0, message: NETWORK_MESSAGE, code: 'network' });
+
 export const createApiClient = ({
   baseUrl,
   getToken,
@@ -62,25 +67,52 @@ export const createApiClient = ({
       payload = JSON.stringify(body);
     }
 
+    // One controller for the caller's signal (e.g. leaving the page) and the timeout. It covers
+    // reading the body too. A timeout is a network error; the caller's own abort is rethrown.
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, REQUEST_TIMEOUT_MS);
+    const forwardAbort = () => controller.abort();
+    if (signal?.aborted) controller.abort();
+    else signal?.addEventListener('abort', forwardAbort, { once: true });
+
+    const settle = (error: unknown) => {
+      if (isAbort(error) && !timedOut) return error;
+      return networkError();
+    };
+
     let response: Response;
+    let text: string;
     try {
-      response = await fetcher(buildUrl(baseUrl, path, query), {
-        method,
-        headers,
-        body: payload,
-        signal,
-      });
-    } catch (error) {
-      if (isAbort(error)) throw error;
-      throw new ApiError({ status: 0, message: NETWORK_MESSAGE, code: 'network' });
+      try {
+        response = await fetcher(buildUrl(baseUrl, path, query), {
+          method,
+          headers,
+          body: payload,
+          signal: controller.signal,
+        });
+      } catch (error) {
+        throw settle(error);
+      }
+
+      if (!response.ok) {
+        if (response.status === 401 && token) onUnauthorized?.();
+        throw await readError(response);
+      }
+
+      try {
+        text = await response.text();
+      } catch (error) {
+        throw settle(error);
+      }
+    } finally {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', forwardAbort);
     }
 
-    if (!response.ok) {
-      if (response.status === 401 && token) onUnauthorized?.();
-      throw await readError(response);
-    }
-
-    const text = await response.text();
     if (text === '') return undefined as T;
 
     try {

@@ -1,5 +1,5 @@
 import { ApiError } from './ApiError';
-import { createApiClient } from './client';
+import { createApiClient, REQUEST_TIMEOUT_MS } from './client';
 
 const json = (body: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -249,5 +249,86 @@ describe('api client', () => {
       'answers.1.values': 'List should have at least 1 item',
       email: 'value is not a valid email address',
     });
+  });
+});
+
+describe('api client timeout', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  const aborted = () => new DOMException('Aborted', 'AbortError');
+
+  // Never answers; rejects as fetch does when its signal is aborted
+  const hangingFetch = vi.fn<typeof fetch>(
+    (_input, init) =>
+      new Promise((_resolve, reject) => {
+        if (init?.signal?.aborted) reject(aborted());
+        init?.signal?.addEventListener('abort', () => reject(aborted()));
+      }),
+  );
+
+  const clientWith = (fetcher: typeof fetch) =>
+    createApiClient({ baseUrl: 'https://api.example.test', getToken: () => null, fetcher });
+
+  it('gives up on a stalled request after 20 seconds with the network error', async () => {
+    const request = clientWith(hangingFetch).get('/tests');
+    const failure = request.catch((error: unknown) => error);
+
+    await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS - 1);
+    expect(vi.getTimerCount()).toBe(1);
+    await vi.advanceTimersByTimeAsync(1);
+
+    const error = await failure;
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).isNetwork).toBe(true);
+  });
+
+  it('gives up on a reply whose body stalls', async () => {
+    const fetcher = vi.fn<typeof fetch>((_input, init) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () =>
+          new Promise<string>((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => reject(aborted()));
+          }),
+      } as Response),
+    );
+    const failure = clientWith(fetcher)
+      .get('/tests')
+      .catch((error: unknown) => error);
+
+    await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS);
+
+    expect(((await failure) as ApiError).isNetwork).toBe(true);
+  });
+
+  it('passes the caller cancelling straight through, not as a network error', async () => {
+    const controller = new AbortController();
+    const failure = clientWith(hangingFetch)
+      .get('/tests', { signal: controller.signal })
+      .catch((error: unknown) => error);
+
+    controller.abort();
+
+    expect(await failure).toMatchObject({ name: 'AbortError' });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('does not start a request the caller already cancelled', async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      clientWith(hangingFetch).get('/tests', { signal: controller.signal }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('leaves no timer behind once the reply is read', async () => {
+    const fetcher = vi.fn<typeof fetch>(() => Promise.resolve(json({ ok: true })));
+
+    await expect(clientWith(fetcher).get('/tests')).resolves.toEqual({ ok: true });
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

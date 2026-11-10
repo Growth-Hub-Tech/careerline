@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { Dialog } from '../components/Dialog';
 import { PaymentNeeded } from '../components/PaymentNeeded';
+import { LoadFailed } from '../components/PageState';
 import { attemptsApi, catalogApi, type AssessmentAccess, type AssessmentDetail } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
@@ -160,14 +161,7 @@ const TestDetails = ({ id }: { id: number }) => {
   if (state.status === 'error') {
     if (isStatus(state.error, 404)) return <Navigate to="/page-not-found" replace />;
 
-    return (
-      <div className="flex w-full max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    return <LoadFailed error={state.error} onRetry={retry} />;
   }
 
   const { test, access } = state.data;

@@ -1,11 +1,9 @@
 import { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
 import { EmptyState } from '../components/EmptyState';
 import { PageLoader } from '../components/Loader';
+import { LoadFailed } from '../components/PageState';
 import { catalogApi } from '../lib/api';
-import { describeError } from '../lib/api/describeError';
 import { useRequest } from '../lib/hooks/useRequest';
 import { useSession } from '../lib/session';
 import { groupByCategory, type CatalogGroup } from '../lib/tests/catalog';
@@ -50,14 +48,7 @@ export const SkillTests = () => {
   }
 
   if (state.status === 'error') {
-    return (
-      <div className="flex w-full max-w-[480px] flex-col gap-4 px-5 py-8 sm:px-8">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
   }
 
   const [skills, tests] = state.data;

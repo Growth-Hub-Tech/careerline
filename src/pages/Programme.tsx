@@ -6,6 +6,7 @@ import { Card } from '../components/Card';
 import { FlowHeader } from '../components/FlowHeader';
 import { PageLoader } from '../components/Loader';
 import { ProgrammeCard } from '../components/ProgrammeCard';
+import { LoadFailed } from '../components/PageState';
 import { beginnerApi, programmesApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
@@ -49,12 +50,7 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
     return (
       <ProgrammeFrame>
         <main className="flex flex-1 items-center justify-center px-5">
-          <div className="flex w-full max-w-[480px] flex-col gap-4">
-            <Alert variant="error">{describeError(state.error)}</Alert>
-            <Button fullWidth={false} onClick={retry}>
-              Try again
-            </Button>
-          </div>
+          <LoadFailed error={state.error} onRetry={retry} />
         </main>
       </ProgrammeFrame>
     );

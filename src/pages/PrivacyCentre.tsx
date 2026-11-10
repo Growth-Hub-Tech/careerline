@@ -5,6 +5,7 @@ import { Checkbox } from '../components/Checkbox';
 import { Dialog } from '../components/Dialog';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
+import { LoadFailed } from '../components/PageState';
 import { Textarea } from '../components/Textarea';
 import { TextField } from '../components/TextField';
 import {
@@ -14,6 +15,7 @@ import {
   type ConsentChange,
   type DataExport,
 } from '../lib/api';
+import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { formatDate } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
@@ -256,14 +258,14 @@ const DataDownload = ({ pollInterval }: { pollInterval: number }) => {
   );
 };
 
-const DeleteAccount = () => {
+const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) => {
   const [password, setPassword] = useState('');
   const [reason, setReason] = useState('');
   const [passwordError, setPasswordError] = useState<string>();
   const [isConfirming, setIsConfirming] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState<string>();
-  const [deletion, setDeletion] = useState<AccountDeletion>();
+  const [deletion, setDeletion] = useState(initial);
 
   const ask = () => {
     if (password.trim() === '') {
@@ -366,6 +368,34 @@ const DeleteAccount = () => {
   );
 };
 
+// A deletion scheduled earlier (in another session too) shows after a reload, so it can be
+// cancelled. 404: never asked. A cancelled request from before is history: the form shows.
+const loadDeletion = async () => {
+  try {
+    const deletion = await privacyApi.getDeletion();
+    return deletion.status === 'scheduled' ? deletion : undefined;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
+};
+
+const DeleteAccountSection = () => {
+  const { state, retry } = useRequest(loadDeletion);
+
+  if (state.status === 'success') return <DeleteAccount initial={state.data} />;
+
+  return (
+    <Section title="Delete your account">
+      {state.status === 'loading' ? (
+        <PageLoader title="Loading your account deletion" />
+      ) : (
+        <LoadFailed error={state.error} onRetry={retry} />
+      )}
+    </Section>
+  );
+};
+
 const ConsentSections = ({ initial }: { initial: readonly Consent[] }) => {
   const [items, setItems] = useState(initial);
 
@@ -401,14 +431,7 @@ export const PrivacyCentre = ({ pollInterval = 3000 }: PrivacyCentreProps) => {
   if (state.status === 'loading') {
     consents = <PageLoader title="Loading your privacy settings" />;
   } else if (state.status === 'error') {
-    consents = (
-      <div className="flex max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    consents = <LoadFailed error={state.error} onRetry={retry} />;
   } else {
     consents = <ConsentSections initial={state.data.items} />;
   }
@@ -423,7 +446,7 @@ export const PrivacyCentre = ({ pollInterval = 3000 }: PrivacyCentreProps) => {
       </header>
       {consents}
       <DataDownload pollInterval={pollInterval} />
-      <DeleteAccount />
+      <DeleteAccountSection />
     </div>
   );
 };

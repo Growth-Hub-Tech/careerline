@@ -13,6 +13,7 @@ vi.mock('../lib/api', async (importOriginal) => ({
     updateConsents: vi.fn(),
     requestExport: vi.fn(),
     getExport: vi.fn(),
+    getDeletion: vi.fn(),
     requestDeletion: vi.fn(),
     cancelDeletion: vi.fn(),
   },
@@ -27,7 +28,26 @@ const setup = () =>
 
 const section = (name: string) => screen.findByRole('region', { name });
 
+const NEVER_ASKED = new ApiError({ status: 404, message: 'Not found' });
+const SCHEDULED = {
+  status: 'scheduled',
+  requested_at: '2026-11-03T09:00:00Z',
+  scheduled_for: '2026-12-03T09:00:00Z',
+} as const;
+const CANCELLED = {
+  status: 'cancelled',
+  requested_at: '2026-11-03T09:00:00Z',
+  scheduled_for: null,
+} as const;
+
+// The section once its deletion status has loaded
+const deleteSection = async () => {
+  await screen.findByLabelText('Password');
+  return screen.getByRole('region', { name: 'Delete your account' });
+};
+
 beforeEach(() => {
+  vi.mocked(privacyApi.getDeletion).mockRejectedValue(NEVER_ASKED);
   vi.mocked(privacyApi.getConsents).mockResolvedValue(consents());
   vi.mocked(privacyApi.updateConsents).mockImplementation(async (items) => {
     const current = consents();
@@ -45,7 +65,9 @@ describe('PrivacyCentre', () => {
     vi.mocked(privacyApi.getConsents).mockReturnValue(new Promise(() => undefined));
     setup();
 
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(
+      screen.getByText('Loading your privacy settings').closest('[role="status"]'),
+    ).not.toBeNull();
   });
 
   it('has a main heading', async () => {
@@ -191,7 +213,7 @@ describe('PrivacyCentre', () => {
 
   describe('delete my account', () => {
     const askToDelete = async () => {
-      const danger = await section('Delete your account');
+      const danger = await deleteSection();
       await userEvent.type(within(danger).getByLabelText('Password'), 'secret123');
       await userEvent.click(within(danger).getByRole('button', { name: 'Delete my account' }));
       return danger;
@@ -199,7 +221,7 @@ describe('PrivacyCentre', () => {
 
     it('needs the password', async () => {
       setup();
-      const danger = await section('Delete your account');
+      const danger = await deleteSection();
 
       await userEvent.click(within(danger).getByRole('button', { name: 'Delete my account' }));
 
@@ -208,16 +230,8 @@ describe('PrivacyCentre', () => {
     });
 
     it('asks first, then schedules the deletion and offers to cancel it', async () => {
-      vi.mocked(privacyApi.requestDeletion).mockResolvedValue({
-        status: 'scheduled',
-        requested_at: '2026-11-03T09:00:00Z',
-        scheduled_for: '2026-12-03T09:00:00Z',
-      });
-      vi.mocked(privacyApi.cancelDeletion).mockResolvedValue({
-        status: 'cancelled',
-        requested_at: '2026-11-03T09:00:00Z',
-        scheduled_for: null,
-      });
+      vi.mocked(privacyApi.requestDeletion).mockResolvedValue(SCHEDULED);
+      vi.mocked(privacyApi.cancelDeletion).mockResolvedValue(CANCELLED);
       setup();
       const danger = await askToDelete();
 
@@ -237,6 +251,47 @@ describe('PrivacyCentre', () => {
 
       expect(
         await within(danger).findByText('Your account will not be deleted.'),
+      ).toBeInTheDocument();
+    });
+
+    it('shows a deletion scheduled before, after a reload, and cancels it', async () => {
+      vi.mocked(privacyApi.getDeletion).mockResolvedValue(SCHEDULED);
+      vi.mocked(privacyApi.cancelDeletion).mockResolvedValue(CANCELLED);
+      setup();
+
+      expect(
+        await screen.findByText('Your account will be deleted on 3 Dec 2026.'),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel deletion' }));
+
+      expect(await screen.findByText('Your account will not be deleted.')).toBeInTheDocument();
+      expect(privacyApi.cancelDeletion).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows the normal form after a deletion that was cancelled before', async () => {
+      vi.mocked(privacyApi.getDeletion).mockResolvedValue(CANCELLED);
+      setup();
+
+      const danger = await deleteSection();
+
+      expect(within(danger).getByRole('button', { name: 'Delete my account' })).toBeInTheDocument();
+      expect(
+        within(danger).queryByText('Your account will not be deleted.'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows a loader, then the error, and tries again on request', async () => {
+      vi.mocked(privacyApi.getDeletion)
+        .mockRejectedValueOnce(new ApiError({ status: 500, message: 'Server error' }))
+        .mockResolvedValue(SCHEDULED);
+      setup();
+
+      expect(screen.getByText('Loading your account deletion')).toBeInTheDocument();
+      const danger = await section('Delete your account');
+      await userEvent.click(await within(danger).findByRole('button', { name: 'Try again' }));
+
+      expect(
+        await screen.findByText('Your account will be deleted on 3 Dec 2026.'),
       ).toBeInTheDocument();
     });
 

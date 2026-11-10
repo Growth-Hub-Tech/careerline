@@ -139,6 +139,8 @@ export const createPrivacyApi = (client: Client) => ({
 
   getExport: (exportId: number) => client.get<DataExport>(`/privacy/data-exports/${exportId}`),
 
+  getDeletion: () => client.get<AccountDeletion>('/privacy/account-deletion'),
+
   requestDeletion: (request: AccountDeletionRequest) =>
     client.post<AccountDeletion>('/privacy/account-deletion', { body: request }),
 

@@ -324,6 +324,15 @@ describe('privacy endpoints', () => {
     expect(JSON.parse(String(deleteInit?.body))).toEqual({ password: 'secret123', reason: null });
     expect(fetcher.mock.calls[1][1]?.method).toBe('DELETE');
   });
+
+  it('reads the account deletion request', async () => {
+    const { fetcher, client } = setup({ success: true, data: { status: 'scheduled' } });
+
+    await createPrivacyApi(client).getDeletion();
+
+    expect(sent(fetcher).url).toBe('https://api.example.test/api/v1/privacy/account-deletion');
+    expect(sent(fetcher).init.method ?? 'GET').toBe('GET');
+  });
 });
 
 describe('attempt endpoints', () => {

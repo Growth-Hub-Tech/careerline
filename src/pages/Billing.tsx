@@ -1,17 +1,22 @@
 import { useId, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { StatusLabel, type Status } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
-import { paymentsApi, subscriptionsApi, type Payment, type Subscription } from '../lib/api';
+import type { Payment, Subscription } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import {
+  combineResults,
+  paymentQueries,
+  useCancelSubscription,
+  useResumeSubscription,
+} from '../lib/api/queries';
 import { formatDate, formatMoney } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 
 const PRICING = `/pricing?return=${encodeURIComponent('/billing')}`;
 
@@ -45,11 +50,6 @@ const PAYMENTS: readonly TableColumn<Payment>[] = [
   },
 ];
 
-const load = async () => {
-  const [plan, payments] = await Promise.all([subscriptionsApi.mine(), paymentsApi.list()]);
-  return { plan, payments };
-};
-
 const planDate = (plan: Subscription) => {
   if (plan.status === 'past_due') return null;
   if (plan.status === 'cancelled') return `Ended on ${formatDate(plan.current_period_end)}`;
@@ -57,35 +57,21 @@ const planDate = (plan: Subscription) => {
   return `Renews on ${formatDate(plan.current_period_end)}`;
 };
 
-const PlanSection = ({ initial }: { initial: Subscription | null }) => {
+const PlanSection = ({ plan }: { plan: Subscription | null }) => {
   const headingId = useId();
-  const [plan, setPlan] = useState(initial);
+  const cancelPlan = useCancelSubscription();
+  const resumePlan = useResumeSubscription();
   const [isAsking, setIsAsking] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [isResuming, setIsResuming] = useState(false);
-  const [error, setError] = useState<string>();
+  const error = cancelPlan.error ?? resumePlan.error;
 
-  const cancel = async () => {
-    setIsCancelling(true);
-    setError(undefined);
-    try {
-      setPlan(await subscriptionsApi.cancel());
-      setIsAsking(false);
-    } catch (cancelError) {
-      setError(describeError(cancelError));
-    }
-    setIsCancelling(false);
+  const cancel = () => {
+    resumePlan.reset();
+    cancelPlan.mutate(undefined, { onSuccess: () => setIsAsking(false) });
   };
 
-  const resume = async () => {
-    setIsResuming(true);
-    setError(undefined);
-    try {
-      setPlan(await subscriptionsApi.resume());
-    } catch (resumeError) {
-      setError(describeError(resumeError));
-    }
-    setIsResuming(false);
+  const resume = () => {
+    cancelPlan.reset();
+    resumePlan.mutate();
   };
 
   const canCancel = plan?.status === 'active' && !plan.cancel_at_period_end;
@@ -123,10 +109,10 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
       ) : (
         <p className="text-[15px] text-slate-600">You have no plan.</p>
       )}
-      {error && !isAsking && <Alert variant="error">{error}</Alert>}
+      {error && !isAsking && <Alert variant="error">{describeError(error)}</Alert>}
       <div className="flex flex-wrap gap-3">
         {canResume && (
-          <Button fullWidth={false} isLoading={isResuming} onClick={resume}>
+          <Button fullWidth={false} isLoading={resumePlan.isPending} onClick={resume}>
             Keep my plan
           </Button>
         )}
@@ -167,13 +153,13 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
               >
                 Keep my plan
               </Button>
-              <Button fullWidth={false} isLoading={isCancelling} onClick={cancel}>
+              <Button fullWidth={false} isLoading={cancelPlan.isPending} onClick={cancel}>
                 Cancel plan
               </Button>
             </>
           }
         >
-          {error && <Alert variant="error">{error}</Alert>}
+          {cancelPlan.isError && <Alert variant="error">{describeError(cancelPlan.error)}</Alert>}
         </Dialog>
       )}
     </section>
@@ -181,36 +167,10 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
 };
 
 export const Billing = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your billing" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <>
-        <PlanSection initial={state.data.plan} />
-        <section className="flex flex-col gap-3">
-          <h2 className="text-[20px] font-bold text-slate-800">Payments</h2>
-          {state.data.payments.length === 0 ? (
-            <p className="text-[15px] text-slate-600">No payments yet.</p>
-          ) : (
-            <Table
-              caption="Payments"
-              columns={PAYMENTS}
-              rows={state.data.payments}
-              getRowKey={(row) => `${row.reference}-${row.created_at}-${row.status}`}
-            />
-          )}
-          <Link to="/credits" className={LINK}>
-            See your credits
-          </Link>
-        </section>
-      </>
-    );
-  }
+  const billing = useQueries({
+    queries: [paymentQueries.subscription(), paymentQueries.list()],
+    combine: combineResults,
+  });
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -220,7 +180,29 @@ export const Billing = () => {
           Your plan, when it renews, and what you have paid.
         </p>
       </header>
-      {content}
+      <QueryState query={billing} loadingTitle="Loading your billing">
+        {([plan, payments]) => (
+          <>
+            <PlanSection plan={plan} />
+            <section className="flex flex-col gap-3">
+              <h2 className="text-[20px] font-bold text-slate-800">Payments</h2>
+              {payments.length === 0 ? (
+                <p className="text-[15px] text-slate-600">No payments yet.</p>
+              ) : (
+                <Table
+                  caption="Payments"
+                  columns={PAYMENTS}
+                  rows={payments}
+                  getRowKey={(row) => `${row.reference}-${row.created_at}-${row.status}`}
+                />
+              )}
+              <Link to="/credits" className={LINK}>
+                See your credits
+              </Link>
+            </section>
+          </>
+        )}
+      </QueryState>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { readSession } from '../session';
+import { useUserStore } from '../user/store';
 
 export interface SavedAttempt {
   readonly testId: number;
@@ -7,7 +7,7 @@ export interface SavedAttempt {
 }
 
 const keyFor = (testId: number) =>
-  `careerline.attempt.${readSession()?.user.email ?? 'guest'}.${testId}`;
+  `careerline.attempt.${useUserStore.getState().user?.email ?? 'guest'}.${testId}`;
 
 const isSavedAttempt = (value: unknown): value is SavedAttempt => {
   if (typeof value !== 'object' || value === null) return false;

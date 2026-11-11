@@ -1,20 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { SessionProvider } from '../../lib/session';
-import { signInAs } from '../../test/session';
+import { useUserStore } from '../../lib/user';
 import { Navbar } from './Navbar';
 
 const setup = () =>
   render(
     <MemoryRouter initialEntries={['/pricing']}>
-      <SessionProvider>
-        <Routes>
-          <Route path="/pricing" element={<Navbar />} />
-          <Route path="/dashboard" element={<h1>Dashboard page</h1>} />
-          <Route path="/for-recruiters" element={<h1>Recruiters page</h1>} />
-        </Routes>
-      </SessionProvider>
+      <Routes>
+        <Route path="/pricing" element={<Navbar />} />
+        <Route path="/dashboard" element={<h1>Dashboard page</h1>} />
+        <Route path="/for-recruiters" element={<h1>Recruiters page</h1>} />
+      </Routes>
     </MemoryRouter>,
   );
 
@@ -27,7 +24,9 @@ describe('Navbar', () => {
   });
 
   it('takes someone signed in back to their dashboard', async () => {
-    signInAs('self-test');
+    useUserStore.setState({
+      user: { name: 'Skye Favour', email: 'skye@example.com', userType: 'self-test' },
+    });
     setup();
 
     expect(screen.queryByRole('button', { name: 'Log in' })).not.toBeInTheDocument();

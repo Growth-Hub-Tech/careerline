@@ -1,22 +1,23 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { Select } from '../components/Select';
 import { Table, type TableColumn } from '../components/Table';
 import { TextField } from '../components/TextField';
-import {
-  accountsApi,
-  organisationsApi,
-  type OrganisationRole,
-  type OrganisationUser,
-} from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import type { OrganisationRole, OrganisationUser } from '../lib/api';
+import { hasStatus } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
+import {
+  organisationQueries,
+  useAccount,
+  useAddOrganisationUser,
+  useChangeOrganisationRole,
+  useRemoveOrganisationUser,
+} from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 
 const ROLES: readonly { value: OrganisationRole; label: string; article: string }[] = [
   { value: 'owner', label: 'Owner', article: 'an owner' },
@@ -29,79 +30,63 @@ const roleArticle = (role: OrganisationRole) =>
   ROLES.find((item) => item.value === role)?.article ?? role;
 
 const describeAddError = (error: unknown) =>
-  error instanceof ApiError && error.status === 404
+  hasStatus(error, 404)
     ? 'There is no account with that email. Ask them to sign up first, then add them.'
     : describeError(error);
 
-const load = async () => {
-  const account = await accountsApi.me();
-  const organisationId = account.organisation_id ?? null;
-  if (organisationId === null) return { account, organisationId, users: [] };
-  const list = await organisationsApi.listUsers(organisationId);
-  return { account, organisationId, users: list.items };
-};
-
 interface PeopleProps {
-  readonly organisationId: number;
-  readonly initial: readonly OrganisationUser[];
+  readonly users: readonly OrganisationUser[];
   readonly canManage: boolean;
 }
 
-const People = ({ organisationId, initial, canManage }: PeopleProps) => {
-  const [users, setUsers] = useState(initial);
+const People = ({ users, canManage }: PeopleProps) => {
+  const addUser = useAddOrganisationUser();
+  const changeRole = useChangeOrganisationRole();
+  const removeUser = useRemoveOrganisationUser();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<OrganisationRole>('recruiter');
-  const [isAdding, setIsAdding] = useState(false);
   const [removing, setRemoving] = useState<OrganisationUser | null>(null);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
 
-  const replace = (updated: OrganisationUser) =>
-    setUsers((current) =>
-      current.map((item) => (item.learner_id === updated.learner_id ? updated : item)),
+  const start = () => {
+    setError(undefined);
+    setNotice(undefined);
+  };
+
+  const add = () => {
+    start();
+    addUser.mutate(
+      { email: email.trim(), role },
+      {
+        onSuccess: (added) => {
+          setNotice(`${added.full_name} can now sign in to this organisation.`);
+          setEmail('');
+        },
+        onError: (addError) => setError(describeAddError(addError)),
+      },
     );
-
-  const add = async () => {
-    setIsAdding(true);
-    setError(undefined);
-    setNotice(undefined);
-    try {
-      const added = await organisationsApi.addUser(organisationId, email.trim(), role);
-      setUsers((current) => [...current, added]);
-      setNotice(`${added.full_name} can now sign in to this organisation.`);
-      setEmail('');
-    } catch (addError) {
-      setError(describeAddError(addError));
-    }
-    setIsAdding(false);
   };
 
-  const change = async (person: OrganisationUser, next: OrganisationRole) => {
-    setError(undefined);
-    setNotice(undefined);
-    try {
-      replace(await organisationsApi.changeRole(organisationId, person.learner_id, next));
-      setNotice(`${person.full_name} is now ${roleArticle(next)}.`);
-    } catch (changeError) {
-      setError(describeError(changeError));
-    }
+  const change = (person: OrganisationUser, next: OrganisationRole) => {
+    start();
+    changeRole.mutate(
+      { learnerId: person.learner_id, role: next },
+      {
+        onSuccess: () => setNotice(`${person.full_name} is now ${roleArticle(next)}.`),
+        onError: (changeError) => setError(describeError(changeError)),
+      },
+    );
   };
 
-  const remove = async () => {
+  const remove = () => {
     if (!removing) return;
-    setIsRemoving(true);
-    setError(undefined);
-    try {
-      await organisationsApi.removeUser(organisationId, removing.learner_id);
-      setUsers((current) => current.filter((item) => item.learner_id !== removing.learner_id));
-      setNotice(`${removing.full_name} no longer has access.`);
-      setRemoving(null);
-    } catch (removeError) {
-      setError(describeError(removeError));
-      setRemoving(null);
-    }
-    setIsRemoving(false);
+    start();
+    removeUser.mutate(removing.learner_id, {
+      onSuccess: () => setNotice(`${removing.full_name} no longer has access.`),
+      onError: (removeError) => setError(describeError(removeError)),
+      onSettled: () => setRemoving(null),
+    });
   };
 
   const columns: TableColumn<OrganisationUser>[] = [
@@ -127,7 +112,7 @@ const People = ({ organisationId, initial, canManage }: PeopleProps) => {
             <select
               id={`role-${row.learner_id}`}
               value={row.role}
-              onChange={(event) => void change(row, event.target.value as OrganisationRole)}
+              onChange={(event) => change(row, event.target.value as OrganisationRole)}
               className="h-10 rounded-lg border border-slate-200 bg-white px-2"
             >
               {ROLES.map((option) => (
@@ -191,7 +176,7 @@ const People = ({ organisationId, initial, canManage }: PeopleProps) => {
             fullWidth={false}
             className="self-start"
             disabled={!email.includes('@')}
-            isLoading={isAdding}
+            isLoading={addUser.isPending}
             onClick={add}
           >
             Add person
@@ -225,7 +210,7 @@ const People = ({ organisationId, initial, canManage }: PeopleProps) => {
             >
               Keep
             </Button>
-            <Button fullWidth={false} isLoading={isRemoving} onClick={remove}>
+            <Button fullWidth={false} isLoading={removeUser.isPending} onClick={remove}>
               Remove
             </Button>
           </>
@@ -235,28 +220,18 @@ const People = ({ organisationId, initial, canManage }: PeopleProps) => {
   );
 };
 
-export const Users = () => {
-  const { state, retry } = useRequest(load);
+const OrganisationPeople = ({ canManage }: { canManage: boolean }) => {
+  const users = useQuery(organisationQueries.users());
 
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading the people" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else if (state.data.organisationId === null) {
-    content = (
-      <p className="text-[15px] text-slate-600">Your account is not part of an organisation yet.</p>
-    );
-  } else {
-    const myRole = state.data.account.organisation_role;
-    content = (
-      <People
-        organisationId={state.data.organisationId}
-        initial={state.data.users}
-        canManage={myRole === 'owner' || myRole === 'admin'}
-      />
-    );
-  }
+  return (
+    <QueryState query={users} loadingTitle="Loading the people">
+      {(list) => <People users={list} canManage={canManage} />}
+    </QueryState>
+  );
+};
+
+export const Users = () => {
+  const account = useAccount();
 
   return (
     <div className="flex w-full max-w-[1000px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -264,7 +239,17 @@ export const Users = () => {
         <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Users</h1>
         <p className="text-[15px] text-slate-600">People who can sign in to your organisation.</p>
       </header>
-      {content}
+      <QueryState query={account} loadingTitle="Loading the people">
+        {({ organisation_id: organisationId, organisation_role: myRole }) =>
+          organisationId == null ? (
+            <p className="text-[15px] text-slate-600">
+              Your account is not part of an organisation yet.
+            </p>
+          ) : (
+            <OrganisationPeople canManage={myRole === 'owner' || myRole === 'admin'} />
+          )
+        }
+      </QueryState>
     </div>
   );
 };

@@ -1,16 +1,16 @@
 import { useId, useState, type ReactNode } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
 import { Button } from '../components/Button';
 import { BuyDialog, type BuyItem } from '../components/BuyDialog';
 import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
-import { paymentsApi, subscriptionsApi, type CreditPack, type Plan } from '../lib/api';
+import { QueryState } from '../components/PageState';
+import type { CreditPack, Plan } from '../lib/api';
+import { combineResults, paymentQueries } from '../lib/api/queries';
 import { formatMoney } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { safeReturnPath } from '../lib/payments/checkoutReturn';
-import { useSession, type UserType } from '../lib/session';
+import { useUser, type UserType } from '../lib/user';
 import { describeCredits } from '../lib/tests/catalog';
 
 const AUDIENCES: readonly { readonly audience: Plan['audience']; readonly title: string }[] = [
@@ -33,14 +33,6 @@ const ONLY_FOR: Record<Plan['audience'], string> = {
 };
 
 const PER: Record<Plan['interval'], string> = { monthly: 'a month', yearly: 'a year' };
-
-const loadPrices = async () => {
-  const [plans, packs] = await Promise.all([
-    subscriptionsApi.listPlans(),
-    paymentsApi.listCreditPacks(),
-  ]);
-  return { plans, packs };
-};
 
 const Group = ({ title, children }: { title: string; children: ReactNode }) => {
   const headingId = useId();
@@ -147,21 +139,20 @@ const Enterprise = () => (
   </Group>
 );
 
-interface PricingProps {
-  readonly onOpen?: (url: string) => void;
-}
-
-export const Pricing = ({ onOpen }: PricingProps) => {
-  const { state, retry } = useRequest(loadPrices);
-  const { session } = useSession();
+export const Pricing = () => {
+  const prices = useQueries({
+    queries: [paymentQueries.plans(), paymentQueries.creditPacks()],
+    combine: combineResults,
+  });
+  const user = useUser();
   const [params] = useSearchParams();
   const [buying, setBuying] = useState<BuyItem | null>(null);
   const location = useLocation();
   const returnTo = safeReturnPath(params.get('return')) ?? '/credits';
-  const ownAudience = session ? AUDIENCE_OF[session.user.userType] : null;
+  const ownAudience = user ? AUDIENCE_OF[user.userType] : null;
 
   const action: BuyAction = (item, audience) => {
-    if (!session) {
+    if (!user) {
       return (
         <Link to="/sign-in" state={{ from: location }} className={`${PRIMARY_ACTION} w-full`}>
           Log in to buy
@@ -176,14 +167,7 @@ export const Pricing = ({ onOpen }: PricingProps) => {
     return <Button onClick={() => setBuying(item)}>Buy</Button>;
   };
 
-  let content: ReactNode;
-
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading prices" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    const { plans, packs } = state.data;
+  const priceList = (plans: readonly Plan[], packs: readonly CreditPack[]) => {
     const ordered = [...AUDIENCES].sort(
       (a, b) => Number(b.audience === ownAudience) - Number(a.audience === ownAudience),
     );
@@ -195,7 +179,7 @@ export const Pricing = ({ onOpen }: PricingProps) => {
       }))
       .filter((group) => group.plans.length + group.packs.length > 0);
 
-    content = (
+    return (
       <>
         {groups.length === 0 && (
           <p className="text-[15px] text-slate-600">Prices will be listed here soon.</p>
@@ -213,7 +197,7 @@ export const Pricing = ({ onOpen }: PricingProps) => {
         <Enterprise />
       </>
     );
-  }
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-5 py-12 sm:px-6 lg:px-8">
@@ -222,7 +206,7 @@ export const Pricing = ({ onOpen }: PricingProps) => {
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Pay for what you need: a plan that renews, or a pack of credits for one-off tests.
         </p>
-        {!session && (
+        {!user && (
           <p className="text-[15px] text-slate-600">
             New to CareerLine AI?{' '}
             <Link to="/sign-up" className="font-semibold text-indigo-600 hover:underline">
@@ -231,13 +215,10 @@ export const Pricing = ({ onOpen }: PricingProps) => {
           </p>
         )}
       </header>
-      {content}
-      <BuyDialog
-        item={buying}
-        returnTo={returnTo}
-        onClose={() => setBuying(null)}
-        onOpen={onOpen}
-      />
+      <QueryState query={prices} loadingTitle="Loading prices" loaderClassName="">
+        {([plans, packs]) => priceList(plans, packs)}
+      </QueryState>
+      <BuyDialog item={buying} returnTo={returnTo} onClose={() => setBuying(null)} />
     </div>
   );
 };

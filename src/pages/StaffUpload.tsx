@@ -1,31 +1,20 @@
 import { useState, type ChangeEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { SECONDARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { Table, type TableColumn } from '../components/Table';
-import {
-  organisationsApi,
-  rolesApi,
-  type RosterResult,
-  type RoleSummary,
-  type TeamMemberCreate,
-} from '../lib/api';
+import type { RoleSummary, TeamMemberCreate } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
-import { useRequest } from '../lib/hooks/useRequest';
+import { roleQueries, useUploadRoster } from '../lib/api/queries';
 import {
   readStaffList,
   STAFF_LIST_TEMPLATE,
   type StaffList,
   type StaffRow,
 } from '../lib/organisation/staffList';
-
-const load = async () => {
-  const [organisation, roles] = await Promise.all([organisationsApi.me(), rolesApi.list()]);
-  return { organisation, roles };
-};
 
 const TEMPLATE_HREF = `data:text/csv;charset=utf-8,${encodeURIComponent(STAFF_LIST_TEMPLATE)}`;
 
@@ -53,16 +42,9 @@ const COLUMNS: readonly TableColumn<StaffRow>[] = [
 
 const people = (count: number) => `${count} ${count === 1 ? 'person' : 'people'}`;
 
-interface UploaderProps {
-  readonly organisationId: number;
-  readonly roles: readonly RoleSummary[];
-}
-
-const Uploader = ({ organisationId, roles }: UploaderProps) => {
+const Uploader = ({ roles }: { roles: readonly RoleSummary[] }) => {
+  const uploadRoster = useUploadRoster();
   const [list, setList] = useState<StaffList>();
-  const [error, setError] = useState<string>();
-  const [result, setResult] = useState<RosterResult>();
-  const [isUploading, setIsUploading] = useState(false);
 
   const members = (list?.rows ?? [])
     .map((row) => row.member)
@@ -71,24 +53,14 @@ const Uploader = ({ organisationId, roles }: UploaderProps) => {
 
   const choose = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setResult(undefined);
-    setError(undefined);
+    uploadRoster.reset();
     if (!file) return;
     setList(readStaffList(await file.text(), roles));
   };
 
-  const upload = async () => {
-    setIsUploading(true);
-    setError(undefined);
-    try {
-      setResult(await organisationsApi.uploadRoster(organisationId, members));
-      setList(undefined);
-    } catch (uploadError) {
-      setError(describeError(uploadError));
-    }
-    setIsUploading(false);
-  };
+  const upload = () => uploadRoster.mutate(members, { onSuccess: () => setList(undefined) });
 
+  const result = uploadRoster.data;
   if (result) {
     return (
       <div className="flex flex-col gap-4">
@@ -118,7 +90,7 @@ const Uploader = ({ organisationId, roles }: UploaderProps) => {
         />
       </div>
 
-      {error && <Alert variant="error">{error}</Alert>}
+      {uploadRoster.isError && <Alert variant="error">{describeError(uploadRoster.error)}</Alert>}
       {list?.problem && <Alert variant="error">{list.problem}</Alert>}
 
       {list && list.rows.length > 0 && (
@@ -140,7 +112,7 @@ const Uploader = ({ organisationId, roles }: UploaderProps) => {
             <Button
               fullWidth={false}
               className="self-start"
-              isLoading={isUploading}
+              isLoading={uploadRoster.isPending}
               onClick={upload}
             >
               Upload {people(members.length)}
@@ -153,18 +125,7 @@ const Uploader = ({ organisationId, roles }: UploaderProps) => {
 };
 
 export const StaffUpload = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <Uploader organisationId={state.data.organisation.organisation_id} roles={state.data.roles} />
-    );
-  }
+  const roles = useQuery(roleQueries.list());
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -182,7 +143,9 @@ export const StaffUpload = () => {
           Download the template
         </a>
       </header>
-      {content}
+      <QueryState query={roles} loadingTitle="Loading">
+        {(list) => <Uploader roles={list} />}
+      </QueryState>
     </div>
   );
 };

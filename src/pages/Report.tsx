@@ -1,24 +1,20 @@
-import { useCallback, useId, useRef, useState } from 'react';
+import { useId, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { ChangeBlock } from '../components/ChangeBlock';
 import { DecisionNote } from '../components/DecisionNote';
 import { SECONDARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
-import { resultsApi, type ResultDetail, type SubskillScore } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { QueryState } from '../components/PageState';
+import type { ResultDetail, SubskillScore } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { resultQueries, useDownloadReport } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
-import { waitForReport } from '../lib/tests/report';
 
 const STILL_PREPARING = 'Your report is still being prepared. Try again in a minute.';
 const NOT_CREATED = 'We could not create your report. Try again in a few minutes.';
-
-const openUrl = (url: string) => window.location.assign(url);
 
 const percent = (score: number) => `${Math.round(score)}%`;
 
@@ -62,42 +58,33 @@ const SummaryCard = ({ title, items, tone }: SummaryCardProps) => {
   );
 };
 
-interface DownloadReportProps {
-  readonly resultId: number;
-  readonly onOpen: (url: string) => void;
-  readonly pollInterval: number;
-}
-
-const DownloadReport = ({ resultId, onOpen, pollInterval }: DownloadReportProps) => {
-  const [isPreparing, setIsPreparing] = useState(false);
-  const [message, setMessage] = useState<string>();
+// The PDF opens once it is ready; while it is still being made the button says so
+const DownloadReport = ({ resultId }: { resultId: number }) => {
+  const download = useDownloadReport(resultId);
   const busy = useRef(false);
 
-  const download = async () => {
+  const start = () => {
     if (busy.current) return;
     busy.current = true;
-    setIsPreparing(true);
-    setMessage(undefined);
-
-    try {
-      const poll = () =>
-        waitForReport(() => resultsApi.getReport(resultId), { interval: pollInterval });
-
-      let report = await poll();
-      if (report.status === 'failed') {
-        await resultsApi.regenerateReport(resultId);
-        report = await poll();
-      }
-
-      if (report.status === 'ready' && report.download_url) onOpen(report.download_url);
-      else setMessage(report.status === 'generating' ? STILL_PREPARING : NOT_CREATED);
-    } catch (error) {
-      setMessage(describeError(error));
-    } finally {
-      busy.current = false;
-      setIsPreparing(false);
-    }
+    download.mutate(undefined, {
+      onSuccess: (report) => {
+        if (report.status === 'ready' && report.download_url) {
+          window.location.assign(report.download_url);
+        }
+      },
+      onSettled: () => {
+        busy.current = false;
+      },
+    });
   };
+
+  const report = download.data;
+  let message: string | undefined;
+  if (download.isError) message = describeError(download.error);
+  else if (report && !(report.status === 'ready' && report.download_url)) {
+    message = report.status === 'generating' ? STILL_PREPARING : NOT_CREATED;
+  }
+  const isPreparing = download.isPending;
 
   return (
     <div className="flex w-full max-w-[420px] flex-col items-center gap-3">
@@ -106,7 +93,7 @@ const DownloadReport = ({ resultId, onOpen, pollInterval }: DownloadReportProps)
         variant="accent"
         fullWidth={false}
         isLoading={isPreparing}
-        onClick={download}
+        onClick={start}
         className="min-w-[260px] text-[14px]"
       >
         {isPreparing ? 'Preparing your report...' : 'Download your report'}
@@ -204,80 +191,60 @@ const describeBenchmark = ({ skill_name, level, percentile }: ResultDetail) => {
     : `${benchmark} You scored higher than ${percentile}% of people who took this test.`;
 };
 
-interface ResultDetailsProps {
-  readonly id: number;
-  readonly onOpen: (url: string) => void;
-  readonly pollInterval: number;
-}
+const ResultView = ({ result }: { result: ResultDetail }) => (
+  <div className="relative flex w-full flex-col items-center gap-16 overflow-hidden px-5 py-16 sm:px-20">
+    <Arcs />
 
-const ResultDetails = ({ id, onOpen, pollInterval }: ResultDetailsProps) => {
-  const load = useCallback(() => resultsApi.get(id), [id]);
-  const { state, retry } = useRequest(load);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading your results" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    if (state.error instanceof ApiError && state.error.status === 404) {
-      return <Navigate to="/page-not-found" replace />;
-    }
-
-    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
-  }
-
-  const result = state.data;
-
-  return (
-    <div className="relative flex w-full flex-col items-center gap-16 overflow-hidden px-5 py-16 sm:px-20">
-      <Arcs />
-
-      <div className="relative flex w-full flex-col items-center gap-10">
-        <h1 className="text-center text-[28px] font-bold text-slate-700">
-          Your results are ready.
-        </h1>
-        <p className="flex size-[180px] items-center justify-center rounded-full bg-teal-400 text-[36px] font-bold text-teal-900">
-          <span className="sr-only">Overall score </span>
-          <span>{percent(result.percentage_score)}</span>
-        </p>
-        <div className="grid w-full max-w-[680px] gap-10 sm:grid-cols-2">
-          <SummaryCard title="Your strengths" items={result.strengths} tone="teal" />
-          <SummaryCard title="Where to grow" items={result.gaps} tone="orange" />
-        </div>
-        <DownloadReport resultId={result.result_id} onOpen={onOpen} pollInterval={pollInterval} />
-        <ChangeBlock
-          skillId={result.skill_id}
-          skillName={result.skill_name}
-          attemptId={result.attempt_id}
-        />
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link
-            to={`/attempts/${result.attempt_id}/review`}
-            className={`${SECONDARY_ACTION} w-fit`}
-          >
-            Review your answers
-          </Link>
-          <Link to={`/tests/${result.test_id}`} className={`${SECONDARY_ACTION} w-fit`}>
-            Retake to measure progress
-          </Link>
-        </div>
+    <div className="relative flex w-full flex-col items-center gap-10">
+      <h1 className="text-center text-[28px] font-bold text-slate-700">Your results are ready.</h1>
+      <p className="flex size-[180px] items-center justify-center rounded-full bg-teal-400 text-[36px] font-bold text-teal-900">
+        <span className="sr-only">Overall score </span>
+        <span>{percent(result.percentage_score)}</span>
+      </p>
+      <div className="grid w-full max-w-[680px] gap-10 sm:grid-cols-2">
+        <SummaryCard title="Your strengths" items={result.strengths} tone="teal" />
+        <SummaryCard title="Where to grow" items={result.gaps} tone="orange" />
       </div>
-
-      <SkillReport result={result} />
-
-      <div className="w-full max-w-[1100px]">
-        <DecisionNote benchmark={describeBenchmark(result)} />
+      <DownloadReport resultId={result.result_id} />
+      <ChangeBlock
+        skillId={result.skill_id}
+        skillName={result.skill_name}
+        attemptId={result.attempt_id}
+      />
+      <div className="flex flex-wrap justify-center gap-3">
+        <Link to={`/attempts/${result.attempt_id}/review`} className={`${SECONDARY_ACTION} w-fit`}>
+          Review your answers
+        </Link>
+        <Link to={`/tests/${result.test_id}`} className={`${SECONDARY_ACTION} w-fit`}>
+          Retake to measure progress
+        </Link>
       </div>
     </div>
+
+    <SkillReport result={result} />
+
+    <div className="w-full max-w-[1100px]">
+      <DecisionNote benchmark={describeBenchmark(result)} />
+    </div>
+  </div>
+);
+
+const ResultDetails = ({ id }: { id: number }) => {
+  const result = useQuery(resultQueries.detail(id));
+
+  return (
+    <QueryState
+      query={result}
+      loadingTitle="Loading your results"
+      redirectOnNotFound
+      errorClassName="px-5 py-8 sm:px-8"
+    >
+      {(data) => <ResultView result={data} />}
+    </QueryState>
   );
 };
 
-interface ReportProps {
-  readonly onOpen?: (url: string) => void;
-  readonly pollInterval?: number;
-}
-
-export const Report = ({ onOpen = openUrl, pollInterval = 3000 }: ReportProps) => {
+export const Report = () => {
   const { reportId } = useParams();
   const id = Number(reportId);
 
@@ -285,5 +252,5 @@ export const Report = ({ onOpen = openUrl, pollInterval = 3000 }: ReportProps) =
     return <Navigate to="/page-not-found" replace />;
   }
 
-  return <ResultDetails key={id} id={id} onOpen={onOpen} pollInterval={pollInterval} />;
+  return <ResultDetails key={id} id={id} />;
 };

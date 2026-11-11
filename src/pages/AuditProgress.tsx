@@ -1,23 +1,16 @@
-import { useCallback, useId, useState, type ReactNode } from 'react';
+import { useId } from 'react';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
-import {
-  organisationsApi,
-  type Audit,
-  type Benchmark,
-  type MemberDelta,
-  type TeamMember,
-} from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import type { Audit, Benchmark, MemberDelta, TeamMember } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { combineResults, organisationQueries, useRetestAudit } from '../lib/api/queries';
 import { formatPoints } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { AUDIT_STATUS, MEMBER_STATUS } from '../lib/organisation/labels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 
@@ -98,58 +91,28 @@ const CHANGES: readonly TableColumn<MemberDelta>[] = [
   },
 ];
 
-const loadAudit = async (auditId: number) => {
-  const organisation = await organisationsApi.me();
-  const [audit, members] = await Promise.all([
-    organisationsApi.getAudit(organisation.organisation_id, auditId),
-    organisationsApi.listMembers(organisation.organisation_id),
-  ]);
-  return {
-    organisationId: organisation.organisation_id,
-    audit,
-    members: members.filter((item) => audit.role_ids.includes(item.role_id)),
-  };
-};
-
 // A re-test's results next to the first audit's, person by person (its own loader and error,
 // so the rest of the audit still shows when this part fails)
-const RetestChanges = ({
-  organisationId,
-  auditId,
-}: {
-  organisationId: number;
-  auditId: number;
-}) => {
+const RetestChanges = ({ auditId }: { auditId: number }) => {
   const headingId = useId();
-  const load = useCallback(
-    () => organisationsApi.auditDeltas(organisationId, auditId),
-    [organisationId, auditId],
-  );
-  const { state, retry } = useRequest(load);
-
-  let content: ReactNode;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading the changes" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <Table
-        caption="Change since the first audit"
-        columns={CHANGES}
-        rows={state.data.items}
-        getRowKey={(row) => `${row.member_id}-${row.skill_id}`}
-        empty="Nobody has finished the re-test yet."
-      />
-    );
-  }
+  const deltas = useQuery(organisationQueries.auditDeltas(auditId));
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3">
       <h2 id={headingId} className="text-[20px] font-bold text-slate-800">
         Change since the first audit
       </h2>
-      {content}
+      <QueryState query={deltas} loadingTitle="Loading the changes" loaderClassName="">
+        {({ items }) => (
+          <Table
+            caption="Change since the first audit"
+            columns={CHANGES}
+            rows={items}
+            getRowKey={(row) => `${row.member_id}-${row.skill_id}`}
+            empty="Nobody has finished the re-test yet."
+          />
+        )}
+      </QueryState>
     </section>
   );
 };
@@ -178,22 +141,14 @@ const StatusCounts = ({ members }: { members: readonly TeamMember[] }) => {
 
 // The same people and tests again, compared with this audit. The API refuses a second re-test
 // too soon (409, with the date it becomes possible), and the Alert shows its message.
-const Retest = ({ organisationId, audit }: { organisationId: number; audit: Audit }) => {
+const Retest = ({ audit }: { audit: Audit }) => {
   const navigate = useNavigate();
-  const [error, setError] = useState<string>();
-  const [isStarting, setIsStarting] = useState(false);
+  const retest = useRetestAudit();
 
-  const start = async () => {
-    setIsStarting(true);
-    setError(undefined);
-    try {
-      const retest = await organisationsApi.retestAudit(organisationId, audit.audit_id);
-      navigate(`/team/audits/${retest.audit_id}`);
-    } catch (startError) {
-      setError(describeError(startError));
-      setIsStarting(false);
-    }
-  };
+  const start = () =>
+    retest.mutate(audit.audit_id, {
+      onSuccess: (started) => navigate(`/team/audits/${started.audit_id}`),
+    });
 
   return (
     <section className="flex flex-col gap-3 rounded-2xl bg-indigo-50 p-5">
@@ -201,34 +156,22 @@ const Retest = ({ organisationId, audit }: { organisationId: number; audit: Audi
       <p className="text-[14px] text-slate-700">
         Test the same roles again after training to see how much the team has moved.
       </p>
-      {error && <Alert variant="error">{error}</Alert>}
-      <Button fullWidth={false} className="self-start" isLoading={isStarting} onClick={start}>
+      {retest.isError && <Alert variant="error">{describeError(retest.error)}</Alert>}
+      <Button
+        fullWidth={false}
+        className="self-start"
+        isLoading={retest.isPending || retest.isSuccess}
+        onClick={start}
+      >
         Request a re-test
       </Button>
     </section>
   );
 };
 
-const AuditDetails = ({ id }: { id: number }) => {
-  const load = useCallback(() => loadAudit(id), [id]);
-  const { state, retry } = useRequest(load);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading the audit" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    if (state.error instanceof ApiError && state.error.status === 404) {
-      return <Navigate to="/page-not-found" replace />;
-    }
-    return (
-      <div className="px-5 py-10 sm:px-20">
-        <LoadFailed error={state.error} onRetry={retry} />
-      </div>
-    );
-  }
-
-  const { organisationId, audit, members } = state.data;
+// The audit and the people in its roles
+const AuditView = ({ audit, team }: { audit: Audit; team: readonly TeamMember[] }) => {
+  const members = team.filter((item) => audit.role_ids.includes(item.role_id));
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -252,11 +195,9 @@ const AuditDetails = ({ id }: { id: number }) => {
         </p>
       </header>
 
-      {audit.status === 'completed' && <Retest organisationId={organisationId} audit={audit} />}
+      {audit.status === 'completed' && <Retest audit={audit} />}
 
-      {audit.baseline_audit_id != null && (
-        <RetestChanges organisationId={organisationId} auditId={audit.audit_id} />
-      )}
+      {audit.baseline_audit_id != null && <RetestChanges auditId={audit.audit_id} />}
 
       <StatusCounts members={members} />
 
@@ -280,6 +221,24 @@ const AuditDetails = ({ id }: { id: number }) => {
         </section>
       )}
     </div>
+  );
+};
+
+const AuditDetails = ({ id }: { id: number }) => {
+  const details = useQueries({
+    queries: [organisationQueries.audit(id), organisationQueries.members()],
+    combine: combineResults,
+  });
+
+  return (
+    <QueryState
+      query={details}
+      loadingTitle="Loading the audit"
+      redirectOnNotFound
+      errorClassName="mx-5 my-10 sm:mx-20"
+    >
+      {([audit, team]) => <AuditView audit={audit} team={team} />}
+    </QueryState>
   );
 };
 

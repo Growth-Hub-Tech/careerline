@@ -61,3 +61,23 @@ describe('describeAuthError', () => {
     );
   });
 });
+
+describe('describeAuthError with a wait time', () => {
+  it('says how many seconds to wait', () => {
+    const error = new ApiError({ status: 429, message: 'x', retryAfter: 45 });
+
+    expect(describeAuthError(error)).toBe('Too many tries. Try again in 45 seconds.');
+  });
+
+  it('rounds longer waits up to minutes', () => {
+    const error = new ApiError({ status: 429, message: 'x', retryAfter: 150 });
+
+    expect(describeAuthError(error)).toBe('Too many tries. Try again in 3 minutes.');
+  });
+
+  it('says one minute in the singular', () => {
+    const error = new ApiError({ status: 429, message: 'x', retryAfter: 60 });
+
+    expect(describeAuthError(error)).toBe('Too many tries. Try again in 1 minute.');
+  });
+});

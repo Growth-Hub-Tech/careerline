@@ -1,14 +1,12 @@
 import { useId } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '../components/EmptyState';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
-import { catalogApi } from '../lib/api';
-import { useRequest } from '../lib/hooks/useRequest';
-import { useSession } from '../lib/session';
+import { QueryState } from '../components/PageState';
+import type { AssessmentSummary, Skill } from '../lib/api';
+import { catalogQueries, combineResults } from '../lib/api/queries';
+import { useCurrentUser } from '../lib/user';
 import { groupByCategory, type CatalogGroup } from '../lib/tests/catalog';
-
-const load = () => Promise.all([catalogApi.listSkills(), catalogApi.listTests()]);
 
 const CategorySection = ({ group }: { group: CatalogGroup }) => {
   const headingId = useId();
@@ -38,20 +36,13 @@ const CategorySection = ({ group }: { group: CatalogGroup }) => {
   );
 };
 
-export const SkillTests = () => {
-  const { session } = useSession();
-  const firstName = session?.user.name.trim().split(/\s+/)[0];
-  const { state, retry } = useRequest(load);
+interface CatalogProps {
+  readonly skills: readonly Skill[];
+  readonly tests: readonly AssessmentSummary[];
+}
 
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading the tests" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
-  }
-
-  const [skills, tests] = state.data;
+const Catalog = ({ skills, tests }: CatalogProps) => {
+  const firstName = useCurrentUser().name.trim().split(/\s+/)[0];
   const groups = groupByCategory(skills, tests);
 
   return (
@@ -79,5 +70,18 @@ export const SkillTests = () => {
         groups.map((group) => <CategorySection key={group.category} group={group} />)
       )}
     </div>
+  );
+};
+
+export const SkillTests = () => {
+  const catalog = useQueries({
+    queries: [catalogQueries.skills(), catalogQueries.tests()],
+    combine: combineResults,
+  });
+
+  return (
+    <QueryState query={catalog} loadingTitle="Loading the tests" errorClassName="px-5 py-8 sm:px-8">
+      {([skills, tests]) => <Catalog skills={skills} tests={tests} />}
+    </QueryState>
   );
 };

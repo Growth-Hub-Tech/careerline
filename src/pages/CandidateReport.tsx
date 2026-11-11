@@ -1,18 +1,14 @@
-import { useCallback, useId, type ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { DecisionNote } from '../components/DecisionNote';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
-import { recruiterApi, type CandidateTestResult } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { QueryState } from '../components/PageState';
+import type { Candidate, CandidateReport as Report, CandidateTestResult } from '../lib/api';
+import { combineResults, recruiterQueries } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
-
-const isStatus = (error: unknown, ...statuses: number[]) =>
-  error instanceof ApiError && statuses.includes(error.status);
 
 const percent = (score: number) => `${Math.round(score)}%`;
 
@@ -54,32 +50,14 @@ const Section = ({ title, children }: { title: string; children: ReactNode }) =>
   );
 };
 
-const loadReport = async (id: number) => {
-  const [candidate, report] = await Promise.all([
-    recruiterApi.getCandidate(id),
-    recruiterApi.getReport(id).catch((error: unknown) => {
-      if (isStatus(error, 404, 409)) return null;
-      throw error;
-    }),
-  ]);
-  return { candidate, report };
-};
+interface ReportViewProps {
+  readonly candidate: Candidate;
+  readonly report: Report | null;
+  readonly isChecking: boolean;
+  readonly onCheckAgain: () => void;
+}
 
-const CandidateDetails = ({ id }: { id: number }) => {
-  const load = useCallback(() => loadReport(id), [id]);
-  const { state, retry } = useRequest(load);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading the report" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    if (isStatus(state.error, 404)) return <Navigate to="/page-not-found" replace />;
-
-    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
-  }
-
-  const { candidate, report } = state.data;
+const ReportView = ({ candidate, report, isChecking, onCheckAgain }: ReportViewProps) => {
   const results = report?.results ?? [];
   const overall =
     results.length > 0
@@ -121,7 +99,13 @@ const CandidateDetails = ({ id }: { id: number }) => {
             ) : (
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-[15px] text-slate-600">The PDF is being made.</p>
-                <Button variant="transparent" border="solid" fullWidth={false} onClick={retry}>
+                <Button
+                  variant="transparent"
+                  border="solid"
+                  fullWidth={false}
+                  isLoading={isChecking}
+                  onClick={onCheckAgain}
+                >
                   Check again
                 </Button>
               </div>
@@ -152,6 +136,29 @@ const CandidateDetails = ({ id }: { id: number }) => {
 
       <DecisionNote benchmark="Scores are measured against the CareerLine benchmark for each skill and level, not against other candidates." />
     </div>
+  );
+};
+
+const CandidateDetails = ({ id }: { id: number }) => {
+  const candidate = useQuery(recruiterQueries.candidate(id));
+  const report = useQuery(recruiterQueries.candidateReport(id));
+
+  return (
+    <QueryState
+      query={combineResults([candidate, report] as const)}
+      loadingTitle="Loading the report"
+      redirectOnNotFound
+      errorClassName="px-5 py-8 sm:px-8"
+    >
+      {([person, latest]) => (
+        <ReportView
+          candidate={person}
+          report={latest}
+          isChecking={report.isFetching}
+          onCheckAgain={() => void report.refetch()}
+        />
+      )}
+    </QueryState>
   );
 };
 

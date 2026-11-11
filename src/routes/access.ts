@@ -1,4 +1,4 @@
-import { USER_TYPES, type UserType } from '../lib/session';
+import { USER_TYPES, type UserType } from '../lib/user';
 
 const EVERYONE: readonly UserType[] = USER_TYPES;
 const BEGINNERS: readonly UserType[] = ['beginner'];

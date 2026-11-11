@@ -51,7 +51,7 @@ import {
 import { NotFound } from '../components/NotFound/NotFound.tsx';
 import { NoAccess } from '../components/NoAccess';
 import { authRoutes } from '../authRoutes';
-import type { UserType } from '../lib/session';
+import type { UserType } from '../lib/user';
 
 const guard = (allow: readonly UserType[], children: RouteObject[]): RouteObject => ({
   element: <RequireAccess allow={allow} />,

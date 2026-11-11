@@ -3,7 +3,7 @@ import { LuBriefcase, LuCompass, LuSparkles } from 'react-icons/lu';
 import { Card } from '../components/Card';
 import { CreditsStrip } from '../components/CreditsStrip';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
-import { useSession, type UserType } from '../lib/session';
+import { useCurrentUser, type UserType } from '../lib/user';
 
 const FEATURES = [
   {
@@ -102,9 +102,8 @@ const AreaHome = ({ area }: { area: Area }) => (
 );
 
 export const Dashboard = () => {
-  const { session } = useSession();
-  const firstName = session?.user.name.trim().split(/\s+/)[0];
-  const userType = session?.user.userType ?? 'beginner';
+  const { name, userType } = useCurrentUser();
+  const firstName = name.trim().split(/\s+/)[0];
 
   return (
     <div className="flex w-full flex-col gap-8 px-5 py-8 sm:px-8">

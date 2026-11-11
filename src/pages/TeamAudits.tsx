@@ -1,20 +1,14 @@
 import { useId } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
-import { organisationsApi, type AuditSummary, type Organisation } from '../lib/api';
+import type { AuditSummary, Organisation } from '../lib/api';
+import { combineResults, organisationQueries } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { AUDIT_STATUS } from '../lib/organisation/labels';
-
-const load = async () => {
-  const organisation = await organisationsApi.me();
-  const audits = await organisationsApi.listAudits(organisation.organisation_id);
-  return { organisation, audits };
-};
 
 const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
 
@@ -72,42 +66,10 @@ const Seats = ({ organisation }: { organisation: Organisation }) => {
 };
 
 export const TeamAudits = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your audits" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    const { organisation, audits } = state.data;
-    content = (
-      <>
-        <Seats organisation={organisation} />
-        <div className="flex flex-wrap gap-3">
-          <Link to="/team/audits/new" className={`${PRIMARY_ACTION} w-fit`}>
-            Start an audit
-          </Link>
-          <Link to="/team/import" className={`${SECONDARY_ACTION} w-fit`}>
-            Upload staff list
-          </Link>
-          <Link to="/team/heatmap" className={`${SECONDARY_ACTION} w-fit`}>
-            See the heatmap
-          </Link>
-        </div>
-        {audits.length === 0 ? (
-          <p className="text-[15px] text-slate-600">No audits yet.</p>
-        ) : (
-          <Table
-            caption="Audits"
-            columns={COLUMNS}
-            rows={audits}
-            getRowKey={(row) => String(row.audit_id)}
-          />
-        )}
-      </>
-    );
-  }
+  const team = useQueries({
+    queries: [organisationQueries.me(), organisationQueries.audits()],
+    combine: combineResults,
+  });
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -117,7 +79,34 @@ export const TeamAudits = () => {
           Test your staff against the skills their roles need and follow each audit to the end.
         </p>
       </header>
-      {content}
+      <QueryState query={team} loadingTitle="Loading your audits">
+        {([organisation, audits]) => (
+          <>
+            <Seats organisation={organisation} />
+            <div className="flex flex-wrap gap-3">
+              <Link to="/team/audits/new" className={`${PRIMARY_ACTION} w-fit`}>
+                Start an audit
+              </Link>
+              <Link to="/team/import" className={`${SECONDARY_ACTION} w-fit`}>
+                Upload staff list
+              </Link>
+              <Link to="/team/heatmap" className={`${SECONDARY_ACTION} w-fit`}>
+                See the heatmap
+              </Link>
+            </div>
+            {audits.length === 0 ? (
+              <p className="text-[15px] text-slate-600">No audits yet.</p>
+            ) : (
+              <Table
+                caption="Audits"
+                columns={COLUMNS}
+                rows={audits}
+                getRowKey={(row) => String(row.audit_id)}
+              />
+            )}
+          </>
+        )}
+      </QueryState>
     </div>
   );
 };

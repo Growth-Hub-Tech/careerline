@@ -1,17 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { Select } from '../components/Select';
-import {
-  organisationsApi,
-  type AuditSummary,
-  type Heatmap,
-  type HeatmapCell,
-  type HeatmapGrouping,
-} from '../lib/api';
-import { useRequest } from '../lib/hooks/useRequest';
+import type { AuditSummary, Heatmap, HeatmapCell, HeatmapGrouping } from '../lib/api';
+import { organisationQueries } from '../lib/api/queries';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 import { heatmapCsv, heatmapScore as score } from '../lib/organisation/heatmapCsv';
 
@@ -134,51 +128,11 @@ const Legend = () => (
   </div>
 );
 
-interface HeatmapViewProps {
-  readonly organisationId: number;
-  readonly audits: readonly AuditSummary[];
-  readonly onDownload: (name: string, text: string) => void;
-}
-
-const HeatmapView = ({ organisationId, audits, onDownload }: HeatmapViewProps) => {
+const HeatmapView = ({ audits }: { audits: readonly AuditSummary[] }) => {
   const [groupBy, setGroupBy] = useState<HeatmapGrouping>('member');
   const [auditId, setAuditId] = useState<number>();
-  const load = useCallback(
-    () => organisationsApi.heatmap(organisationId, groupBy, auditId),
-    [organisationId, groupBy, auditId],
-  );
-  const { state, retry } = useRequest(load);
+  const heatmap = useQuery(organisationQueries.heatmap(groupBy, auditId));
   const column = GROUPINGS.find((item) => item.value === groupBy)?.column ?? 'Group';
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading the heatmap" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else if (state.data.rows.length === 0) {
-    content = (
-      <p className="text-[15px] text-slate-600">
-        No results yet. Start an audit to fill the heatmap.
-      </p>
-    );
-  } else {
-    const heatmap = state.data;
-    content = (
-      <>
-        <Grid heatmap={heatmap} column={column} />
-        <Legend />
-        <Button
-          variant="transparent"
-          border="solid"
-          fullWidth={false}
-          className="self-start"
-          onClick={() => onDownload('team-heatmap.csv', heatmapCsv(heatmap, column))}
-        >
-          Download CSV
-        </Button>
-      </>
-    );
-  }
 
   return (
     <>
@@ -201,38 +155,35 @@ const HeatmapView = ({ organisationId, audits, onDownload }: HeatmapViewProps) =
           }
         />
       </div>
-      {content}
+      <QueryState query={heatmap} loadingTitle="Loading the heatmap">
+        {(data) =>
+          data.rows.length === 0 ? (
+            <p className="text-[15px] text-slate-600">
+              No results yet. Start an audit to fill the heatmap.
+            </p>
+          ) : (
+            <>
+              <Grid heatmap={data} column={column} />
+              <Legend />
+              <Button
+                variant="transparent"
+                border="solid"
+                fullWidth={false}
+                className="self-start"
+                onClick={() => downloadFile('team-heatmap.csv', heatmapCsv(data, column))}
+              >
+                Download CSV
+              </Button>
+            </>
+          )
+        }
+      </QueryState>
     </>
   );
 };
 
-const load = async () => {
-  const organisation = await organisationsApi.me();
-  const audits = await organisationsApi.listAudits(organisation.organisation_id);
-  return { organisation, audits };
-};
-
-interface TeamHeatmapProps {
-  readonly onDownload?: (name: string, text: string) => void;
-}
-
-export const TeamHeatmap = ({ onDownload = downloadFile }: TeamHeatmapProps) => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading the heatmap" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <HeatmapView
-        organisationId={state.data.organisation.organisation_id}
-        audits={state.data.audits}
-        onDownload={onDownload}
-      />
-    );
-  }
+export const TeamHeatmap = () => {
+  const audits = useQuery(organisationQueries.audits());
 
   return (
     <div className="flex w-full max-w-[1200px] flex-col gap-6 px-5 py-10 sm:px-20">
@@ -242,7 +193,9 @@ export const TeamHeatmap = ({ onDownload = downloadFile }: TeamHeatmapProps) => 
           See how your team measures up, skill by skill.
         </p>
       </header>
-      {content}
+      <QueryState query={audits} loadingTitle="Loading the heatmap">
+        {(list) => <HeatmapView audits={list} />}
+      </QueryState>
     </div>
   );
 };

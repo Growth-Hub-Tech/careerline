@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { authApi } from '../../lib/api';
+import { useRequestPasswordReset } from '../../lib/api/queries';
 import { describeAuthError } from '../../lib/api/describeError';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
 import { forgotPasswordSchema, type ForgotPasswordValues } from '../../lib/validation/auth';
@@ -9,15 +9,8 @@ import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthText, AuthTitle, CardAuthLayout, DashedLink, TextField } from '../Auth';
 import { Button } from '../Button';
 
-interface ResetPasswordProps {
-  readonly onSubmit?: (values: ForgotPasswordValues) => Promise<void>;
-}
-
-const requestResetLink = async ({ email }: ForgotPasswordValues) => {
-  await authApi.requestPasswordReset(email);
-};
-
-export const ResetPassword = ({ onSubmit = requestResetLink }: ResetPasswordProps) => {
+export const ResetPassword = () => {
+  const requestReset = useRequestPasswordReset();
   const [formError, setFormError] = useState<string>();
   const [sentTo, setSentTo] = useState<string>();
 
@@ -36,7 +29,7 @@ export const ResetPassword = ({ onSubmit = requestResetLink }: ResetPasswordProp
     setSentTo(undefined);
 
     try {
-      await onSubmit(values);
+      await requestReset.mutateAsync(values.email);
       setSentTo(values.email);
     } catch (error) {
       if (!applyFieldErrors(error, ['email'], setError)) {

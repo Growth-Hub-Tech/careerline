@@ -3,30 +3,23 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
-import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { needsUserType, useSession, wasSessionExpired, type Session } from '../../lib/session';
+import { userNeedsType, useSignIn, useUserStore } from '../../lib/user';
 import { signInSchema, type SignInValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
 
-interface SignInProps {
-  readonly onSubmit?: (values: SignInValues) => Promise<Session | undefined>;
-}
-
-const signInWithApi = (values: SignInValues) => authActions.signIn(values);
-
-export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
+export const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation() as {
     state: { from?: { pathname: string; search?: string; hash?: string } } | null;
   };
   const from = location.state?.from;
-  const { signIn } = useSession();
+  const signIn = useSignIn();
   const [formError, setFormError] = useState<string>();
-  const [hadExpired] = useState(wasSessionExpired);
+  const [hadExpired] = useState(() => useUserStore.getState().expired);
 
   const {
     register,
@@ -42,16 +35,15 @@ export const SignIn = ({ onSubmit = signInWithApi }: SignInProps) => {
     setFormError(undefined);
 
     try {
-      const session = await onSubmit(values);
-      if (session) {
-        signIn(session);
-        const next = needsUserType(session)
+      await signIn.mutateAsync(values);
+      const { user } = useUserStore.getState();
+      const next =
+        user && userNeedsType(user)
           ? AUTH_PATHS.getStarted
           : from
             ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
             : '/dashboard';
-        navigate(next, { replace: true });
-      }
+      navigate(next, { replace: true });
     } catch (error) {
       if (!applyFieldErrors(error, ['email', 'password'], setError)) {
         setFormError(describeAuthError(error));

@@ -1,4 +1,4 @@
-import { USER_TYPES } from '../../lib/session';
+import { USER_TYPES } from '../../lib/user';
 import { accessFor } from '../../routes/access';
 import { NAV_BY_TYPE } from './navigation';
 

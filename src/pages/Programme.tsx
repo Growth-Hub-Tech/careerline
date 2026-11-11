@@ -1,4 +1,5 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
@@ -7,13 +8,15 @@ import { FlowHeader } from '../components/FlowHeader';
 import { PageLoader } from '../components/Loader';
 import { ProgrammeCard } from '../components/ProgrammeCard';
 import { LoadFailed } from '../components/PageState';
-import { beginnerApi, programmesApi } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { hasStatus } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
-import { loadBudget } from '../lib/beginner/budget';
-import { useRequest } from '../lib/hooks/useRequest';
-
-const openUrl = (url: string) => window.location.assign(url);
+import {
+  beginnerQueries,
+  profileQueries,
+  programmeQueries,
+  selectBudget,
+  useRecordProgrammeClick,
+} from '../lib/api/queries';
 
 const ProgrammeFrame = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-dvh flex-col bg-white">
@@ -22,41 +25,27 @@ const ProgrammeFrame = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-interface ProgrammeDetailsProps {
-  readonly id: number;
-  readonly onOpen: (url: string) => void;
-}
+// The programme with, when the questionnaire has been answered, why it was recommended
+const ProgrammeDetails = ({ id }: { id: number }) => {
+  const recordClick = useRecordProgrammeClick();
+  const query = useQuery(programmeQueries.detail(id));
+  const recommendations = useQuery(beginnerQueries.recommendations());
+  const { data: budget = null } = useQuery({ ...profileQueries.detail(), select: selectBudget });
+  const programme = query.data;
 
-const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
-  const [clickError, setClickError] = useState<string>();
-  const [isOpening, setIsOpening] = useState(false);
-
-  const load = useCallback(async () => {
-    const [programme, path] = await Promise.all([
-      programmesApi.get(id),
-      beginnerApi.getRecommendations().catch(() => undefined),
-    ]);
-    return { programme, path };
-  }, [id]);
-  const { state, retry } = useRequest(load);
-  const { state: budgetState } = useRequest(loadBudget);
-  const budget = budgetState.status === 'success' ? budgetState.data : null;
-
-  if (state.status === 'error') {
-    if (state.error instanceof ApiError && state.error.status === 404) {
-      return <Navigate to="/page-not-found" replace />;
-    }
+  if (!programme && query.isError) {
+    if (hasStatus(query.error, 404)) return <Navigate to="/page-not-found" replace />;
 
     return (
       <ProgrammeFrame>
         <main className="flex flex-1 items-center justify-center px-5">
-          <LoadFailed error={state.error} onRetry={retry} />
+          <LoadFailed error={query.error} onRetry={() => void query.refetch()} />
         </main>
       </ProgrammeFrame>
     );
   }
 
-  if (state.status === 'loading') {
+  if (!programme || recommendations.isPending) {
     return (
       <ProgrammeFrame>
         <PageLoader title="Loading the programme" className="flex-1" />
@@ -64,26 +53,16 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
     );
   }
 
-  const { programme, path } = state.data;
+  const path = recommendations.data;
   const recommendation = path?.recommendations.find(
     (item) => item.programme?.programme_id === programme.programme_id,
   );
 
-  const open = async () => {
-    setClickError(undefined);
-    setIsOpening(true);
-
-    try {
-      const click = await programmesApi.recordClick(programme.programme_id, {
-        source: 'beginner_path',
-      });
-      onOpen(click.redirect_url);
-    } catch (error) {
-      setClickError(describeError(error));
-    } finally {
-      setIsOpening(false);
-    }
-  };
+  const open = () =>
+    recordClick.mutate(
+      { programmeId: programme.programme_id, click: { source: 'beginner_path' } },
+      { onSuccess: (click) => window.location.assign(click.redirect_url) },
+    );
 
   return (
     <ProgrammeFrame>
@@ -103,9 +82,16 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
             <p className="max-w-[60ch] text-[15px] leading-[1.55] text-slate-600">
               {programme.summary}
             </p>
-            {clickError && <Alert variant="error">{clickError}</Alert>}
+            {recordClick.isError && (
+              <Alert variant="error">{describeError(recordClick.error)}</Alert>
+            )}
             <div className="pt-4">
-              <Button variant="deep" fullWidth={false} isLoading={isOpening} onClick={open}>
+              <Button
+                variant="deep"
+                fullWidth={false}
+                isLoading={recordClick.isPending || recordClick.isSuccess}
+                onClick={open}
+              >
                 View programme details
               </Button>
             </div>
@@ -126,11 +112,7 @@ const ProgrammeDetails = ({ id, onOpen }: ProgrammeDetailsProps) => {
   );
 };
 
-interface ProgrammeProps {
-  readonly onOpen?: (url: string) => void;
-}
-
-export const Programme = ({ onOpen = openUrl }: ProgrammeProps) => {
+export const Programme = () => {
   const { programmeId } = useParams();
   const id = Number(programmeId);
 
@@ -138,5 +120,5 @@ export const Programme = ({ onOpen = openUrl }: ProgrammeProps) => {
     return <Navigate to="/page-not-found" replace />;
   }
 
-  return <ProgrammeDetails key={id} id={id} onOpen={onOpen} />;
+  return <ProgrammeDetails key={id} id={id} />;
 };

@@ -7,8 +7,9 @@ import { Button } from '../components/Button';
 import { Select } from '../components/Select';
 import { Textarea } from '../components/Textarea';
 import { TextField } from '../components/TextField';
-import { contactApi, type ContactReceipt } from '../lib/api';
+import type { ContactReceipt } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { useSendContact } from '../lib/api/queries';
 
 const TEAM_SIZES = ['1-50', '51-200', '201-1000', '1000+'].map((value) => ({
   value,
@@ -29,6 +30,7 @@ export const Quote = () => {
   const [error, setError] = useState<string>();
   const [sent, setSent] = useState<{ email: string; receipt: ContactReceipt }>();
 
+  const sendContact = useSendContact();
   const {
     register,
     handleSubmit,
@@ -41,7 +43,7 @@ export const Quote = () => {
   const submit = handleSubmit(async (values) => {
     setError(undefined);
     try {
-      const receipt = await contactApi.send({
+      const receipt = await sendContact.mutateAsync({
         full_name: values.fullName.trim(),
         email: values.email.trim(),
         topic: 'organisation_audit',

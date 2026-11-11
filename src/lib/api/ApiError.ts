@@ -39,3 +39,7 @@ export class ApiError extends Error {
     return this.status === 0;
   }
 }
+
+// Whether a request failed with one of these statuses (e.g. 404: the thing does not exist)
+export const hasStatus = (error: unknown, ...statuses: readonly number[]) =>
+  error instanceof ApiError && statuses.includes(error.status);

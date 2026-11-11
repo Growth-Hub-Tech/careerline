@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LuChevronDown, LuMenu, LuX } from 'react-icons/lu';
 import logo from '../../assets/careerline.png';
-import { useSession } from '../../lib/session';
+import { useUser } from '../../lib/user';
 
 interface NavChild {
   readonly label: string;
@@ -29,8 +29,8 @@ const linkBase =
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const { session } = useSession();
-  const account = session
+  const user = useUser();
+  const account = user
     ? { label: 'Go to dashboard', path: '/dashboard' }
     : { label: 'Log in', path: '/sign-in' };
   const { pathname } = useLocation();

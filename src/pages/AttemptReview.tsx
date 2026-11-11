@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useId } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { LuCheck, LuX } from 'react-icons/lu';
 import { PageLoader } from '../components/Loader';
 import { LoadFailed } from '../components/PageState';
 import { StatusLabel } from '../components/StatusLabel';
-import { attemptsApi, type AttemptReview as Review, type ReviewItem } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
-import { useRequest } from '../lib/hooks/useRequest';
+import type { ReviewItem } from '../lib/api';
+import { hasStatus } from '../lib/api/ApiError';
+import { attemptQueries } from '../lib/api/queries';
 
-const isStatus = (error: unknown, status: number) =>
-  error instanceof ApiError && error.status === status;
+// Fuller explanations are written in the background: ask every 3 seconds until they are there.
+// If asking fails, the short explanations stay.
+const POLL_INTERVAL = 3000;
 
 const Question = ({ item }: { item: ReviewItem }) => {
   const headingId = useId();
@@ -71,54 +73,31 @@ const Question = ({ item }: { item: ReviewItem }) => {
   );
 };
 
-interface ReviewDetailsProps {
-  readonly attemptId: number;
-  readonly pollInterval: number;
-}
+const ReviewDetails = ({ attemptId }: { attemptId: number }) => {
+  const query = useQuery({
+    ...attemptQueries.review(attemptId),
+    refetchInterval: ({ state }) =>
+      state.status !== 'error' && state.data?.ai_explanations === 'generating'
+        ? POLL_INTERVAL
+        : false,
+  });
+  const review = query.data;
+  const isWriting = review?.ai_explanations === 'generating' && !query.isError;
 
-const ReviewDetails = ({ attemptId, pollInterval }: ReviewDetailsProps) => {
-  const load = useCallback(() => attemptsApi.review(attemptId), [attemptId]);
-  const { state, retry } = useRequest(load);
-  const [latest, setLatest] = useState<Review>();
-  const review = latest ?? (state.status === 'success' ? state.data : undefined);
-  const isWriting = review?.ai_explanations === 'generating';
-
-  useEffect(() => {
-    if (!review || !isWriting) return;
-    let active = true;
-    const timer = window.setTimeout(() => {
-      attemptsApi.review(attemptId).then(
-        (next) => {
-          if (active) setLatest(next);
-        },
-        () => {
-          if (active) setLatest({ ...review, ai_explanations: 'unavailable' });
-        },
-      );
-    }, pollInterval);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [attemptId, isWriting, pollInterval, review]);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading your answers" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    if (isStatus(state.error, 404)) return <Navigate to="/page-not-found" replace />;
-    if (isStatus(state.error, 409)) {
+  if (!review) {
+    if (!query.isError) return <PageLoader title="Loading your answers" className="flex-1" />;
+    if (hasStatus(query.error, 404)) return <Navigate to="/page-not-found" replace />;
+    if (hasStatus(query.error, 409)) {
       return (
         <p className="text-[15px] text-slate-600">
           You can review your answers once the test is finished.
         </p>
       );
     }
-    return <LoadFailed error={state.error} onRetry={retry} />;
+    return <LoadFailed error={query.error} onRetry={() => void query.refetch()} />;
   }
 
-  const items = review?.items ?? [];
+  const { items } = review;
   const right = items.filter((item) => item.is_correct).length;
 
   return (
@@ -140,11 +119,7 @@ const ReviewDetails = ({ attemptId, pollInterval }: ReviewDetailsProps) => {
   );
 };
 
-interface AttemptReviewProps {
-  readonly pollInterval?: number;
-}
-
-export const AttemptReview = ({ pollInterval = 3000 }: AttemptReviewProps) => {
+export const AttemptReview = () => {
   const { attemptId } = useParams();
   const id = Number(attemptId);
 
@@ -161,7 +136,7 @@ export const AttemptReview = ({ pollInterval = 3000 }: AttemptReviewProps) => {
         Back to reports
       </Link>
       <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Review your answers</h1>
-      <ReviewDetails key={id} attemptId={id} pollInterval={pollInterval} />
+      <ReviewDetails key={id} attemptId={id} />
     </div>
   );
 };

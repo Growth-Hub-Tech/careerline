@@ -27,7 +27,7 @@ npm run dev
 | Command                 | What it does                                                   |
 | ----------------------- | -------------------------------------------------------------- |
 | `npm run dev`           | Starts the site at http://localhost:5173                       |
-| `npm run test`          | Runs every test, including the four journeys and accessibility |
+| `npm run test`          | Runs the unit tests                                            |
 | `npm run type-check`    | Checks the TypeScript types                                    |
 | `npm run lint`          | Checks the code style rules                                    |
 | `npm run build`         | Builds the site into `dist/` (needs `VITE_API_URL` set)        |
@@ -41,12 +41,14 @@ CI runs lint, format, type-check, tests, build and the size check on every pull 
 
 ```
 src/
-  pages/         one file per screen, with its test next to it
+  pages/         one file per screen
   components/    shared building blocks (buttons, tables, dialogs, cards)
   routes/        page addresses, layouts, access rules per user type
-  lib/api/       the API client, one file per area, types from the API description
-  lib/           helpers per area (tests, beginner, payments, organisation, recruiter)
-  test/          fixtures, the accessibility check and test helpers
+  lib/api/       the request functions, every API route, the query cache, types from the API
+  lib/api/queries/  the reads and writes per area, with what each write refreshes
+  lib/user/      the signed-in user: store, provider, sign in and out
+  lib/           helpers per area (tests, beginner, payments, organisation, recruiter, tasks)
+  test/          fixtures and test setup
 docs/openapi.json  the API description the types are generated from
 ```
 
@@ -54,7 +56,12 @@ docs/openapi.json  the API description the types are generated from
 
 Replies come as `{ success, data }`. Errors become an `ApiError` with a status, code, message and reference.
 
-Signing in sets the API's `careerline_session` cookie (HttpOnly, so page scripts never see the token), and every request is sent with `credentials: 'include'`. The browser only keeps the user's name, email and type. The API must list the site's origin in its `CORS_ORIGINS`, and in production the site and the API must share a domain (for example `careerline.ng` and `api.careerline.ng`) for the cookie to be sent.
+- **Routes**: every API address is in `src/lib/api/routes.ts` (`API_ROUTES`). A test checks each one against `docs/openapi.json`.
+- **Requests**: `apiGet`, `apiPost`, `apiPut`, `apiPatch` and `apiDelete` (`src/lib/api`) take the route, then the payload, then options (`query`, `signal`, `auth: false` for requests that need no session).
+- **Data**: pages read and write through TanStack Query (`@tanstack/react-query` v5). `src/lib/api/queries/` has a `queryOptions` factory for every read and a hook for every write; each write updates or refreshes the cached data it changes, so pages never do. Cache keys are in `queryKeys.ts`, defaults in `queryClient.ts`: 30 s fresh, 10 min for catalogues, one retry for a dropped connection or a server error, no refetch on window focus.
+- **The signed-in user**: a Zustand store (`src/lib/user/store.ts`) keeps who is signed in and the type chosen on Get started. `UserProvider` checks a remembered user against `GET /accounts/me`, and clears all cached data when the user changes or signs out. `RequireAccess` is the only page guard.
+
+Signing in sets the API's `careerline_session` cookie (HttpOnly, so page scripts never see the token), and every request is sent with `credentials: 'include'`. The browser only keeps the user's name, email and type. A 401 on a signed-in request signs the user out. The API must list the site's origin in its `CORS_ORIGINS`, and in production the site and the API must share a domain (for example `careerline.ng` and `api.careerline.ng`) for the cookie to be sent.
 
 To update the types after the API changes, copy `openapi.json` from the careerline-api repository (the test server also serves it at `/openapi.json`; production does not), then regenerate them:
 

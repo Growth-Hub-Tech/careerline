@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import { OfflineBanner } from '../components/OfflineBanner';
-import { SessionProvider } from '../lib/session';
+import { UserProvider } from '../lib/user';
 
 export const SessionRoot = () => (
-  <SessionProvider>
+  <UserProvider>
     <OfflineBanner />
     <Outlet />
-  </SessionProvider>
+  </UserProvider>
 );

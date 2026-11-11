@@ -74,6 +74,7 @@ export default defineConfig(({ command, mode }) => {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
             forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+            data: ['@tanstack/react-query', 'zustand'],
             monitoring: ['@sentry/react'],
           },
         },

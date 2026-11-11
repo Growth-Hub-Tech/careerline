@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { SkillQuestion } from '../components/SkillQuestion';
-import { attemptsApi, type AttemptState } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { queryKeys, type AttemptState } from '../lib/api';
+import { hasStatus } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
+import { attemptQueries, useAnswer } from '../lib/api/queries';
 import { clearAttempt, readAttempt, type SavedAttempt } from '../lib/tests/attemptStore';
-
-const isStatus = (error: unknown, ...statuses: number[]) =>
-  error instanceof ApiError && statuses.includes(error.status);
 
 const LINK_CLASS =
   'inline-flex h-12 w-fit items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
@@ -74,44 +73,36 @@ const Countdown = ({ expiresAt, onTimeUp }: { expiresAt: string; onTimeUp: () =>
   );
 };
 
+// 409 or 410: the attempt moved on without this page (answered in another tab, time ran out)
+const isOutOfStep = (error: unknown) => hasStatus(error, 409, 410);
+
 interface PlayerProps {
   readonly title: string;
   readonly attempt: AttemptState;
-  readonly onReply: (attempt: AttemptState) => void;
   readonly onOutOfStep: () => void;
 }
 
-const Player = ({ title, attempt, onReply, onOutOfStep }: PlayerProps) => {
+// The reply to an answer is the next question (or the end); it replaces the attempt in the cache
+const Player = ({ title, attempt, onOutOfStep }: PlayerProps) => {
+  const answer = useAnswer(attempt.attempt_id);
   const [selected, setSelected] = useState<string>();
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string>();
   const sending = useRef(false);
   const question = attempt.question;
 
   if (!question) return null;
 
-  const next = async () => {
+  const next = () => {
     if (selected === undefined || sending.current) return;
     sending.current = true;
-    setIsSending(true);
-    setError(undefined);
-
-    try {
-      onReply(
-        await attemptsApi.answer(attempt.attempt_id, {
-          question_id: question.question_id,
-          selected_option_id: Number(selected),
-        }),
-      );
-    } catch (answerError) {
-      if (isStatus(answerError, 409, 410)) {
-        onOutOfStep();
-        return;
-      }
-      setError(describeError(answerError));
-      sending.current = false;
-      setIsSending(false);
-    }
+    answer.mutate(
+      { question_id: question.question_id, selected_option_id: Number(selected) },
+      {
+        onError: (answerError) => {
+          if (isOutOfStep(answerError)) onOutOfStep();
+          else sending.current = false;
+        },
+      },
+    );
   };
 
   return (
@@ -122,7 +113,9 @@ const Player = ({ title, attempt, onReply, onOutOfStep }: PlayerProps) => {
         </h1>
         {attempt.expires_at && <Countdown expiresAt={attempt.expires_at} onTimeUp={onOutOfStep} />}
       </div>
-      {error && <Alert variant="error">{error}</Alert>}
+      {answer.isError && !isOutOfStep(answer.error) && (
+        <Alert variant="error">{describeError(answer.error)}</Alert>
+      )}
       <SkillQuestion
         questionNumber={question.position}
         questionCount={attempt.total_questions}
@@ -135,7 +128,7 @@ const Player = ({ title, attempt, onReply, onOutOfStep }: PlayerProps) => {
         onChange={setSelected}
         onNext={next}
         isLast={question.position === attempt.total_questions}
-        isSubmitting={isSending}
+        isSubmitting={answer.isPending || answer.isSuccess}
       />
     </div>
   );
@@ -143,56 +136,45 @@ const Player = ({ title, attempt, onReply, onOutOfStep }: PlayerProps) => {
 
 const Attempt = ({ saved }: { saved: SavedAttempt }) => {
   const { testId, title, attemptId } = saved;
-  const [attempt, setAttempt] = useState<AttemptState>();
-  const [loadError, setLoadError] = useState<unknown>();
-  const [isMissing, setIsMissing] = useState(false);
-
-  const show = useCallback(
-    (next: AttemptState) => {
-      if (next.status !== 'in_progress') clearAttempt(testId);
-      setAttempt(next);
-    },
-    [testId],
-  );
-
-  const reload = useCallback(async () => {
-    setAttempt(undefined);
-    setLoadError(undefined);
-
-    try {
-      show(await attemptsApi.current(attemptId));
-    } catch (error) {
-      if (isStatus(error, 403, 404)) setIsMissing(true);
-      else setLoadError(error);
-    }
-  }, [attemptId, show]);
+  const client = useQueryClient();
+  const query = useQuery(attemptQueries.attempt(attemptId));
+  const attempt = query.data;
+  const status = attempt?.status;
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    if (status && status !== 'in_progress') clearAttempt(testId);
+  }, [status, testId]);
 
-  if (isMissing) {
-    return (
-      <TestEnded
-        testId={testId}
-        title="This test has ended"
-        message="Start the test again to get a result."
-      />
-    );
+  // Start again from what the API says now, with a loader in between
+  const reload = useCallback(
+    () => void client.resetQueries({ queryKey: queryKeys.attempts.attempt(attemptId) }),
+    [client, attemptId],
+  );
+
+  if (!attempt) {
+    if (query.isError && hasStatus(query.error, 403, 404)) {
+      return (
+        <TestEnded
+          testId={testId}
+          title="This test has ended"
+          message="Start the test again to get a result."
+        />
+      );
+    }
+
+    if (query.isError) {
+      return (
+        <div className="flex w-full max-w-[480px] flex-col gap-4">
+          <Alert variant="error">{describeError(query.error)}</Alert>
+          <Button fullWidth={false} onClick={() => void query.refetch()}>
+            Try again
+          </Button>
+        </div>
+      );
+    }
+
+    return <PageLoader title="Loading your test" className="flex-1" />;
   }
-
-  if (loadError) {
-    return (
-      <div className="flex w-full max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(loadError)}</Alert>
-        <Button fullWidth={false} onClick={() => void reload()}>
-          Try again
-        </Button>
-      </div>
-    );
-  }
-
-  if (!attempt) return <PageLoader title="Loading your test" className="flex-1" />;
 
   if (attempt.status === 'completed') {
     return <Navigate to={`/reports/${attempt.attempt_id}`} replace />;
@@ -223,8 +205,7 @@ const Attempt = ({ saved }: { saved: SavedAttempt }) => {
       key={attempt.question.question_id}
       title={title}
       attempt={attempt}
-      onReply={show}
-      onOutOfStep={() => void reload()}
+      onOutOfStep={reload}
     />
   );
 };

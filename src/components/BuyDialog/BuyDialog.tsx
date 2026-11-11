@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { paymentsApi, subscriptionsApi, type Checkout, type Money } from '../../lib/api';
+import type { Checkout, Money } from '../../lib/api';
 import { describeError } from '../../lib/api/describeError';
+import { useCheckout, useSubscribe } from '../../lib/api/queries';
 import { formatMoney } from '../../lib/format';
 import { callbackUrl, rememberReturn } from '../../lib/payments/checkoutReturn';
 import { Alert } from '../Alert';
@@ -16,46 +16,43 @@ export interface BuyItem {
   readonly seats?: number | null;
 }
 
-const openUrl = (url: string) => window.location.assign(url);
-
-const startCheckout = (item: BuyItem): Promise<Checkout> =>
-  item.kind === 'credit_pack'
-    ? paymentsApi.checkout({
-        item_type: 'credit_pack',
-        item_id: item.id,
-        callback_url: callbackUrl(),
-      })
-    : subscriptionsApi.subscribe({ plan_id: item.id, callback_url: callbackUrl() });
-
 interface BuyDialogProps {
   readonly item: BuyItem | null;
   readonly returnTo: string;
   readonly onClose: () => void;
-  readonly onOpen?: (url: string) => void;
 }
 
-export const BuyDialog = ({ item, returnTo, onClose, onOpen = openUrl }: BuyDialogProps) => {
-  const [error, setError] = useState<string>();
-  const [isPaying, setIsPaying] = useState(false);
+export const BuyDialog = ({ item, returnTo, onClose }: BuyDialogProps) => {
+  const checkout = useCheckout();
+  const subscribe = useSubscribe();
 
   if (!item) return null;
 
+  const purchase = item.kind === 'credit_pack' ? checkout : subscribe;
+
   const close = () => {
-    setError(undefined);
+    checkout.reset();
+    subscribe.reset();
     onClose();
   };
 
-  const pay = async () => {
-    setError(undefined);
-    setIsPaying(true);
+  // Paystack's page takes over: the button keeps spinning while the browser leaves
+  const goToPaystack = ({ authorization_url }: Checkout) => {
+    rememberReturn(returnTo);
+    window.location.assign(authorization_url);
+  };
 
-    try {
-      const checkout = await startCheckout(item);
-      rememberReturn(returnTo);
-      onOpen(checkout.authorization_url);
-    } catch (checkoutError) {
-      setError(describeError(checkoutError));
-      setIsPaying(false);
+  const pay = () => {
+    if (item.kind === 'credit_pack') {
+      checkout.mutate(
+        { item_type: 'credit_pack', item_id: item.id, callback_url: callbackUrl() },
+        { onSuccess: goToPaystack },
+      );
+    } else {
+      subscribe.mutate(
+        { plan_id: item.id, callback_url: callbackUrl() },
+        { onSuccess: goToPaystack },
+      );
     }
   };
 
@@ -72,7 +69,11 @@ export const BuyDialog = ({ item, returnTo, onClose, onOpen = openUrl }: BuyDial
           <Button variant="transparent" border="solid" fullWidth={false} onClick={close}>
             Cancel
           </Button>
-          <Button fullWidth={false} isLoading={isPaying} onClick={pay}>
+          <Button
+            fullWidth={false}
+            isLoading={purchase.isPending || purchase.isSuccess}
+            onClick={pay}
+          >
             Pay {price}
           </Button>
         </>
@@ -82,7 +83,7 @@ export const BuyDialog = ({ item, returnTo, onClose, onOpen = openUrl }: BuyDial
         <p className="text-[24px] font-bold text-slate-950">{price}</p>
         <p>{item.summary}</p>
         {item.seats ? <p>For up to {item.seats} seats</p> : null}
-        {error && <Alert variant="error">{error}</Alert>}
+        {purchase.isError && <Alert variant="error">{describeError(purchase.error)}</Alert>}
       </div>
     </Dialog>
   );

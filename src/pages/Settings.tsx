@@ -1,19 +1,23 @@
 import { useId, useState, type ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { StatusLabel } from '../components/StatusLabel';
 import { TextField } from '../components/TextField';
-import { accountsApi, authApi, type Account } from '../lib/api';
+import type { Account } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
-import { useRequest } from '../lib/hooks/useRequest';
-import { useSession } from '../lib/session';
+import {
+  useAccount,
+  useChangePassword,
+  useResendVerification,
+  useUpdateAccount,
+} from '../lib/api/queries';
+import { useSignOutEverywhere } from '../lib/user';
 import { fullName, newPassword, phone } from '../lib/validation/auth';
 
 const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
@@ -41,21 +45,7 @@ const detailsSchema = z.object({
 type DetailsValues = z.infer<typeof detailsSchema>;
 
 const EmailStatus = ({ account }: { account: Account }) => {
-  const [message, setMessage] = useState<string>();
-  const [error, setError] = useState<string>();
-  const [isSending, setIsSending] = useState(false);
-
-  const resend = async () => {
-    setIsSending(true);
-    setError(undefined);
-    try {
-      await authApi.resendVerification();
-      setMessage(`We sent a new link to ${account.email}.`);
-    } catch (sendError) {
-      setError(describeError(sendError));
-    }
-    setIsSending(false);
-  };
+  const resend = useResendVerification();
 
   return (
     <div className="flex flex-col gap-2">
@@ -66,26 +56,28 @@ const EmailStatus = ({ account }: { account: Account }) => {
           {account.email_verified ? 'Confirmed' : 'Not confirmed yet'}
         </StatusLabel>
       </p>
-      {!account.email_verified && !message && (
+      {!account.email_verified && !resend.isSuccess && (
         <Button
           variant="transparent"
           border="solid"
           fullWidth={false}
           className="self-start"
-          isLoading={isSending}
-          onClick={resend}
+          isLoading={resend.isPending}
+          onClick={() => resend.mutate()}
         >
           Send a new link
         </Button>
       )}
-      {message && <Alert variant="success">{message}</Alert>}
-      {error && <Alert variant="error">{error}</Alert>}
+      {resend.isSuccess && <Alert variant="success">We sent a new link to {account.email}.</Alert>}
+      {resend.isError && <Alert variant="error">{describeError(resend.error)}</Alert>}
     </div>
   );
 };
 
+// A saved name shows everywhere at once: the account in the cache is replaced, and the signed-in
+// user follows it
 const Details = ({ account }: { account: Account }) => {
-  const { session, signIn } = useSession();
+  const updateAccount = useUpdateAccount();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string>();
   const {
@@ -101,11 +93,10 @@ const Details = ({ account }: { account: Account }) => {
     setSaved(false);
     setError(undefined);
     try {
-      const updated = await accountsApi.update({
+      await updateAccount.mutateAsync({
         full_name: values.fullName.trim(),
         phone: values.phone.trim() || null,
       });
-      if (session) signIn({ ...session, user: { ...session.user, name: updated.full_name } });
       setSaved(true);
     } catch (saveError) {
       setError(describeError(saveError));
@@ -153,6 +144,7 @@ const passwordSchema = z
 type PasswordValues = z.infer<typeof passwordSchema>;
 
 const ChangePassword = () => {
+  const changePassword = useChangePassword();
   const [changed, setChanged] = useState(false);
   const [error, setError] = useState<string>();
   const {
@@ -170,7 +162,7 @@ const ChangePassword = () => {
     setChanged(false);
     setError(undefined);
     try {
-      await accountsApi.changePassword({
+      await changePassword.mutateAsync({
         current_password: values.current,
         new_password: values.next,
       });
@@ -224,37 +216,23 @@ const ChangePassword = () => {
 };
 
 const SignOutEverywhere = () => {
-  const navigate = useNavigate();
-  const { signOut } = useSession();
-  const [error, setError] = useState<string>();
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const signOutEverywhere = async () => {
-    setIsSigningOut(true);
-    setError(undefined);
-    try {
-      await authApi.logout(true);
-      signOut();
-      navigate('/sign-in', { replace: true });
-    } catch (signOutError) {
-      setError(describeError(signOutError));
-      setIsSigningOut(false);
-    }
-  };
+  const signOutEverywhere = useSignOutEverywhere();
 
   return (
     <Card title="Devices">
       <p className="text-[15px] text-slate-600">
         Signed in on a shared or lost device? Sign out of every device, including this one.
       </p>
-      {error && <Alert variant="error">{error}</Alert>}
+      {signOutEverywhere.isError && (
+        <Alert variant="error">{describeError(signOutEverywhere.error)}</Alert>
+      )}
       <Button
         variant="transparent"
         border="solid"
         fullWidth={false}
         className="self-start"
-        isLoading={isSigningOut}
-        onClick={signOutEverywhere}
+        isLoading={signOutEverywhere.isPending || signOutEverywhere.isSuccess}
+        onClick={() => signOutEverywhere.mutate()}
       >
         Sign out everywhere
       </Button>
@@ -262,33 +240,8 @@ const SignOutEverywhere = () => {
   );
 };
 
-const load = () => accountsApi.me();
-
 export const Settings = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your account" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <>
-        <Details account={state.data} />
-        <ChangePassword />
-        <SignOutEverywhere />
-        <p className="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
-          <Link to="/settings/privacy" className={LINK}>
-            Privacy centre
-          </Link>
-          <Link to="/billing" className={LINK}>
-            Billing
-          </Link>
-        </p>
-      </>
-    );
-  }
+  const account = useAccount();
 
   return (
     <div className="flex w-full max-w-[760px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -296,7 +249,23 @@ export const Settings = () => {
         <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Settings</h1>
         <p className="text-[15px] text-slate-600">Your account details and password.</p>
       </header>
-      {content}
+      <QueryState query={account} loadingTitle="Loading your account">
+        {(details) => (
+          <>
+            <Details account={details} />
+            <ChangePassword />
+            <SignOutEverywhere />
+            <p className="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
+              <Link to="/settings/privacy" className={LINK}>
+                Privacy centre
+              </Link>
+              <Link to="/billing" className={LINK}>
+                Billing
+              </Link>
+            </p>
+          </>
+        )}
+      </QueryState>
     </div>
   );
 };

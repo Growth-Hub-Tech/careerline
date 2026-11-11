@@ -1,21 +1,15 @@
 import { useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Checkbox } from '../components/Checkbox';
 import { SECONDARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { TextField } from '../components/TextField';
-import { organisationsApi, type Organisation, type TeamMember } from '../lib/api';
+import type { Organisation, TeamMember } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
-import { useRequest } from '../lib/hooks/useRequest';
-
-const load = async () => {
-  const organisation = await organisationsApi.me();
-  const members = await organisationsApi.listMembers(organisation.organisation_id);
-  return { organisation, members };
-};
+import { combineResults, organisationQueries, useStartAudit } from '../lib/api/queries';
 
 const people = (count: number) => `${count} ${count === 1 ? 'person' : 'people'}`;
 
@@ -38,8 +32,7 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
   const roles = rolesOf(members);
   const [name, setName] = useState('');
   const [chosen, setChosen] = useState<readonly number[]>(roles.map((role) => role.roleId));
-  const [error, setError] = useState<string>();
-  const [isSending, setIsSending] = useState(false);
+  const startAudit = useStartAudit();
 
   const invited = members.filter((item) => chosen.includes(item.role_id)).length;
   const hasSeats = invited <= organisation.seats_total;
@@ -50,25 +43,15 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
       current.includes(roleId) ? current.filter((id) => id !== roleId) : [...current, roleId],
     );
 
-  const send = async () => {
-    setIsSending(true);
-    setError(undefined);
-    try {
-      const audit = await organisationsApi.startAudit(organisation.organisation_id, {
-        name: name.trim(),
-        role_ids: [...chosen],
-        send_invitations: true,
-      });
-      navigate(`/team/audits/${audit.audit_id}`);
-    } catch (sendError) {
-      setError(describeError(sendError));
-      setIsSending(false);
-    }
-  };
+  const send = () =>
+    startAudit.mutate(
+      { name: name.trim(), role_ids: [...chosen], send_invitations: true },
+      { onSuccess: (audit) => navigate(`/team/audits/${audit.audit_id}`) },
+    );
 
   return (
     <div className="flex max-w-[640px] flex-col gap-6">
-      {error && <Alert variant="error">{error}</Alert>}
+      {startAudit.isError && <Alert variant="error">{describeError(startAudit.error)}</Alert>}
       <TextField
         label="Audit name"
         value={name}
@@ -104,7 +87,7 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
         fullWidth={false}
         className="self-start"
         disabled={!canSend}
-        isLoading={isSending}
+        isLoading={startAudit.isPending || startAudit.isSuccess}
         onClick={send}
       >
         Send invitations to {people(invited)}
@@ -114,27 +97,10 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
 };
 
 export const StartAudit = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your team" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else if (state.data.members.length === 0) {
-    content = (
-      <div className="flex flex-col gap-4">
-        <p className="text-[15px] text-slate-600">
-          Upload your staff list before you start an audit.
-        </p>
-        <Link to="/team/import" className={`${SECONDARY_ACTION} w-fit`}>
-          Upload staff list
-        </Link>
-      </div>
-    );
-  } else {
-    content = <AuditForm organisation={state.data.organisation} members={state.data.members} />;
-  }
+  const team = useQueries({
+    queries: [organisationQueries.me(), organisationQueries.members()],
+    combine: combineResults,
+  });
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -144,7 +110,22 @@ export const StartAudit = () => {
           Everyone in the roles you choose gets an email with a link to their test.
         </p>
       </header>
-      {content}
+      <QueryState query={team} loadingTitle="Loading your team">
+        {([organisation, members]) =>
+          members.length === 0 ? (
+            <div className="flex flex-col gap-4">
+              <p className="text-[15px] text-slate-600">
+                Upload your staff list before you start an audit.
+              </p>
+              <Link to="/team/import" className={`${SECONDARY_ACTION} w-fit`}>
+                Upload staff list
+              </Link>
+            </div>
+          ) : (
+            <AuditForm organisation={organisation} members={members} />
+          )
+        }
+      </QueryState>
     </div>
   );
 };

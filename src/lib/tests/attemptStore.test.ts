@@ -1,4 +1,4 @@
-import { writeSession } from '../session';
+import { useUserStore } from '../user/store';
 import { clearAttempt, readAttempt, saveAttempt, type SavedAttempt } from './attemptStore';
 
 const SAVED: SavedAttempt = {
@@ -8,7 +8,7 @@ const SAVED: SavedAttempt = {
 };
 
 const signInAs = (email: string) =>
-  writeSession({ user: { name: 'Skye', email, userType: 'self-test' } });
+  useUserStore.setState({ user: { name: 'Skye', email, userType: 'self-test' } });
 
 beforeEach(() => signInAs('skye@example.com'));
 

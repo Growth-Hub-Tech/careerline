@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,23 +8,22 @@ import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { CreditsStrip } from '../components/CreditsStrip';
 import { Dialog } from '../components/Dialog';
-import { PageLoader } from '../components/Loader';
 import { Select } from '../components/Select';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
 import { TextField } from '../components/TextField';
-import { LoadFailed } from '../components/PageState';
-import {
-  catalogApi,
-  invitationsApi,
-  recruiterApi,
-  type AssessmentSummary,
-  type Candidate,
-  type Invitation,
-} from '../lib/api';
+import { QueryState } from '../components/PageState';
+import type { AssessmentSummary, Candidate, Invitation } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import {
+  catalogQueries,
+  combineResults,
+  recruiterQueries,
+  useAddCandidate,
+  useRevokeInvitation,
+  useSendInvitation,
+} from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { INVITATION_STATUS, SHORTLIST_LIMIT } from '../lib/recruiter/invitations';
 
 const STATUS_FILTERS = [
@@ -47,23 +47,16 @@ const assignSchema = z.object({
 
 type AssignValues = z.infer<typeof assignSchema>;
 
-const load = async () => {
-  const [candidates, invitations, tests] = await Promise.all([
-    recruiterApi.listCandidates(),
-    invitationsApi.list(),
-    catalogApi.listTests(),
-  ]);
-  return { candidates, invitations, tests };
-};
-
 interface AssignFormProps {
   readonly tests: readonly AssessmentSummary[];
   readonly candidates: readonly Candidate[];
-  readonly onSent: (invitation: Invitation, candidate: Candidate) => void;
 }
 
-const AssignForm = ({ tests, candidates, onSent }: AssignFormProps) => {
+// A new email becomes a candidate first; the lists and the credits refresh once the test is sent
+const AssignForm = ({ tests, candidates }: AssignFormProps) => {
   const headingId = useId();
+  const addCandidate = useAddCandidate();
+  const sendInvitation = useSendInvitation();
   const [error, setError] = useState<string>();
   const [sentTo, setSentTo] = useState<string>();
   const isFull = candidates.length >= SHORTLIST_LIMIT;
@@ -89,12 +82,12 @@ const AssignForm = ({ tests, candidates, onSent }: AssignFormProps) => {
       const known = candidates.find((item) => item.email.toLowerCase() === email.toLowerCase());
       const person =
         known ??
-        (await recruiterApi.addCandidate({
+        (await addCandidate.mutateAsync({
           full_name: values.fullName.trim(),
           email,
           role_id: test.role_ids[0] ?? null,
         }));
-      const sent = await invitationsApi.send({
+      await sendInvitation.mutateAsync({
         kind: 'candidate',
         full_name: person.full_name,
         email: person.email,
@@ -102,7 +95,6 @@ const AssignForm = ({ tests, candidates, onSent }: AssignFormProps) => {
         candidate_id: person.candidate_id,
         expires_in_days: Number(values.expiresInDays),
       });
-      onSent(sent, person);
       setSentTo(person.full_name);
       reset();
     } catch (sendError) {
@@ -263,30 +255,14 @@ const SentTests = ({ invitations, onCancel }: SentTestsProps) => {
 interface CancelDialogProps {
   readonly invitation: Invitation | null;
   readonly onClose: () => void;
-  readonly onCancelled: (invitation: Invitation) => void;
 }
 
-const CancelDialog = ({ invitation, onClose, onCancelled }: CancelDialogProps) => {
-  const [error, setError] = useState<string>();
-  const [isCancelling, setIsCancelling] = useState(false);
-
-  useEffect(() => {
-    setError(undefined);
-    setIsCancelling(false);
-  }, [invitation]);
+const CancelDialog = ({ invitation, onClose }: CancelDialogProps) => {
+  const revoke = useRevokeInvitation();
 
   if (!invitation) return null;
 
-  const cancel = async () => {
-    setIsCancelling(true);
-    setError(undefined);
-    try {
-      onCancelled(await invitationsApi.revoke(invitation.invitation_id));
-    } catch (cancelError) {
-      setError(describeError(cancelError));
-      setIsCancelling(false);
-    }
-  };
+  const cancel = () => revoke.mutate(invitation.invitation_id, { onSuccess: onClose });
 
   return (
     <Dialog
@@ -299,74 +275,48 @@ const CancelDialog = ({ invitation, onClose, onCancelled }: CancelDialogProps) =
           <Button variant="transparent" border="solid" fullWidth={false} onClick={onClose}>
             Keep it
           </Button>
-          <Button fullWidth={false} isLoading={isCancelling} onClick={cancel}>
+          <Button fullWidth={false} isLoading={revoke.isPending} onClick={cancel}>
             Cancel test
           </Button>
         </>
       }
     >
-      {error && <Alert variant="error">{error}</Alert>}
+      {revoke.isError && <Alert variant="error">{describeError(revoke.error)}</Alert>}
     </Dialog>
   );
 };
 
 interface WorkspaceProps {
   readonly tests: readonly AssessmentSummary[];
-  readonly initialCandidates: readonly Candidate[];
-  readonly initialInvitations: readonly Invitation[];
+  readonly candidates: readonly Candidate[];
+  readonly invitations: readonly Invitation[];
 }
 
-const Workspace = ({ tests, initialCandidates, initialInvitations }: WorkspaceProps) => {
-  const [candidates, setCandidates] = useState(initialCandidates);
-  const [invitations, setInvitations] = useState(initialInvitations);
+const Workspace = ({ tests, candidates, invitations }: WorkspaceProps) => {
   const [cancelling, setCancelling] = useState<Invitation | null>(null);
-
-  const addSent = useCallback((sent: Invitation, person: Candidate) => {
-    setInvitations((current) => [sent, ...current]);
-    setCandidates((current) =>
-      current.some((item) => item.candidate_id === person.candidate_id)
-        ? current
-        : [...current, person],
-    );
-  }, []);
-
-  const replace = (updated: Invitation) => {
-    setInvitations((current) =>
-      current.map((item) => (item.invitation_id === updated.invitation_id ? updated : item)),
-    );
-    setCancelling(null);
-  };
 
   return (
     <>
-      <AssignForm tests={tests} candidates={candidates} onSent={addSent} />
+      <AssignForm tests={tests} candidates={candidates} />
       <SentTests invitations={invitations} onCancel={setCancelling} />
       <CancelDialog
+        key={cancelling?.invitation_id}
         invitation={cancelling}
         onClose={() => setCancelling(null)}
-        onCancelled={replace}
       />
     </>
   );
 };
 
 export const Candidates = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your candidates" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <Workspace
-        tests={state.data.tests}
-        initialCandidates={state.data.candidates}
-        initialInvitations={state.data.invitations}
-      />
-    );
-  }
+  const workspace = useQueries({
+    queries: [
+      recruiterQueries.candidates(),
+      recruiterQueries.invitations(),
+      catalogQueries.tests(),
+    ],
+    combine: combineResults,
+  });
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -377,7 +327,11 @@ export const Candidates = () => {
         </p>
       </header>
       <CreditsStrip returnTo="/candidates" />
-      {content}
+      <QueryState query={workspace} loadingTitle="Loading your candidates">
+        {([candidates, invitations, tests]) => (
+          <Workspace tests={tests} candidates={candidates} invitations={invitations} />
+        )}
+      </QueryState>
     </div>
   );
 };

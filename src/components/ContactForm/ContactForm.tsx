@@ -1,14 +1,9 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import {
-  contactApi,
-  type ContactReceipt,
-  type ContactRequest,
-  type ContactTopic,
-} from '../../lib/api';
+import type { ContactTopic } from '../../lib/api';
 import { describeError } from '../../lib/api/describeError';
+import { useSendContact } from '../../lib/api/queries';
 import { Alert } from '../Alert';
 import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
@@ -31,20 +26,16 @@ const contactFormSchema = z.object({
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 interface ContactFormProps {
-  readonly onSubmit?: (message: ContactRequest) => Promise<ContactReceipt>;
   readonly topic?: ContactTopic;
 }
 
-const sendWithApi = (message: ContactRequest) => contactApi.send(message);
-
-const ContactForm = ({ onSubmit = sendWithApi, topic = 'general' }: ContactFormProps) => {
-  const [formError, setFormError] = useState<string>();
-  const [receipt, setReceipt] = useState<ContactReceipt>();
+const ContactForm = ({ topic = 'general' }: ContactFormProps) => {
+  const send = useSendContact();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -57,30 +48,24 @@ const ContactForm = ({ onSubmit = sendWithApi, topic = 'general' }: ContactFormP
     },
   });
 
-  const submit = handleSubmit(async (data) => {
-    setFormError(undefined);
-    setReceipt(undefined);
-
-    try {
-      const result = await onSubmit({
+  const submit = handleSubmit((data) =>
+    send.mutate(
+      {
         full_name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
         topic,
         message: data.message,
-      });
-      setReceipt(result);
-      reset();
-    } catch (error) {
-      setFormError(describeError(error));
-    }
-  });
+      },
+      { onSuccess: () => reset() },
+    ),
+  );
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-      {formError && <Alert variant="error">{formError}</Alert>}
-      {receipt && (
+      {send.isError && <Alert variant="error">{describeError(send.error)}</Alert>}
+      {send.isSuccess && (
         <Alert variant="success">
-          Thanks, we have your message. Your reference is {receipt.ticket_id}.
+          Thanks, we have your message. Your reference is {send.data.ticket_id}.
         </Alert>
       )}
 
@@ -118,8 +103,8 @@ const ContactForm = ({ onSubmit = sendWithApi, topic = 'general' }: ContactFormP
         {...register('privacy')}
       />
 
-      <Button type="submit" fullWidth={false} isLoading={isSubmitting} className="sm:self-start">
-        {isSubmitting ? 'Sending...' : 'Send message'}
+      <Button type="submit" fullWidth={false} isLoading={send.isPending} className="sm:self-start">
+        {send.isPending ? 'Sending...' : 'Send message'}
       </Button>
     </form>
   );

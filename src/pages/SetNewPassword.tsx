@@ -13,9 +13,9 @@ import {
   TextField,
 } from '../components/Auth';
 import { Button } from '../components/Button';
-import { authApi } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { hasStatus } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
+import { useConfirmPasswordReset } from '../lib/api/queries';
 import { newPassword } from '../lib/validation/auth';
 
 const newPasswordSchema = z
@@ -38,6 +38,7 @@ const LinkProblem = ({ message }: { message: string }) => (
 );
 
 const NewPasswordForm = ({ token }: { token: string }) => {
+  const confirmReset = useConfirmPasswordReset();
   const [isDone, setIsDone] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [error, setError] = useState<string>();
@@ -53,10 +54,10 @@ const NewPasswordForm = ({ token }: { token: string }) => {
   const submit = handleSubmit(async (values) => {
     setError(undefined);
     try {
-      await authApi.confirmPasswordReset(token, values.password);
+      await confirmReset.mutateAsync({ token, newPassword: values.password });
       setIsDone(true);
     } catch (submitError) {
-      if (submitError instanceof ApiError && submitError.status === 410) setIsExpired(true);
+      if (hasStatus(submitError, 410)) setIsExpired(true);
       else setError(describeError(submitError));
     }
   });

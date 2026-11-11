@@ -1,15 +1,16 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Checkbox } from '../components/Checkbox';
 import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
-import { invitationsApi, type InvitationPublic } from '../lib/api';
+import type { InvitationPublic } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { recruiterQueries, useAcceptInvitation } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
-import { useSession } from '../lib/session';
+import { useUser } from '../lib/user';
 import { saveAttempt } from '../lib/tests/attemptStore';
 
 const Frame = ({ title, children }: { title: string; children: ReactNode }) => (
@@ -42,10 +43,9 @@ const Details = ({ invitation }: { invitation: InvitationPublic }) => (
 const StartTest = ({ token, invitation }: { token: string; invitation: InvitationPublic }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { session } = useSession();
+  const user = useUser();
+  const accept = useAcceptInvitation(token);
   const [agreed, setAgreed] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
-  const [error, setError] = useState<string>();
   const isStarted = invitation.status === 'accepted' && invitation.attempt_id !== null;
 
   const open = (attemptId: number) => {
@@ -57,20 +57,10 @@ const StartTest = ({ token, invitation }: { token: string; invitation: Invitatio
     navigate(`/tests/${invitation.test_id}/attempt`);
   };
 
-  const start = async () => {
-    setIsStarting(true);
-    setError(undefined);
-    try {
-      const accepted = await invitationsApi.accept(token);
-      if (accepted.attempt_id === null) throw new Error('The test could not be started.');
-      open(accepted.attempt_id);
-    } catch (startError) {
-      setError(describeError(startError));
-      setIsStarting(false);
-    }
-  };
+  const start = () =>
+    accept.mutate(undefined, { onSuccess: (accepted) => open(accepted.attempt_id) });
 
-  if (!session) {
+  if (!user) {
     return (
       <div className="flex flex-wrap gap-3">
         <Link to="/sign-in" state={{ from: location }} className={`${PRIMARY_ACTION} w-fit`}>
@@ -83,7 +73,7 @@ const StartTest = ({ token, invitation }: { token: string; invitation: Invitatio
     );
   }
 
-  if (isStarted && invitation.attempt_id !== null) {
+  if (isStarted && invitation.attempt_id !== null && !accept.isSuccess) {
     const attemptId = invitation.attempt_id;
     return (
       <Button fullWidth={false} className="self-start" onClick={() => open(attemptId)}>
@@ -94,12 +84,12 @@ const StartTest = ({ token, invitation }: { token: string; invitation: Invitatio
 
   return (
     <div className="flex flex-col gap-4">
-      {error && <Alert variant="error">{error}</Alert>}
+      {accept.isError && <Alert variant="error">{describeError(accept.error)}</Alert>}
       <Button
         fullWidth={false}
         className="self-start"
         disabled={!agreed}
-        isLoading={isStarting}
+        isLoading={accept.isPending || accept.isSuccess}
         onClick={start}
       >
         Agree and start the test
@@ -114,16 +104,12 @@ const StartTest = ({ token, invitation }: { token: string; invitation: Invitatio
 };
 
 const InvitationDetails = ({ token }: { token: string }) => {
-  const load = useCallback(() => invitationsApi.open(token), [token]);
-  const { state } = useRequest(load);
+  const { data: invitation, isError } = useQuery(recruiterQueries.invitation(token));
 
-  if (state.status === 'loading') {
-    return <PageLoader title="Checking your invitation" className="flex-1" />;
-  }
+  if (isError) return <InvalidLink />;
 
-  if (state.status === 'error') return <InvalidLink />;
+  if (!invitation) return <PageLoader title="Checking your invitation" className="flex-1" />;
 
-  const invitation = state.data;
   if (invitation.status === 'expired' || invitation.status === 'revoked') return <InvalidLink />;
 
   const title = `${invitation.invited_by} has asked you to take a test`;

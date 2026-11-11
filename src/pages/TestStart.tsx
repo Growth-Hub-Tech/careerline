@@ -1,20 +1,21 @@
-import { useCallback, useId, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { PageLoader } from '../components/Loader';
 import { Dialog } from '../components/Dialog';
 import { PaymentNeeded } from '../components/PaymentNeeded';
-import { LoadFailed } from '../components/PageState';
-import { attemptsApi, catalogApi, type AssessmentAccess, type AssessmentDetail } from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import { QueryState } from '../components/PageState';
+import type { AssessmentAccess, AssessmentDetail } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
-import { useRequest } from '../lib/hooks/useRequest';
+import {
+  catalogQueries,
+  combineResults,
+  useCancelAttempt,
+  useStartAttempt,
+} from '../lib/api/queries';
 import { clearAttempt, readAttempt, saveAttempt } from '../lib/tests/attemptStore';
 import { describeCredits, FORMAT_LABELS } from '../lib/tests/catalog';
-
-const isStatus = (error: unknown, status: number) =>
-  error instanceof ApiError && error.status === status;
 
 const describeAccess = ({ reason, price_credits, credits_balance }: AssessmentAccess) => {
   if (reason === 'free') return 'This test is free.';
@@ -29,27 +30,19 @@ interface InProgressProps {
 }
 
 const InProgress = ({ attemptId, attemptPath, onCancelled }: InProgressProps) => {
+  const cancelAttempt = useCancelAttempt();
   const [isAsking, setIsAsking] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [error, setError] = useState<string>();
 
-  const cancel = async () => {
-    setIsCancelling(true);
-    setError(undefined);
-    try {
-      await attemptsApi.cancel(attemptId);
-      onCancelled();
-    } catch (cancelError) {
-      setError(describeError(cancelError));
-      setIsAsking(false);
-      setIsCancelling(false);
-    }
-  };
+  const cancel = () =>
+    cancelAttempt.mutate(attemptId, {
+      onSuccess: onCancelled,
+      onError: () => setIsAsking(false),
+    });
 
   return (
     <div className="flex flex-col items-start gap-3">
       <p className="text-[14px] text-slate-700">You have this test in progress.</p>
-      {error && <Alert variant="error">{error}</Alert>}
+      {cancelAttempt.isError && <Alert variant="error">{describeError(cancelAttempt.error)}</Alert>}
       <div className="flex flex-wrap gap-3">
         <Link
           to={attemptPath}
@@ -81,7 +74,7 @@ const InProgress = ({ attemptId, attemptPath, onCancelled }: InProgressProps) =>
             >
               Keep going
             </Button>
-            <Button fullWidth={false} isLoading={isCancelling} onClick={cancel}>
+            <Button fullWidth={false} isLoading={cancelAttempt.isPending} onClick={cancel}>
               Start again
             </Button>
           </>
@@ -93,8 +86,8 @@ const InProgress = ({ attemptId, attemptPath, onCancelled }: InProgressProps) =>
 
 const StartTest = ({ test }: { test: AssessmentDetail }) => {
   const navigate = useNavigate();
-  const [isStarting, setIsStarting] = useState(false);
-  const [error, setError] = useState<string>();
+  const startAttempt = useStartAttempt();
+  // A second click before the first reply must not start (and pay for) a second attempt
   const starting = useRef(false);
   const [saved, setSaved] = useState(() => readAttempt(test.test_id));
   const attemptPath = `/tests/${test.test_id}/attempt`;
@@ -112,59 +105,41 @@ const StartTest = ({ test }: { test: AssessmentDetail }) => {
     );
   }
 
-  const start = async () => {
+  const start = () => {
     if (starting.current) return;
     starting.current = true;
-    setIsStarting(true);
-    setError(undefined);
-
-    try {
-      const attempt = await attemptsApi.start(test.skill_id);
-      saveAttempt({ testId: test.test_id, title: test.title, attemptId: attempt.attempt_id });
-      navigate(attemptPath);
-    } catch (startError) {
-      setError(describeError(startError));
-      starting.current = false;
-      setIsStarting(false);
-    }
+    startAttempt.mutate(test.skill_id, {
+      onSuccess: (attempt) => {
+        saveAttempt({ testId: test.test_id, title: test.title, attemptId: attempt.attempt_id });
+        navigate(attemptPath);
+      },
+      onError: () => {
+        starting.current = false;
+      },
+    });
   };
 
   return (
     <div className="flex flex-col items-start gap-5">
-      {error && <Alert variant="error">{error}</Alert>}
-      <Button fullWidth={false} isLoading={isStarting} onClick={start}>
+      {startAttempt.isError && <Alert variant="error">{describeError(startAttempt.error)}</Alert>}
+      <Button
+        fullWidth={false}
+        isLoading={startAttempt.isPending || startAttempt.isSuccess}
+        onClick={start}
+      >
         Start test
       </Button>
     </div>
   );
 };
 
-const TestDetails = ({ id }: { id: number }) => {
+interface TestViewProps {
+  readonly test: AssessmentDetail;
+  readonly access: AssessmentAccess | null;
+}
+
+const TestView = ({ test, access }: TestViewProps) => {
   const listId = useId();
-
-  const load = useCallback(async () => {
-    const [test, access] = await Promise.all([
-      catalogApi.getTest(id),
-      catalogApi.getAccess(id).catch((error: unknown) => {
-        if (isStatus(error, 402)) return undefined;
-        throw error;
-      }),
-    ]);
-    return { test, access };
-  }, [id]);
-  const { state, retry } = useRequest(load);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading the test" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    if (isStatus(state.error, 404)) return <Navigate to="/page-not-found" replace />;
-
-    return <LoadFailed error={state.error} onRetry={retry} />;
-  }
-
-  const { test, access } = state.data;
   const facts = [
     `${test.question_count} questions`,
     `${test.duration_minutes} minutes`,
@@ -210,6 +185,19 @@ const TestDetails = ({ id }: { id: number }) => {
         />
       )}
     </div>
+  );
+};
+
+const TestDetails = ({ id }: { id: number }) => {
+  const details = useQueries({
+    queries: [catalogQueries.test(id), catalogQueries.access(id)],
+    combine: combineResults,
+  });
+
+  return (
+    <QueryState query={details} loadingTitle="Loading the test" redirectOnNotFound>
+      {([test, access]) => <TestView test={test} access={access} />}
+    </QueryState>
   );
 };
 

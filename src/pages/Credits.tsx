@@ -1,11 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
-import { PageLoader } from '../components/Loader';
+import { QueryState } from '../components/PageState';
 import { Table, type TableColumn } from '../components/Table';
-import { LoadFailed } from '../components/PageState';
-import { paymentsApi, type CreditTransaction } from '../lib/api';
+import type { CreditTransaction, Credits as CreditsData } from '../lib/api';
+import { paymentQueries } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { describeCredits } from '../lib/tests/catalog';
 
 const REASONS: Record<CreditTransaction['reason'], string> = {
@@ -27,20 +27,8 @@ const COLUMNS: readonly TableColumn<CreditTransaction>[] = [
   { key: 'balance', header: 'Balance after', align: 'right', render: (row) => row.balance_after },
 ];
 
-const load = () => paymentsApi.credits();
-
-export const Credits = () => {
-  const { state, retry } = useRequest(load);
-
-  if (state.status === 'loading') {
-    return <PageLoader title="Loading your credits" className="flex-1" />;
-  }
-
-  if (state.status === 'error') {
-    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
-  }
-
-  const { credits_balance: balance, transactions } = state.data;
+const CreditHistory = ({ credits }: { credits: CreditsData }) => {
+  const { credits_balance: balance, transactions } = credits;
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -66,5 +54,19 @@ export const Credits = () => {
         />
       )}
     </div>
+  );
+};
+
+export const Credits = () => {
+  const credits = useQuery(paymentQueries.credits());
+
+  return (
+    <QueryState
+      query={credits}
+      loadingTitle="Loading your credits"
+      errorClassName="px-5 py-8 sm:px-8"
+    >
+      {(data) => <CreditHistory credits={data} />}
+    </QueryState>
   );
 };

@@ -3,31 +3,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { describeAuthError } from '../../lib/api/describeError';
-import { authActions } from '../../lib/auth/actions';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { readPendingEmail, useSession, type Session } from '../../lib/session';
+import { readPendingEmail, useRegister } from '../../lib/user';
 import { completeProfileSchema, type CompleteProfileValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
 
-type ProfileSubmission = CompleteProfileValues & { email: string };
-
-interface CompleteProfileProps {
-  readonly email?: string;
-  readonly onSubmit?: (values: ProfileSubmission) => Promise<Session | undefined>;
-}
-
-const registerWithApi = ({ email, fullName, phone, password }: ProfileSubmission) =>
-  authActions.register({ email, fullName, phone, password });
-
-export const CompleteProfile = ({
-  email: emailProp,
-  onSubmit = registerWithApi,
-}: CompleteProfileProps) => {
-  const email = emailProp ?? readPendingEmail() ?? '';
+export const CompleteProfile = () => {
+  const email = readPendingEmail() ?? '';
   const navigate = useNavigate();
-  const { signIn } = useSession();
+  const registerAccount = useRegister();
   const [formError, setFormError] = useState<string>();
 
   const {
@@ -44,8 +30,8 @@ export const CompleteProfile = ({
     setFormError(undefined);
 
     try {
-      const session = await onSubmit({ email, ...values });
-      if (session) signIn(session);
+      const { fullName, phone, password } = values;
+      await registerAccount.mutateAsync({ email, fullName, phone, password });
       navigate(AUTH_PATHS.verifyEmail);
     } catch (error) {
       if (!applyFieldErrors(error, ['fullName', 'phone', 'password'], setError)) {

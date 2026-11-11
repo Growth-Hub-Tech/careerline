@@ -1,6 +1,6 @@
 import type { IconType } from 'react-icons';
 import { LuBadgeCheck, LuCompass, LuPuzzle, LuSearchCheck } from 'react-icons/lu';
-import type { UserType } from '../../lib/session';
+import type { UserType } from '../../lib/user';
 
 interface Role {
   readonly key: UserType;

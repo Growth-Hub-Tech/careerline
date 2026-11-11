@@ -1,6 +1,8 @@
+import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, useLocation, useRoutes } from 'react-router-dom';
 import { getRoutes } from './routes';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { queryClient } from './lib/api/queryClient';
 
 const AppRoutes = () => {
   const { pathname } = useLocation();
@@ -10,9 +12,11 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-    <AppRoutes />
-  </BrowserRouter>
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppRoutes />
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 export default App;

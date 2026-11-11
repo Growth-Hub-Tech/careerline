@@ -1,24 +1,24 @@
-import { useCallback, useEffect, useId, useState, type ReactNode } from 'react';
+import { useCallback, useId, useState, type ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { Checkbox } from '../components/Checkbox';
 import { Dialog } from '../components/Dialog';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { LoadFailed, QueryState } from '../components/PageState';
 import { Textarea } from '../components/Textarea';
 import { TextField } from '../components/TextField';
-import {
-  privacyApi,
-  type AccountDeletion,
-  type Consent,
-  type ConsentChange,
-  type DataExport,
-} from '../lib/api';
-import { ApiError } from '../lib/api/ApiError';
+import type { AccountDeletion, Consent, ConsentChange, DataExport } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import {
+  privacyQueries,
+  useCancelDeletion,
+  useRequestDeletion,
+  useRequestExport,
+  useUpdateConsents,
+} from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 
 type ConsentKey = Consent['key'];
 
@@ -165,91 +165,61 @@ const EmailChoices = ({ granted, update }: ConsentProps) => {
   );
 };
 
-type ExportState =
-  | { readonly phase: 'idle' }
-  | { readonly phase: 'requesting' }
-  | { readonly phase: 'preparing'; readonly exportId: number }
-  | { readonly phase: 'ready'; readonly file: DataExport }
-  | { readonly phase: 'expired' }
-  | { readonly phase: 'error'; readonly message: string };
+// The file is made in the background: ask every 3 seconds until it is ready
+const POLL_INTERVAL = 3000;
 
-const toExportState = (file: DataExport): ExportState => {
-  if (file.status === 'ready' && file.download_url) return { phase: 'ready', file };
-  if (file.status === 'expired') return { phase: 'expired' };
-  return { phase: 'preparing', exportId: file.export_id };
-};
+const isReady = (file: DataExport) => file.status === 'ready' && Boolean(file.download_url);
 
-const DataDownload = ({ pollInterval }: { pollInterval: number }) => {
-  const [state, setState] = useState<ExportState>({ phase: 'idle' });
+const isPreparing = (file: DataExport) => !isReady(file) && file.status !== 'expired';
 
-  useEffect(() => {
-    if (state.phase !== 'preparing') return undefined;
+const DataDownload = () => {
+  const requestExport = useRequestExport();
+  const exportId = requestExport.data?.export_id;
+  const exportFile = useQuery({
+    ...privacyQueries.dataExport(exportId ?? 0),
+    enabled: exportId !== undefined,
+    refetchInterval: ({ state }) =>
+      state.status !== 'error' && state.data && isPreparing(state.data) ? POLL_INTERVAL : false,
+  });
 
-    let active = true;
-    const timer = setTimeout(() => {
-      privacyApi.getExport(state.exportId).then(
-        (file) => {
-          if (active) setState(toExportState(file));
-        },
-        (error: unknown) => {
-          if (active) setState({ phase: 'error', message: describeError(error) });
-        },
-      );
-    }, pollInterval);
-
-    return () => {
-      active = false;
-      clearTimeout(timer);
-    };
-  }, [state, pollInterval]);
-
-  const request = async () => {
-    setState({ phase: 'requesting' });
-    try {
-      setState(toExportState(await privacyApi.requestExport()));
-    } catch (error) {
-      setState({ phase: 'error', message: describeError(error) });
-    }
-  };
+  const file = exportId === undefined ? undefined : exportFile.data;
+  const error = requestExport.error ?? (exportFile.isError ? exportFile.error : null);
+  const preparing = Boolean(file && isPreparing(file) && !exportFile.isError);
 
   return (
     <Section title="Download your data">
       <p className="text-[15px] text-slate-700">
         Get a copy of everything CareerLine holds about you: your account, answers and results.
       </p>
-      {state.phase === 'preparing' && (
+      {preparing && (
         <p role="status" className="text-[14px] text-slate-600">
           We are preparing your file. This can take a minute.
         </p>
       )}
-      {state.phase === 'ready' && (
+      {file && isReady(file) && (
         <div className="flex flex-col gap-2">
-          <a
-            href={state.file.download_url ?? undefined}
-            className={`${PRIMARY_ACTION} w-fit`}
-            download
-          >
+          <a href={file.download_url ?? undefined} className={`${PRIMARY_ACTION} w-fit`} download>
             Download your file
           </a>
-          {state.file.expires_at && (
+          {file.expires_at && (
             <p className="text-[14px] text-slate-600">
-              The link works until {formatDate(state.file.expires_at)}.
+              The link works until {formatDate(file.expires_at)}.
             </p>
           )}
         </div>
       )}
-      {state.phase === 'expired' && (
+      {file?.status === 'expired' && (
         <p className="text-[14px] text-slate-600">
           That download link has expired. Ask for a new copy.
         </p>
       )}
-      {state.phase === 'error' && <Alert variant="error">{state.message}</Alert>}
-      {state.phase !== 'ready' && (
+      {error && <Alert variant="error">{describeError(error)}</Alert>}
+      {!(file && isReady(file)) && (
         <Button
           fullWidth={false}
           className="self-start"
-          isLoading={state.phase === 'preparing' || state.phase === 'requesting'}
-          onClick={() => void request()}
+          isLoading={preparing || requestExport.isPending}
+          onClick={() => requestExport.mutate()}
         >
           Download my data
         </Button>
@@ -258,14 +228,15 @@ const DataDownload = ({ pollInterval }: { pollInterval: number }) => {
   );
 };
 
-const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) => {
+// A cancelled request from before is history: the form shows, with a note only right after
+// cancelling here
+const DeleteAccount = ({ deletion }: { deletion: AccountDeletion | null }) => {
+  const requestDeletion = useRequestDeletion();
+  const cancelDeletion = useCancelDeletion();
   const [password, setPassword] = useState('');
   const [reason, setReason] = useState('');
   const [passwordError, setPasswordError] = useState<string>();
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isWorking, setIsWorking] = useState(false);
-  const [error, setError] = useState<string>();
-  const [deletion, setDeletion] = useState(initial);
 
   const ask = () => {
     if (password.trim() === '') {
@@ -276,22 +247,18 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
     setIsConfirming(true);
   };
 
-  const run = async (action: () => Promise<AccountDeletion>) => {
-    setError(undefined);
-    setIsWorking(true);
-    try {
-      setDeletion(await action());
-      setPassword('');
-    } catch (actionError) {
-      setError(describeError(actionError));
-    } finally {
-      setIsWorking(false);
-      setIsConfirming(false);
-    }
+  const remove = () => {
+    cancelDeletion.reset();
+    requestDeletion.mutate(
+      { password, reason: reason.trim() || null },
+      { onSuccess: () => setPassword(''), onSettled: () => setIsConfirming(false) },
+    );
   };
 
-  const remove = () =>
-    run(() => privacyApi.requestDeletion({ password, reason: reason.trim() || null }));
+  const keep = () => {
+    requestDeletion.reset();
+    cancelDeletion.mutate();
+  };
 
   if (deletion?.status === 'scheduled') {
     return (
@@ -299,12 +266,14 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
         <p className="text-[15px] text-slate-700">
           Your account will be deleted on {formatDate(deletion.scheduled_for)}.
         </p>
-        {error && <Alert variant="error">{error}</Alert>}
+        {cancelDeletion.isError && (
+          <Alert variant="error">{describeError(cancelDeletion.error)}</Alert>
+        )}
         <Button
           fullWidth={false}
           className="self-start"
-          isLoading={isWorking}
-          onClick={() => void run(() => privacyApi.cancelDeletion())}
+          isLoading={cancelDeletion.isPending}
+          onClick={keep}
         >
           Cancel deletion
         </Button>
@@ -314,7 +283,7 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
 
   return (
     <Section title="Delete your account">
-      {deletion?.status === 'cancelled' && (
+      {cancelDeletion.isSuccess && (
         <Alert variant="success">Your account will not be deleted.</Alert>
       )}
       <p className="text-[15px] text-slate-700">
@@ -334,7 +303,9 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
         value={reason}
         onChange={(event) => setReason(event.target.value)}
       />
-      {error && <Alert variant="error">{error}</Alert>}
+      {requestDeletion.isError && (
+        <Alert variant="error">{describeError(requestDeletion.error)}</Alert>
+      )}
       <Button variant="secondary" fullWidth={false} className="self-start" onClick={ask}>
         Delete my account
       </Button>
@@ -356,8 +327,8 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
             <Button
               variant="secondary"
               fullWidth={false}
-              isLoading={isWorking}
-              onClick={() => void remove()}
+              isLoading={requestDeletion.isPending}
+              onClick={remove}
             >
               Delete my account
             </Button>
@@ -369,45 +340,34 @@ const DeleteAccount = ({ initial }: { initial: AccountDeletion | undefined }) =>
 };
 
 // A deletion scheduled earlier (in another session too) shows after a reload, so it can be
-// cancelled. 404: never asked. A cancelled request from before is history: the form shows.
-const loadDeletion = async () => {
-  try {
-    const deletion = await privacyApi.getDeletion();
-    return deletion.status === 'scheduled' ? deletion : undefined;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return undefined;
-    throw error;
-  }
-};
-
+// cancelled
 const DeleteAccountSection = () => {
-  const { state, retry } = useRequest(loadDeletion);
+  const deletion = useQuery(privacyQueries.deletion());
 
-  if (state.status === 'success') return <DeleteAccount initial={state.data} />;
+  if (deletion.data !== undefined) return <DeleteAccount deletion={deletion.data} />;
 
   return (
     <Section title="Delete your account">
-      {state.status === 'loading' ? (
-        <PageLoader title="Loading your account deletion" />
+      {deletion.isError ? (
+        <LoadFailed error={deletion.error} onRetry={() => void deletion.refetch()} />
       ) : (
-        <LoadFailed error={state.error} onRetry={retry} />
+        <PageLoader title="Loading your account deletion" />
       )}
     </Section>
   );
 };
 
-const ConsentSections = ({ initial }: { initial: readonly Consent[] }) => {
-  const [items, setItems] = useState(initial);
+const ConsentSections = ({ items }: { items: readonly Consent[] }) => {
+  const updateConsents = useUpdateConsents();
 
   const granted = useCallback(
     (key: ConsentKey) => items.some((item) => item.key === key && item.granted),
     [items],
   );
 
-  const update = useCallback(async (change: ConsentChange) => {
-    const reply = await privacyApi.updateConsents([change]);
-    setItems(reply.items);
-  }, []);
+  const update = async (change: ConsentChange) => {
+    await updateConsents.mutateAsync([change]);
+  };
 
   return (
     <>
@@ -417,24 +377,8 @@ const ConsentSections = ({ initial }: { initial: readonly Consent[] }) => {
   );
 };
 
-const loadConsents = () => privacyApi.getConsents();
-
-interface PrivacyCentreProps {
-  readonly pollInterval?: number;
-}
-
-export const PrivacyCentre = ({ pollInterval = 3000 }: PrivacyCentreProps) => {
-  const { state, retry } = useRequest(loadConsents);
-
-  let consents: ReactNode;
-
-  if (state.status === 'loading') {
-    consents = <PageLoader title="Loading your privacy settings" />;
-  } else if (state.status === 'error') {
-    consents = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    consents = <ConsentSections initial={state.data.items} />;
-  }
+export const PrivacyCentre = () => {
+  const consents = useQuery(privacyQueries.consents());
 
   return (
     <div className="flex w-full max-w-[860px] flex-col gap-6 px-5 py-10 sm:px-20">
@@ -444,8 +388,10 @@ export const PrivacyCentre = ({ pollInterval = 3000 }: PrivacyCentreProps) => {
           Choose who sees your results, what we may email you about, and what happens to your data.
         </p>
       </header>
-      {consents}
-      <DataDownload pollInterval={pollInterval} />
+      <QueryState query={consents} loadingTitle="Loading your privacy settings" loaderClassName="">
+        {({ items }) => <ConsentSections items={items} />}
+      </QueryState>
+      <DataDownload />
       <DeleteAccountSection />
     </div>
   );

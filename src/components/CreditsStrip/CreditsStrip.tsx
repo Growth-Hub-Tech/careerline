@@ -1,14 +1,12 @@
 import { useId } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { LuWallet } from 'react-icons/lu';
-import { paymentsApi } from '../../lib/api';
-import { useRequest } from '../../lib/hooks/useRequest';
+import { paymentQueries } from '../../lib/api/queries';
 import { describeCredits } from '../../lib/tests/catalog';
 
 const LINK_CLASS =
   'text-[14px] font-medium text-indigo-800 underline hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
-
-const load = () => paymentsApi.credits();
 
 interface CreditsStripProps {
   readonly returnTo?: string;
@@ -16,9 +14,9 @@ interface CreditsStripProps {
 
 export const CreditsStrip = ({ returnTo = '/dashboard' }: CreditsStripProps) => {
   const headingId = useId();
-  const { state } = useRequest(load);
+  const { data: credits } = useQuery(paymentQueries.credits());
 
-  if (state.status !== 'success') return null;
+  if (!credits) return null;
 
   return (
     <section
@@ -30,7 +28,7 @@ export const CreditsStrip = ({ returnTo = '/dashboard' }: CreditsStripProps) => 
       </h2>
       <p className="inline-flex items-center gap-2 text-[15px] font-medium text-slate-800">
         <LuWallet size={18} aria-hidden="true" className="text-indigo-700" />
-        You have {describeCredits(state.data.credits_balance)}
+        You have {describeCredits(credits.credits_balance)}
       </p>
       <Link to={`/pricing?return=${encodeURIComponent(returnTo)}`} className={LINK_CLASS}>
         Buy credits

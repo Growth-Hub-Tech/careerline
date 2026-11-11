@@ -1,7 +1,7 @@
-import { useCallback, useId } from 'react';
-import { profileApi } from '../../lib/api';
+import { useId } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { profileQueries } from '../../lib/api/queries';
 import { formatDate, formatPoints } from '../../lib/format';
-import { useRequest } from '../../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../../lib/tests/catalog';
 
 interface ChangeBlockProps {
@@ -12,12 +12,11 @@ interface ChangeBlockProps {
 
 export const ChangeBlock = ({ skillId, skillName, attemptId }: ChangeBlockProps) => {
   const headingId = useId();
-  const load = useCallback(() => profileApi.skillHistory(skillId), [skillId]);
-  const { state } = useRequest(load);
+  const { data: history } = useQuery(profileQueries.skillHistory(skillId));
 
-  if (state.status !== 'success') return null;
+  if (!history) return null;
 
-  const entries = state.data.entries;
+  const entries = history.entries;
   const index = entries.findIndex((entry) => entry.attempt_id === attemptId);
   const current = entries[index];
   const previous = index >= 0 ? entries[index + 1] : undefined;

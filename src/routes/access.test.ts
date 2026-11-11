@@ -1,4 +1,4 @@
-import { USER_TYPES } from '../lib/session';
+import { USER_TYPES } from '../lib/user';
 import { accessFor, PAGE_ACCESS } from './access';
 
 // The routes ask accessFor with their own path patterns (src/routes/index.tsx)

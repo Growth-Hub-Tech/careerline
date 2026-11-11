@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LuArrowLeft, LuLightbulb } from 'react-icons/lu';
 import { Alert } from '../components/Alert';
@@ -7,10 +8,10 @@ import { FlowHeader } from '../components/FlowHeader';
 import { Spinner } from '../components/Loader';
 import { QuestionCard } from '../components/QuestionCard';
 import { StepList } from '../components/StepList';
-import { beginnerApi, type IntakeQuestionnaire, type IntakeSubmission } from '../lib/api';
+import type { IntakeQuestionnaire, IntakeSubmission } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import { beginnerQueries } from '../lib/api/queries';
 import type { FlaggedAnswers } from '../lib/beginner/flaggedAnswers';
-import { useRequest } from '../lib/hooks/useRequest';
 
 const SECTION_TITLES: Record<string, string> = {
   personality: 'Personality',
@@ -21,8 +22,6 @@ const SECTION_TITLES: Record<string, string> = {
 
 const titleFor = (section: string) =>
   SECTION_TITLES[section] ?? section.charAt(0).toUpperCase() + section.slice(1);
-
-const loadQuestionnaire = () => beginnerApi.getIntake();
 
 const AssessmentFrame = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-dvh flex-col bg-indigo-200">
@@ -147,9 +146,10 @@ const Questionnaire = ({ questionnaire, returned }: QuestionnaireProps) => {
 
 export const Assessment = () => {
   const location = useLocation() as { state: Returned | null };
-  const { state, retry } = useRequest(loadQuestionnaire);
+  const intake = useQuery(beginnerQueries.intake());
+  const questionnaire = intake.data;
 
-  if (state.status === 'loading') {
+  if (!questionnaire && !intake.isError) {
     return (
       <AssessmentFrame>
         <Spinner size="lg" label="Loading your questions" className="text-white" />
@@ -157,12 +157,12 @@ export const Assessment = () => {
     );
   }
 
-  if (state.status === 'error') {
+  if (!questionnaire) {
     return (
       <AssessmentFrame>
         <div className="flex w-full max-w-[480px] flex-col gap-4 rounded-xl bg-white p-6">
-          <Alert variant="error">{describeError(state.error)}</Alert>
-          <Button fullWidth={false} onClick={retry}>
+          <Alert variant="error">{describeError(intake.error)}</Alert>
+          <Button fullWidth={false} onClick={() => void intake.refetch()}>
             Try again
           </Button>
         </div>
@@ -170,7 +170,7 @@ export const Assessment = () => {
     );
   }
 
-  if (state.data.questions.length === 0) {
+  if (questionnaire.questions.length === 0) {
     return (
       <AssessmentFrame>
         <div className="w-full max-w-[480px] rounded-xl bg-white p-6">
@@ -182,7 +182,7 @@ export const Assessment = () => {
 
   return (
     <AssessmentFrame>
-      <Questionnaire questionnaire={state.data} returned={location.state} />
+      <Questionnaire questionnaire={questionnaire} returned={location.state} />
     </AssessmentFrame>
   );
 };

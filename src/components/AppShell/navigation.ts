@@ -13,7 +13,7 @@ import {
   LuTarget,
   LuUsers,
 } from 'react-icons/lu';
-import type { UserType } from '../../lib/session';
+import type { UserType } from '../../lib/user';
 
 export interface NavEntry {
   readonly label: string;

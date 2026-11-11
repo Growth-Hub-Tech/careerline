@@ -101,7 +101,6 @@ export interface SkillsPage {
 }
 
 export type AttemptState = Schemas['AttemptState'];
-export type ServedQuestion = Schemas['ServedQuestion'];
 export type AnswerRequest = Schemas['AnswerRequest'];
 export type AttemptReview = Schemas['AttemptReview'];
 export type ReviewItem = Schemas['ReviewItem'];

@@ -1,13 +1,11 @@
-import { useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { ProgrammeCard } from '../components/ProgrammeCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { LoadFailed } from '../components/PageState';
-import { beginnerApi, type BeginnerPath } from '../lib/api';
-import { loadBudget } from '../lib/beginner/budget';
-import { useRequest } from '../lib/hooks/useRequest';
+import { beginnerQueries, profileQueries, selectBudget } from '../lib/api/queries';
 
 const MAX_PATHS = 3;
 
@@ -15,24 +13,19 @@ const VIEW_LINK =
   'inline-flex h-11 w-fit items-center justify-center rounded-lg border border-indigo-800 bg-white px-5 text-[15px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
 
 export const AssessmentResults = () => {
-  const { state: budgetState } = useRequest(loadBudget);
-  const budget = budgetState.status === 'success' ? budgetState.data : null;
-  const location = useLocation() as { state: { path?: BeginnerPath } | null };
-  const saved = location.state?.path;
-
-  const load = useCallback(
-    () => (saved ? Promise.resolve(saved) : beginnerApi.getRecommendations()),
-    [saved],
-  );
-  const { state, retry } = useRequest(load);
-
-  const path = saved ?? (state.status === 'success' ? state.data : undefined);
+  // Straight after the questionnaire the paths are already in the cache (the reply to it)
+  const recommendations = useQuery(beginnerQueries.recommendations());
+  const { data: budget = null } = useQuery({ ...profileQueries.detail(), select: selectBudget });
+  const path = recommendations.data;
 
   if (!path) {
-    if (state.status === 'error') {
+    if (recommendations.isError) {
       return (
         <main className="flex min-h-dvh items-center justify-center bg-white px-5">
-          <LoadFailed error={state.error} onRetry={retry} />
+          <LoadFailed
+            error={recommendations.error}
+            onRetry={() => void recommendations.refetch()}
+          />
         </main>
       );
     }

@@ -1,21 +1,19 @@
 import { useState } from 'react';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { PageLoader } from '../components/Loader';
-import { LoadFailed } from '../components/PageState';
+import { QueryState } from '../components/PageState';
 import { Select } from '../components/Select';
 import { Table, type TableColumn } from '../components/Table';
-import {
-  organisationsApi,
-  rolesApi,
-  type LevelName,
-  type RoleSummary,
-  type Target,
-  type Targets,
-} from '../lib/api';
+import type { LevelName, RoleSummary, Target, Targets } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
+import {
+  combineResults,
+  organisationQueries,
+  roleQueries,
+  useSetTargets,
+} from '../lib/api/queries';
 import { formatDate } from '../lib/format';
-import { useRequest } from '../lib/hooks/useRequest';
 import { LEVEL_ORDER } from '../lib/organisation/levels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 
@@ -27,15 +25,6 @@ interface DraftRow {
   readonly target_level: LevelName;
   readonly due_date: string | null;
 }
-
-const load = async () => {
-  const organisation = await organisationsApi.me();
-  const [targets, roles] = await Promise.all([
-    organisationsApi.getTargets(organisation.organisation_id),
-    rolesApi.list(),
-  ]);
-  return { organisationId: organisation.organisation_id, targets, roles };
-};
 
 const COLUMNS: readonly TableColumn<Target>[] = [
   { key: 'role', header: 'Role', render: (row) => row.role_title },
@@ -54,18 +43,18 @@ const LEVEL_OPTIONS = LEVEL_ORDER.map((level) => ({ value: level, label: LEVEL_L
 const nameOf = (row: DraftRow) => `${row.role_title}: ${row.skill_name}`;
 
 interface DraftProps {
-  readonly organisationId: number;
   readonly targets: Targets;
   readonly roles: readonly RoleSummary[];
-  readonly onSaved: (targets: Targets) => void;
-  readonly onDiscard: () => void;
+  readonly onDone: () => void;
 }
 
-const Draft = ({ organisationId, targets, roles, onSaved, onDiscard }: DraftProps) => {
+// The draft stays on this page until it is approved; the saved targets live in the cache
+const Draft = ({ targets, roles, onDone }: DraftProps) => {
+  const client = useQueryClient();
+  const setTargets = useSetTargets();
   const [rows, setRows] = useState<readonly DraftRow[]>(targets.items);
   const [suggestFor, setSuggestFor] = useState(String(roles[0]?.role_id ?? ''));
   const [error, setError] = useState<string>();
-  const [isSaving, setIsSaving] = useState(false);
 
   const update = (index: number, change: Partial<DraftRow>) =>
     setRows((current) => current.map((row, at) => (at === index ? { ...row, ...change } : row)));
@@ -73,7 +62,7 @@ const Draft = ({ organisationId, targets, roles, onSaved, onDiscard }: DraftProp
   const suggest = async () => {
     setError(undefined);
     try {
-      const role = await rolesApi.get(Number(suggestFor));
+      const role = await client.fetchQuery(roleQueries.detail(Number(suggestFor)));
       setRows((current) => [
         ...current,
         ...role.skills
@@ -97,25 +86,17 @@ const Draft = ({ organisationId, targets, roles, onSaved, onDiscard }: DraftProp
     }
   };
 
-  const save = async () => {
-    setIsSaving(true);
+  const save = () => {
     setError(undefined);
-    try {
-      onSaved(
-        await organisationsApi.setTargets(
-          organisationId,
-          rows.map(({ role_id, skill_id, target_level, due_date }) => ({
-            role_id,
-            skill_id,
-            target_level,
-            due_date,
-          })),
-        ),
-      );
-    } catch (saveError) {
-      setError(describeError(saveError));
-      setIsSaving(false);
-    }
+    setTargets.mutate(
+      rows.map(({ role_id, skill_id, target_level, due_date }) => ({
+        role_id,
+        skill_id,
+        target_level,
+        due_date,
+      })),
+      { onSuccess: onDone, onError: (saveError) => setError(describeError(saveError)) },
+    );
   };
 
   return (
@@ -210,10 +191,10 @@ const Draft = ({ organisationId, targets, roles, onSaved, onDiscard }: DraftProp
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button fullWidth={false} isLoading={isSaving} onClick={save}>
+        <Button fullWidth={false} isLoading={setTargets.isPending} onClick={save}>
           Approve and save
         </Button>
-        <Button variant="transparent" border="solid" fullWidth={false} onClick={onDiscard}>
+        <Button variant="transparent" border="solid" fullWidth={false} onClick={onDone}>
           Discard draft
         </Button>
       </div>
@@ -222,28 +203,15 @@ const Draft = ({ organisationId, targets, roles, onSaved, onDiscard }: DraftProp
 };
 
 interface TargetsViewProps {
-  readonly organisationId: number;
-  readonly initial: Targets;
+  readonly targets: Targets;
   readonly roles: readonly RoleSummary[];
 }
 
-const TargetsView = ({ organisationId, initial, roles }: TargetsViewProps) => {
-  const [targets, setTargets] = useState(initial);
+const TargetsView = ({ targets, roles }: TargetsViewProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {
-    return (
-      <Draft
-        organisationId={organisationId}
-        targets={targets}
-        roles={roles}
-        onSaved={(saved) => {
-          setTargets(saved);
-          setIsEditing(false);
-        }}
-        onDiscard={() => setIsEditing(false)}
-      />
-    );
+    return <Draft targets={targets} roles={roles} onDone={() => setIsEditing(false)} />;
   }
 
   return (
@@ -266,22 +234,10 @@ const TargetsView = ({ organisationId, initial, roles }: TargetsViewProps) => {
 };
 
 export const CompanyTargets = () => {
-  const { state, retry } = useRequest(load);
-
-  let content;
-  if (state.status === 'loading') {
-    content = <PageLoader title="Loading your targets" className="flex-1" />;
-  } else if (state.status === 'error') {
-    content = <LoadFailed error={state.error} onRetry={retry} />;
-  } else {
-    content = (
-      <TargetsView
-        organisationId={state.data.organisationId}
-        initial={state.data.targets}
-        roles={state.data.roles}
-      />
-    );
-  }
+  const page = useQueries({
+    queries: [organisationQueries.targets(), roleQueries.list()],
+    combine: combineResults,
+  });
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -291,7 +247,9 @@ export const CompanyTargets = () => {
           Set the level each role should reach in each skill, and by when.
         </p>
       </header>
-      {content}
+      <QueryState query={page} loadingTitle="Loading your targets">
+        {([targets, roles]) => <TargetsView targets={targets} roles={roles} />}
+      </QueryState>
     </div>
   );
 };

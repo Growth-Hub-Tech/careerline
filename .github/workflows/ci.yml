@@ -35,7 +35,7 @@ jobs:
       - name: 🧪 Type check
         run: npm run type-check
 
-      - name: ✅ Run tests, including the accessibility checks
+      - name: ✅ Run unit tests
         run: npm run test
 
       - name: 🏗️ Build

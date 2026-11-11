@@ -11,6 +11,7 @@ export const PAGE_ACCESS: Readonly<Partial<Record<string, readonly UserType[]>>>
   '/tasks': EVERYONE,
   '/support': EVERYONE,
   '/settings': EVERYONE,
+  '/assessment/start': BEGINNERS,
   '/assessment': BEGINNERS,
   '/assessment/processing': BEGINNERS,
   '/assessment/results': BEGINNERS,

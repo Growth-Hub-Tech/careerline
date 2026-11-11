@@ -8,6 +8,7 @@ import { QueryState } from '../components/PageState';
 import type { Candidate, CandidateReport as Report, CandidateTestResult } from '../lib/api';
 import { combineResults, recruiterQueries } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
+import { overallScore } from '../lib/recruiter/candidateReport';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 
 const percent = (score: number) => `${Math.round(score)}%`;
@@ -26,14 +27,18 @@ const SkillCard = ({ result }: { result: CandidateTestResult }) => {
       <h3 id={headingId} className="text-[17px] font-bold text-slate-800">
         {result.test_title}
       </h3>
-      <dl className="grid grid-cols-2 gap-2 text-[14px]">
-        <dt className="text-slate-500">Score</dt>
-        <dd className="font-semibold text-slate-900">{percent(result.percentage_score)}</dd>
-        <dt className="text-slate-500">Level</dt>
-        <dd className="font-semibold text-slate-900">{LEVEL_LABELS[result.level]} level</dd>
-        <dt className="text-slate-500">Finished</dt>
-        <dd className="text-slate-900">{formatDate(result.completed_at)}</dd>
-      </dl>
+      {result.shared ? (
+        <dl className="grid grid-cols-2 gap-2 text-[14px]">
+          <dt className="text-slate-500">Score</dt>
+          <dd className="font-semibold text-slate-900">{percent(result.percentage_score)}</dd>
+          <dt className="text-slate-500">Level</dt>
+          <dd className="font-semibold text-slate-900">{LEVEL_LABELS[result.level]} level</dd>
+          <dt className="text-slate-500">Finished</dt>
+          <dd className="text-slate-900">{formatDate(result.completed_at)}</dd>
+        </dl>
+      ) : (
+        <p className="text-[14px] text-slate-600">The candidate has not shared this result.</p>
+      )}
     </article>
   );
 };
@@ -59,10 +64,7 @@ interface ReportViewProps {
 
 const ReportView = ({ candidate, report, isChecking, onCheckAgain }: ReportViewProps) => {
   const results = report?.results ?? [];
-  const overall =
-    results.length > 0
-      ? results.reduce((sum, result) => sum + result.percentage_score, 0) / results.length
-      : null;
+  const overall = overallScore(results);
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">

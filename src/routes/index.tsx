@@ -11,6 +11,7 @@ import {
   Contact,
   Dashboard,
   Assessment,
+  AssessmentStart,
   AssessmentProcessing,
   AssessmentResults,
   Programme,
@@ -127,6 +128,7 @@ export const getRoutes = (): RouteObject[] => [
             ],
           },
           guard(accessFor('/assessment'), [
+            { path: '/assessment/start', element: <AssessmentStart /> },
             { path: '/assessment', element: <Assessment /> },
             { path: '/assessment/processing', element: <AssessmentProcessing /> },
             { path: '/assessment/results', element: <AssessmentResults /> },

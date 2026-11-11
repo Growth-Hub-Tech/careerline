@@ -72,7 +72,7 @@ const BeginnerHome = () => (
         An AI powered career clarity test - answer a few questions to uncover your strengths,
         matching roles and learning path tailored just for you.
       </p>
-      <Link to="/assessment" className={PRIMARY_ACTION}>
+      <Link to="/assessment/start" className={PRIMARY_ACTION}>
         Take Assessment Test
       </Link>
     </div>

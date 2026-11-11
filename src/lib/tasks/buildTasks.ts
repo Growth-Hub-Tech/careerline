@@ -21,7 +21,7 @@ export const beginnerTasks = (path: BeginnerPath | null): Task[] => {
       {
         id: 'questionnaire',
         text: 'Answer the career questionnaire to get your career paths.',
-        to: '/assessment',
+        to: '/assessment/start',
         action: 'Start the questionnaire',
       },
     ];

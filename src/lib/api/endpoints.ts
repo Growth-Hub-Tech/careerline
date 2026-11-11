@@ -113,6 +113,8 @@ export const createSubscriptionsApi = (client: Client) => ({
   mine: () => client.get<Subscription | null>('/subscriptions/me'),
 
   cancel: () => client.post<Subscription>('/subscriptions/me/cancel'),
+
+  resume: () => client.post<Subscription>('/subscriptions/me/resume'),
 });
 
 export const createPaymentsApi = (client: Client) => ({
@@ -138,6 +140,8 @@ export const createPrivacyApi = (client: Client) => ({
   requestExport: () => client.post<DataExport>('/privacy/data-exports'),
 
   getExport: (exportId: number) => client.get<DataExport>(`/privacy/data-exports/${exportId}`),
+
+  getDeletion: () => client.get<AccountDeletion>('/privacy/account-deletion'),
 
   requestDeletion: (request: AccountDeletionRequest) =>
     client.post<AccountDeletion>('/privacy/account-deletion', { body: request }),

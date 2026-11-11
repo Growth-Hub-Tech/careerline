@@ -1,13 +1,12 @@
 import { useId, useState, type ReactNode } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
-import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { BuyDialog, type BuyItem } from '../components/BuyDialog';
 import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
+import { LoadFailed } from '../components/PageState';
 import { paymentsApi, subscriptionsApi, type CreditPack, type Plan } from '../lib/api';
-import { describeError } from '../lib/api/describeError';
 import { formatMoney } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
 import { safeReturnPath } from '../lib/payments/checkoutReturn';
@@ -182,14 +181,7 @@ export const Pricing = ({ onOpen }: PricingProps) => {
   if (state.status === 'loading') {
     content = <PageLoader title="Loading prices" />;
   } else if (state.status === 'error') {
-    content = (
-      <div className="flex max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    content = <LoadFailed error={state.error} onRetry={retry} />;
   } else {
     const { plans, packs } = state.data;
     const ordered = [...AUDIENCES].sort(

@@ -2,7 +2,7 @@ name: Integration Workflow
 
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'dev']
   pull_request:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x]
 
     steps:
       - name: 📦 Checkout repository
@@ -40,6 +40,8 @@ jobs:
 
       - name: 🏗️ Build
         run: npm run build
+        env:
+          VITE_API_URL: https://careerline-api.onrender.com/api/v1
 
       - name: 📏 Check file sizes
         run: npm run size

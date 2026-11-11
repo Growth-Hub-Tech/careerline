@@ -7,6 +7,9 @@ const TOO_MANY = ['too_many_requests', 'rate_limited'];
 
 const GENERIC = 'Something went wrong. Try again.';
 
+// Signing in worked, but the very next request was not signed in: the browser refused the cookie
+export const SESSION_COOKIE_BLOCKED = 'session_cookie_blocked';
+
 const describeWait = (seconds: number) => {
   if (seconds < 60) return `${seconds} seconds`;
   const minutes = Math.ceil(seconds / 60);
@@ -35,6 +38,7 @@ export const describeAuthError = (error: unknown): string => {
   if (error instanceof ApiError && !error.isNetwork) {
     const code = error.code?.toLowerCase() ?? '';
 
+    if (code === SESSION_COOKIE_BLOCKED) return error.message;
     if (NOT_CONFIRMED.includes(code)) {
       return 'Confirm your email first. Check your inbox for the link we sent you.';
     }

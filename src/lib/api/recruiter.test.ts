@@ -12,7 +12,6 @@ const setup = (...bodies: unknown[]) => {
   bodies.forEach((body) => fetcher.mockResolvedValueOnce(reply(body)));
   const client = createApiClient({
     baseUrl: 'https://api.example.test/api/v1',
-    getToken: () => 'token-123',
     fetcher,
   });
 
@@ -93,7 +92,7 @@ describe('invitations api', () => {
     expect(bodyOf(fetcher)).toMatchObject({ test_id: 202, candidate_id: 7, expires_in_days: 7 });
   });
 
-  it('opens an invitation without a login and accepts it with one', async () => {
+  it('opens an invitation and accepts it', async () => {
     const { fetcher, invitations } = setup({ token: 'a b' }, { token: 'a b' });
 
     await invitations.open('a b');
@@ -103,9 +102,5 @@ describe('invitations api', () => {
       'GET https://api.example.test/api/v1/invitations/token/a%20b',
       'POST https://api.example.test/api/v1/invitations/token/a%20b/accept',
     ]);
-    expect(new Headers(fetcher.mock.calls[0][1]?.headers).get('Authorization')).toBeNull();
-    expect(new Headers(fetcher.mock.calls[1][1]?.headers).get('Authorization')).toBe(
-      'Bearer token-123',
-    );
   });
 });

@@ -1,11 +1,24 @@
-import { callbackUrl, rememberReturn, safeReturnPath, takeReturn } from './checkoutReturn';
+import {
+  callbackUrl,
+  clearReturn,
+  readReturn,
+  rememberReturn,
+  safeReturnPath,
+} from './checkoutReturn';
 
 describe('checkout return', () => {
-  it('remembers where to come back to, once', () => {
+  it('remembers where to come back to until it is cleared', () => {
     rememberReturn('/tests/202');
 
-    expect(takeReturn()).toBe('/tests/202');
-    expect(takeReturn()).toBeNull();
+    expect(readReturn()).toBe('/tests/202');
+    clearReturn();
+    expect(readReturn()).toBeNull();
+  });
+
+  it('never returns to an address outside the app, even if one was stored', () => {
+    rememberReturn('https://evil.test');
+
+    expect(readReturn()).toBeNull();
   });
 
   it('sends Paystack back to the payment check page', () => {

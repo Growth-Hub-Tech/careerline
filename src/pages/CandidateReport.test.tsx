@@ -99,6 +99,20 @@ describe('CandidateReport', () => {
     );
   });
 
+  it('says the PDF is still being made and checks again on request', async () => {
+    vi.mocked(recruiterApi.getReport)
+      .mockResolvedValueOnce({ ...CANDIDATE_REPORT, report_url: null })
+      .mockResolvedValue(CANDIDATE_REPORT);
+    setup();
+
+    expect(await screen.findByText('The PDF is being made.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Download PDF' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Check again' }));
+
+    expect(await screen.findByRole('link', { name: 'Download PDF' })).toBeInTheDocument();
+    expect(recruiterApi.getReport).toHaveBeenCalledTimes(2);
+  });
+
   it('says when there is not enough evidence for a skill', async () => {
     vi.mocked(recruiterApi.getReport).mockResolvedValue({ ...CANDIDATE_REPORT, results: [] });
     setup();

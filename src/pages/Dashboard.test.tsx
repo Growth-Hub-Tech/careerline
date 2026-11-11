@@ -39,7 +39,6 @@ describe('Dashboard', () => {
 
   it('uses whoever is signed in, not a fixed name', () => {
     writeSession({
-      token: 'token',
       user: { name: 'Adaeze Obi Nwosu', email: 'ada@example.com', userType: 'beginner' },
     });
 
@@ -50,7 +49,6 @@ describe('Dashboard', () => {
 
   it('copes with extra spaces and a single name', () => {
     writeSession({
-      token: 'token',
       user: { name: '  Tunde  ', email: 'tunde@example.com', userType: 'beginner' },
     });
 

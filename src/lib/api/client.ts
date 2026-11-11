@@ -14,9 +14,12 @@ interface RequestOptions {
 
 type ShortcutOptions = Omit<RequestOptions, 'method'>;
 
+// A stalled API must not leave a spinner running forever
+export const REQUEST_TIMEOUT_MS = 20_000;
+
 interface ApiClientOptions {
   readonly baseUrl: string;
-  readonly getToken: () => string | null | undefined;
+  readonly isSignedIn?: () => boolean;
   readonly onUnauthorized?: () => void;
   readonly fetcher?: typeof fetch;
 }
@@ -41,18 +44,20 @@ const isEnvelope = (value: unknown): value is { success: true; data: unknown } =
 
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === 'AbortError';
 
+const networkError = () => new ApiError({ status: 0, message: NETWORK_MESSAGE, code: 'network' });
+
+// The session is the API's HttpOnly cookie, sent with every request (credentials: 'include'):
+// page scripts never see the token. auth: false marks a request that needs no session (signing
+// in, the contact form), so its 401 is not a session that ended.
 export const createApiClient = ({
   baseUrl,
-  getToken,
+  isSignedIn = () => false,
   onUnauthorized,
   fetcher = (...args) => fetch(...args),
 }: ApiClientOptions) => {
   const request = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
     const { method = 'GET', body, query, headers: extra, signal, auth = true } = options;
-    const token = auth ? getToken() : null;
     const headers = new Headers({ Accept: 'application/json', ...extra });
-
-    if (token) headers.set('Authorization', `Bearer ${token}`);
 
     let payload: BodyInit | undefined;
     if (body instanceof FormData || body instanceof URLSearchParams) {
@@ -62,25 +67,53 @@ export const createApiClient = ({
       payload = JSON.stringify(body);
     }
 
+    // One controller for the caller's signal (e.g. leaving the page) and the timeout. It covers
+    // reading the body too. A timeout is a network error; the caller's own abort is rethrown.
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, REQUEST_TIMEOUT_MS);
+    const forwardAbort = () => controller.abort();
+    if (signal?.aborted) controller.abort();
+    else signal?.addEventListener('abort', forwardAbort, { once: true });
+
+    const settle = (error: unknown) => {
+      if (isAbort(error) && !timedOut) return error;
+      return networkError();
+    };
+
     let response: Response;
+    let text: string;
     try {
-      response = await fetcher(buildUrl(baseUrl, path, query), {
-        method,
-        headers,
-        body: payload,
-        signal,
-      });
-    } catch (error) {
-      if (isAbort(error)) throw error;
-      throw new ApiError({ status: 0, message: NETWORK_MESSAGE, code: 'network' });
+      try {
+        response = await fetcher(buildUrl(baseUrl, path, query), {
+          method,
+          headers,
+          body: payload,
+          credentials: 'include',
+          signal: controller.signal,
+        });
+      } catch (error) {
+        throw settle(error);
+      }
+
+      if (!response.ok) {
+        if (response.status === 401 && auth && isSignedIn()) onUnauthorized?.();
+        throw await readError(response);
+      }
+
+      try {
+        text = await response.text();
+      } catch (error) {
+        throw settle(error);
+      }
+    } finally {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', forwardAbort);
     }
 
-    if (!response.ok) {
-      if (response.status === 401 && token) onUnauthorized?.();
-      throw await readError(response);
-    }
-
-    const text = await response.text();
     if (text === '') return undefined as T;
 
     try {

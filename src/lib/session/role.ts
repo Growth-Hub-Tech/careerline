@@ -1,4 +1,5 @@
-import { USER_TYPES, type UserType } from './types';
+import type { Account } from '../api/types';
+import { USER_TYPES, type Session, type UserType } from './types';
 
 const KEY = 'careerline.roles';
 
@@ -32,3 +33,24 @@ export const writeRole = (email: string, userType: UserType) => {
     return;
   }
 };
+
+type OrganisationRole = NonNullable<Account['organisation_role']>;
+
+const ORGANISATION_USER_TYPES: Readonly<Record<OrganisationRole, UserType>> = {
+  owner: 'organization',
+  admin: 'organization',
+  recruiter: 'recruiter',
+};
+
+// The account's organisation role decides the user type on any device; the type chosen on Get
+// started (kept in this browser) counts only for an account outside any organisation
+export const userTypeFor = (
+  email: string,
+  organisationRole: Account['organisation_role'] | undefined,
+): UserType | undefined =>
+  organisationRole ? ORGANISATION_USER_TYPES[organisationRole] : readRole(email);
+
+// Get started is for someone outside any organisation who has not chosen a type here yet
+export const needsUserType = ({ user }: Session) =>
+  readRole(user.email) === undefined &&
+  !Object.values(ORGANISATION_USER_TYPES).includes(user.userType);

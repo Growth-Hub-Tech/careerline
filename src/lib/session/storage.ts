@@ -9,18 +9,26 @@ const isUserType = (value: unknown): value is UserType =>
 const isSession = (value: unknown): value is Session => {
   if (typeof value !== 'object' || value === null) return false;
 
-  const { token, user } = value as Record<string, unknown>;
-  if (typeof token !== 'string' || token === '') return false;
+  const { user } = value as Record<string, unknown>;
   if (typeof user !== 'object' || user === null) return false;
 
   const { name, email, userType } = user as Record<string, unknown>;
   return typeof name === 'string' && typeof email === 'string' && isUserType(userType);
 };
 
+// Saved before the sign-in cookie: it holds a bearer token and the browser has no cookie for it,
+// so it is signed out, and the token does not stay in storage
+const holdsToken = (value: unknown) =>
+  typeof value === 'object' && value !== null && 'token' in value;
+
 export const readSession = (): Session | null => {
   try {
     const raw = window.localStorage.getItem(SESSION_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (holdsToken(parsed)) {
+      window.localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
     return isSession(parsed) ? parsed : null;
   } catch {
     return null;

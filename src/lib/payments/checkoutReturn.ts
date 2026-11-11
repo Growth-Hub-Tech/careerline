@@ -28,9 +28,3 @@ export const clearReturn = () => {
     return;
   }
 };
-
-export const takeReturn = () => {
-  const path = readReturn();
-  clearReturn();
-  return path;
-};

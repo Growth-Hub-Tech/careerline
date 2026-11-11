@@ -12,6 +12,7 @@ import { Select } from '../components/Select';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
 import { TextField } from '../components/TextField';
+import { LoadFailed } from '../components/PageState';
 import {
   catalogApi,
   invitationsApi,
@@ -356,14 +357,7 @@ export const Candidates = () => {
   if (state.status === 'loading') {
     content = <PageLoader title="Loading your candidates" className="flex-1" />;
   } else if (state.status === 'error') {
-    content = (
-      <div className="flex w-full max-w-[480px] flex-col gap-4">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    content = <LoadFailed error={state.error} onRetry={retry} />;
   } else {
     content = (
       <Workspace

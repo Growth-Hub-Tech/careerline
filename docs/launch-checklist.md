@@ -4,8 +4,11 @@ Work through this list before the site goes live, and again before any big relea
 
 ## Settings
 
-- [ ] In Netlify, set `VITE_API_URL` to the live API address (ends in `/api/v1`).
-- [ ] If the live API is not `careerline-api.onrender.com`, add its address to `connect-src` in the Content-Security-Policy in `netlify.toml`.
+- [ ] In Netlify, set `VITE_API_URL` to the live API address (ends in `/api/v1`) for every deploy context: a build without it fails.
+- [ ] The site and the API share a domain (for example `careerline.ng` and `api.careerline.ng`): the sign-in cookie is only sent to the API from the same site. The API's `CORS_ORIGINS` lists the site's origin.
+- [ ] The API that sets the sign-in cookie is deployed before this site (an older API only accepts the bearer token the site no longer keeps).
+- [ ] In Netlify, set `VITE_SENTRY_DSN` so errors from real users reach Sentry, and turn on Sentry's server-side data scrubbing.
+- [ ] Nothing to change for the Content-Security-Policy: the build writes it into `dist/_headers` with `connect-src` set to the API in `VITE_API_URL`.
 - [ ] Set the contact settings from `.env.example` in Netlify.
 - [ ] Paystack: the callback address is `<site>/payments/callback`. Confirm Paystack is in live mode with Joshua.
 
@@ -15,7 +18,6 @@ Work through this list before the site goes live, and again before any big relea
 
 - [ ] `npm run test`, `npm run type-check`, `npm run lint` and `npm run build` pass on `main`.
 - [ ] `npm run size` passes.
-- [ ] Joshua confirms no endpoint used by the site still returns sample data (`X-Sample-Data`).
 - [ ] Walk the four journeys on the test site with Omotoke:
   - [ ] Professional: sign up, take a skill test, download the report.
   - [ ] Beginner: answer the questionnaire, see career paths, open a programme.

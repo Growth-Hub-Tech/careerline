@@ -17,23 +17,23 @@ Scores are decision support only. Every report says so.
 git clone https://github.com/Growth-Hub-Tech/careerline.git
 cd careerline
 npm ci
-cp .env.example .env.local
 npm run dev
 ```
 
-`.env.example` lists the settings. `VITE_API_URL` points at the API; the default is the test server.
+`npm run dev` talks to an API on your machine (`http://localhost:8000/api/v1`, from `.env.development`). To use the test server instead, copy `.env.example` to `.env.local`: it sets `VITE_API_URL` to the test API. `.env.example` lists every setting.
 
 ## Scripts
 
-| Command              | What it does                                                   |
-| -------------------- | -------------------------------------------------------------- |
-| `npm run dev`        | Starts the site at http://localhost:5173                       |
-| `npm run test`       | Runs every test, including the four journeys and accessibility |
-| `npm run type-check` | Checks the TypeScript types                                    |
-| `npm run lint`       | Checks the code style rules                                    |
-| `npm run build`      | Builds the site into `dist/`                                   |
-| `npm run size`       | Fails if a built file is over its size limit (run after build) |
-| `npm run api:types`  | Regenerates the API types from `docs/openapi.json`             |
+| Command                 | What it does                                                   |
+| ----------------------- | -------------------------------------------------------------- |
+| `npm run dev`           | Starts the site at http://localhost:5173                       |
+| `npm run test`          | Runs every test, including the four journeys and accessibility |
+| `npm run type-check`    | Checks the TypeScript types                                    |
+| `npm run lint`          | Checks the code style rules                                    |
+| `npm run build`         | Builds the site into `dist/` (needs `VITE_API_URL` set)        |
+| `npm run build:staging` | Builds the test site, talking to the test API (`.env.staging`) |
+| `npm run size`          | Fails if a built file is over its size limit (run after build) |
+| `npm run api:types`     | Regenerates the API types from `docs/openapi.json`             |
 
 CI runs lint, format, type-check, tests, build and the size check on every pull request.
 
@@ -54,15 +54,15 @@ docs/openapi.json  the API description the types are generated from
 
 Replies come as `{ success, data }`. Errors become an `ApiError` with a status, code, message and reference.
 
-Some endpoints still return sample data from the test server (they send `X-Sample-Data: true`): test catalogue, profile, beginner path, programmes, privacy, payments, credits, subscriptions, recruiter, invitations and organisation audit. Their shape will not change when they become real.
+Signing in sets the API's `careerline_session` cookie (HttpOnly, so page scripts never see the token), and every request is sent with `credentials: 'include'`. The browser only keeps the user's name, email and type. The API must list the site's origin in its `CORS_ORIGINS`, and in production the site and the API must share a domain (for example `careerline.ng` and `api.careerline.ng`) for the cookie to be sent.
 
-To update the types after the API changes:
+To update the types after the API changes, copy `openapi.json` from the careerline-api repository (the test server also serves it at `/openapi.json`; production does not), then regenerate them:
 
 ```bash
-curl -sS https://careerline-api.onrender.com/openapi.json -o docs/openapi.json
+cp ../careerline-api/openapi.json docs/openapi.json
 npm run api:types
 ```
 
 ## Deploying
 
-The site is deployed on Netlify from `main`. `netlify.toml` sets the build, the single-page redirect, security headers and caching. After each deploy, the **Live check** workflow opens the site and the API health check. See `docs/launch-checklist.md` before a release.
+The site is deployed on Netlify from `main`, and the test site from `dev` (`npm run build:staging`). A build fails unless `VITE_API_URL` is set, so set it in Netlify for every deploy context. `netlify.toml` sets the build, the single-page redirect, security headers and caching; the build writes the Content-Security-Policy into `dist/_headers`, allowing requests only to the site and the API in `VITE_API_URL`. The test site (`--mode staging`) also tells search engines not to index it. After each deploy, the **Live check** workflow opens the site and the API health check. See `docs/launch-checklist.md` before a release.

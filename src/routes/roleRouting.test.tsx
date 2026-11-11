@@ -40,7 +40,6 @@ describe('role picker routing', () => {
 
   it('keeps a real sign-in and only changes the user type', async () => {
     writeSession({
-      token: 'real-token',
       user: { name: 'Ada Obi', email: 'ada@example.com', userType: 'beginner' },
     });
 
@@ -49,7 +48,6 @@ describe('role picker routing', () => {
     expect(screen.getByText('Recruiter')).toBeInTheDocument();
     expect(readRole('ada@example.com')).toBe('recruiter');
     expect(readSession()).toEqual({
-      token: 'real-token',
       user: { name: 'Ada Obi', email: 'ada@example.com', userType: 'recruiter' },
     });
   });

@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { ErrorScreen } from './ErrorScreen';
 
@@ -19,6 +20,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error(error, info.componentStack);
+    // Sent only when error monitoring was started (VITE_SENTRY_DSN)
+    captureException(error, { contexts: { react: { componentStack: info.componentStack } } });
   }
 
   componentDidUpdate(previous: ErrorBoundaryProps) {

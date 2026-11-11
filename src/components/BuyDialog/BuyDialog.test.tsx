@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { paymentsApi, subscriptionsApi } from '../../lib/api';
 import { ApiError } from '../../lib/api/ApiError';
-import { takeReturn } from '../../lib/payments/checkoutReturn';
+import { readReturn } from '../../lib/payments/checkoutReturn';
 import { BuyDialog, type BuyItem } from './BuyDialog';
 
 vi.mock('../../lib/api', async (importOriginal) => ({
@@ -78,7 +78,7 @@ describe('BuyDialog', () => {
       callback_url: `${window.location.origin}/payments/callback`,
     });
     expect(onOpen).toHaveBeenCalledWith('https://pay.test/ref-1');
-    expect(takeReturn()).toBe('/tests/202');
+    expect(readReturn()).toBe('/tests/202');
   });
 
   it('subscribes to a plan and goes to Paystack', async () => {
@@ -106,7 +106,7 @@ describe('BuyDialog', () => {
       'Something went wrong on our side.',
     );
     expect(onOpen).not.toHaveBeenCalled();
-    expect(takeReturn()).toBeNull();
+    expect(readReturn()).toBeNull();
   });
 
   it('closes on Cancel', async () => {

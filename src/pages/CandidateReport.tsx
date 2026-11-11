@@ -1,13 +1,12 @@
 import { useCallback, useId, type ReactNode } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { DecisionNote } from '../components/DecisionNote';
 import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
+import { LoadFailed } from '../components/PageState';
 import { recruiterApi, type CandidateTestResult } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
-import { describeError } from '../lib/api/describeError';
 import { formatDate } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
@@ -77,14 +76,7 @@ const CandidateDetails = ({ id }: { id: number }) => {
   if (state.status === 'error') {
     if (isStatus(state.error, 404)) return <Navigate to="/page-not-found" replace />;
 
-    return (
-      <div className="flex w-full max-w-[480px] flex-col gap-4 px-5 py-8 sm:px-8">
-        <Alert variant="error">{describeError(state.error)}</Alert>
-        <Button fullWidth={false} onClick={retry}>
-          Try again
-        </Button>
-      </div>
-    );
+    return <LoadFailed error={state.error} onRetry={retry} className="px-5 py-8 sm:px-8" />;
   }
 
   const { candidate, report } = state.data;
@@ -122,9 +114,18 @@ const CandidateDetails = ({ id }: { id: number }) => {
                 <span className="text-[36px] font-bold text-slate-900">{percent(overall)}</span>
               </p>
             )}
-            <a href={report.report_url} className={`${PRIMARY_ACTION} w-fit`}>
-              Download PDF
-            </a>
+            {report.report_url ? (
+              <a href={report.report_url} className={`${PRIMARY_ACTION} w-fit`}>
+                Download PDF
+              </a>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-[15px] text-slate-600">The PDF is being made.</p>
+                <Button variant="transparent" border="solid" fullWidth={false} onClick={retry}>
+                  Check again
+                </Button>
+              </div>
+            )}
           </div>
 
           <Section title="Recommendation">

@@ -62,6 +62,7 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
   const [plan, setPlan] = useState(initial);
   const [isAsking, setIsAsking] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
   const [error, setError] = useState<string>();
 
   const cancel = async () => {
@@ -76,8 +77,22 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
     setIsCancelling(false);
   };
 
+  const resume = async () => {
+    setIsResuming(true);
+    setError(undefined);
+    try {
+      setPlan(await subscriptionsApi.resume());
+    } catch (resumeError) {
+      setError(describeError(resumeError));
+    }
+    setIsResuming(false);
+  };
+
   const canCancel = plan?.status === 'active' && !plan.cancel_at_period_end;
-  const offerAgain = plan && (plan.status !== 'active' || plan.cancel_at_period_end);
+  // Set to cancel but not ended yet: undo the cancellation (the API refuses a new subscription
+  // while a plan is still running)
+  const canResume = plan?.cancel_at_period_end === true && plan.status !== 'cancelled';
+  const offerAgain = plan && plan.status !== 'active';
 
   return (
     <section
@@ -110,6 +125,11 @@ const PlanSection = ({ initial }: { initial: Subscription | null }) => {
       )}
       {error && !isAsking && <Alert variant="error">{error}</Alert>}
       <div className="flex flex-wrap gap-3">
+        {canResume && (
+          <Button fullWidth={false} isLoading={isResuming} onClick={resume}>
+            Keep my plan
+          </Button>
+        )}
         {canCancel && (
           <Button
             variant="transparent"

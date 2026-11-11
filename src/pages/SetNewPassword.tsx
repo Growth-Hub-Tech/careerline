@@ -16,10 +16,11 @@ import { Button } from '../components/Button';
 import { authApi } from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
+import { newPassword } from '../lib/validation/auth';
 
 const newPasswordSchema = z
   .object({
-    password: z.string().min(8, 'Use at least 8 characters'),
+    password: newPassword,
     repeat: z.string(),
   })
   .refine((values) => values.password === values.repeat, {

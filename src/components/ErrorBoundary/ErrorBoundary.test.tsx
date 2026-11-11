@@ -1,6 +1,9 @@
+import { captureException } from '@sentry/react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ErrorBoundary } from './ErrorBoundary';
+
+vi.mock('@sentry/react', () => ({ captureException: vi.fn() }));
 
 let shouldThrow = true;
 
@@ -17,6 +20,19 @@ describe('ErrorBoundary', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('reports the error with the component stack', () => {
+    render(
+      <ErrorBoundary>
+        <Bomb />
+      </ErrorBoundary>,
+    );
+
+    expect(captureException).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'secret internal detail' }),
+      { contexts: { react: { componentStack: expect.stringContaining('Bomb') as string } } },
+    );
   });
 
   it('renders its children when nothing throws', () => {

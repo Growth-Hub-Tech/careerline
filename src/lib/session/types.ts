@@ -15,7 +15,7 @@ export interface SessionUser {
   readonly userType: UserType;
 }
 
+// The API's sign-in cookie is the session itself; this only remembers who is signed in
 export interface Session {
-  readonly token: string;
   readonly user: SessionUser;
 }

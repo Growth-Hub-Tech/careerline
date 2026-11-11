@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from 'react';
+import { useCallback, useId, useState, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
@@ -7,9 +7,16 @@ import { LoadFailed } from '../components/PageState';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
-import { organisationsApi, type Audit, type Benchmark, type TeamMember } from '../lib/api';
+import {
+  organisationsApi,
+  type Audit,
+  type Benchmark,
+  type MemberDelta,
+  type TeamMember,
+} from '../lib/api';
 import { ApiError } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
+import { formatPoints } from '../lib/format';
 import { useRequest } from '../lib/hooks/useRequest';
 import { AUDIT_STATUS, MEMBER_STATUS } from '../lib/organisation/labels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
@@ -70,13 +77,81 @@ const BENCHMARKS: readonly TableColumn<Benchmark>[] = [
   },
 ];
 
+const CHANGES: readonly TableColumn<MemberDelta>[] = [
+  {
+    key: 'name',
+    header: 'Name',
+    render: (row) => (
+      <Link to={`/team/members/${row.member_id}`} className={LINK}>
+        {row.full_name}
+      </Link>
+    ),
+  },
+  { key: 'skill', header: 'Skill', render: (row) => row.skill_name },
+  { key: 'before', header: 'Before', align: 'right', render: (row) => percent(row.before_score) },
+  { key: 'after', header: 'After', align: 'right', render: (row) => percent(row.after_score) },
+  {
+    key: 'change',
+    header: 'Change',
+    align: 'right',
+    render: (row) => (row.score_delta === null ? '—' : formatPoints(Math.round(row.score_delta))),
+  },
+];
+
 const loadAudit = async (auditId: number) => {
   const organisation = await organisationsApi.me();
   const [audit, members] = await Promise.all([
     organisationsApi.getAudit(organisation.organisation_id, auditId),
     organisationsApi.listMembers(organisation.organisation_id),
   ]);
-  return { audit, members: members.filter((item) => audit.role_ids.includes(item.role_id)) };
+  return {
+    organisationId: organisation.organisation_id,
+    audit,
+    members: members.filter((item) => audit.role_ids.includes(item.role_id)),
+  };
+};
+
+// A re-test's results next to the first audit's, person by person (its own loader and error,
+// so the rest of the audit still shows when this part fails)
+const RetestChanges = ({
+  organisationId,
+  auditId,
+}: {
+  organisationId: number;
+  auditId: number;
+}) => {
+  const headingId = useId();
+  const load = useCallback(
+    () => organisationsApi.auditDeltas(organisationId, auditId),
+    [organisationId, auditId],
+  );
+  const { state, retry } = useRequest(load);
+
+  let content: ReactNode;
+  if (state.status === 'loading') {
+    content = <PageLoader title="Loading the changes" />;
+  } else if (state.status === 'error') {
+    content = <LoadFailed error={state.error} onRetry={retry} />;
+  } else {
+    content = (
+      <Table
+        caption="Change since the first audit"
+        columns={CHANGES}
+        rows={state.data.items}
+        getRowKey={(row) => `${row.member_id}-${row.skill_id}`}
+        empty="Nobody has finished the re-test yet."
+      />
+    );
+  }
+
+  return (
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <h2 id={headingId} className="text-[20px] font-bold text-slate-800">
+        Change since the first audit
+      </h2>
+      {content}
+    </section>
+  );
 };
 
 const StatusCounts = ({ members }: { members: readonly TeamMember[] }) => {
@@ -101,7 +176,9 @@ const StatusCounts = ({ members }: { members: readonly TeamMember[] }) => {
   );
 };
 
-const Retest = ({ audit }: { audit: Audit }) => {
+// The same people and tests again, compared with this audit. The API refuses a second re-test
+// too soon (409, with the date it becomes possible), and the Alert shows its message.
+const Retest = ({ organisationId, audit }: { organisationId: number; audit: Audit }) => {
   const navigate = useNavigate();
   const [error, setError] = useState<string>();
   const [isStarting, setIsStarting] = useState(false);
@@ -110,12 +187,7 @@ const Retest = ({ audit }: { audit: Audit }) => {
     setIsStarting(true);
     setError(undefined);
     try {
-      const organisation = await organisationsApi.me();
-      const retest = await organisationsApi.startAudit(organisation.organisation_id, {
-        name: `${audit.name} (re-test)`,
-        role_ids: audit.role_ids,
-        send_invitations: true,
-      });
+      const retest = await organisationsApi.retestAudit(organisationId, audit.audit_id);
       navigate(`/team/audits/${retest.audit_id}`);
     } catch (startError) {
       setError(describeError(startError));
@@ -156,7 +228,7 @@ const AuditDetails = ({ id }: { id: number }) => {
     );
   }
 
-  const { audit, members } = state.data;
+  const { organisationId, audit, members } = state.data;
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
@@ -180,7 +252,11 @@ const AuditDetails = ({ id }: { id: number }) => {
         </p>
       </header>
 
-      {audit.status === 'completed' && <Retest audit={audit} />}
+      {audit.status === 'completed' && <Retest organisationId={organisationId} audit={audit} />}
+
+      {audit.baseline_audit_id != null && (
+        <RetestChanges organisationId={organisationId} auditId={audit.audit_id} />
+      )}
 
       <StatusCounts members={members} />
 

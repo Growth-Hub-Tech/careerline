@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { paymentsApi, subscriptionsApi } from '../lib/api';
 import { SessionProvider, type UserType } from '../lib/session';
-import { takeReturn } from '../lib/payments/checkoutReturn';
+import { readReturn } from '../lib/payments/checkoutReturn';
 import { signInAs } from '../test/session';
 import { ApiError } from '../lib/api/ApiError';
 import { CREDIT_PACKS, PLANS } from '../test/fixtures/payments';
@@ -257,7 +257,7 @@ describe('Pricing', () => {
       );
       await userEvent.click(screen.getByRole('button', { name: 'Pay ₦25,000' }));
 
-      expect(takeReturn()).toBe('/tests/202');
+      expect(readReturn()).toBe('/tests/202');
     });
 
     it('comes back to the credits page by default', async () => {
@@ -269,7 +269,7 @@ describe('Pricing', () => {
       );
       await userEvent.click(screen.getByRole('button', { name: 'Pay ₦25,000' }));
 
-      expect(takeReturn()).toBe('/credits');
+      expect(readReturn()).toBe('/credits');
     });
   });
 });

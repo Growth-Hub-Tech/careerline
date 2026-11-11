@@ -1,12 +1,12 @@
 import { USER_TYPES } from '../../lib/session';
-import { canAccess } from '../../routes/access';
+import { accessFor } from '../../routes/access';
 import { NAV_BY_TYPE } from './navigation';
 
 describe('navigation per user type', () => {
   it.each(USER_TYPES)('only links %s to pages it may open', (userType) => {
     const { main, footer } = NAV_BY_TYPE[userType];
 
-    [...main, ...footer].forEach(({ path }) => expect(canAccess(userType, path)).toBe(true));
+    [...main, ...footer].forEach(({ path }) => expect(accessFor(path)).toContain(userType));
   });
 
   it.each(USER_TYPES)('gives %s a dashboard, support and settings', (userType) => {

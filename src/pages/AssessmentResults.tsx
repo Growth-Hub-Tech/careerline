@@ -1,12 +1,11 @@
 import { useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { ProgrammeCard } from '../components/ProgrammeCard';
 import { ProgressBar } from '../components/ProgressBar';
+import { LoadFailed } from '../components/PageState';
 import { beginnerApi, type BeginnerPath } from '../lib/api';
-import { describeError } from '../lib/api/describeError';
 import { loadBudget } from '../lib/beginner/budget';
 import { useRequest } from '../lib/hooks/useRequest';
 
@@ -33,12 +32,7 @@ export const AssessmentResults = () => {
     if (state.status === 'error') {
       return (
         <main className="flex min-h-dvh items-center justify-center bg-white px-5">
-          <div className="flex w-full max-w-[480px] flex-col gap-4">
-            <Alert variant="error">{describeError(state.error)}</Alert>
-            <Button fullWidth={false} onClick={retry}>
-              Try again
-            </Button>
-          </div>
+          <LoadFailed error={state.error} onRetry={retry} />
         </main>
       );
     }

@@ -17,6 +17,7 @@ import {
   rolesApi,
   subscriptionsApi,
 } from '../lib/api';
+import { ApiError } from '../lib/api/ApiError';
 import { SessionProvider, type UserType } from '../lib/session';
 import {
   AuditProgress,
@@ -80,7 +81,7 @@ vi.mock('../lib/api', async (importOriginal) => ({
   catalogApi: { getTest: vi.fn(), getAccess: vi.fn(), listTests: vi.fn() },
   paymentsApi: { listCreditPacks: vi.fn(), credits: vi.fn(), list: vi.fn() },
   subscriptionsApi: { listPlans: vi.fn(), mine: vi.fn() },
-  privacyApi: { getConsents: vi.fn() },
+  privacyApi: { getConsents: vi.fn(), getDeletion: vi.fn() },
   recruiterApi: { listCandidates: vi.fn(), getCandidate: vi.fn(), getReport: vi.fn() },
   invitationsApi: { list: vi.fn(), open: vi.fn() },
   organisationsApi: {
@@ -127,6 +128,7 @@ beforeEach(() => {
   vi.mocked(subscriptionsApi.listPlans).mockResolvedValue([...PLANS]);
   vi.mocked(subscriptionsApi.mine).mockResolvedValue(subscription());
   vi.mocked(privacyApi.getConsents).mockResolvedValue(consents());
+  vi.mocked(privacyApi.getDeletion).mockRejectedValue(new ApiError({ status: 404, message: 'x' }));
   vi.mocked(recruiterApi.listCandidates).mockResolvedValue([...CANDIDATES]);
   vi.mocked(recruiterApi.getCandidate).mockResolvedValue(CANDIDATES[0]);
   vi.mocked(recruiterApi.getReport).mockResolvedValue(CANDIDATE_REPORT);

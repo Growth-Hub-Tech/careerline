@@ -15,11 +15,3 @@ export const readPendingEmail = (): string | undefined => {
     return undefined;
   }
 };
-
-export const clearPendingEmail = () => {
-  try {
-    window.sessionStorage.removeItem(KEY);
-  } catch {
-    return;
-  }
-};

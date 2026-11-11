@@ -1,6 +1,6 @@
 import { useCallback, useId } from 'react';
 import { profileApi } from '../../lib/api';
-import { formatDate } from '../../lib/format';
+import { formatDate, formatPoints } from '../../lib/format';
 import { useRequest } from '../../lib/hooks/useRequest';
 import { LEVEL_LABELS } from '../../lib/tests/catalog';
 
@@ -9,9 +9,6 @@ interface ChangeBlockProps {
   readonly skillName: string;
   readonly attemptId: number;
 }
-
-const points = (change: number) =>
-  `${change > 0 ? '+' : change < 0 ? '−' : ''}${Math.abs(change)} ${Math.abs(change) === 1 ? 'point' : 'points'}`;
 
 export const ChangeBlock = ({ skillId, skillName, attemptId }: ChangeBlockProps) => {
   const headingId = useId();
@@ -36,7 +33,7 @@ export const ChangeBlock = ({ skillId, skillName, attemptId }: ChangeBlockProps)
       {current && previous ? (
         <>
           <p className="text-[24px] font-bold text-slate-900">
-            {points(current.score - previous.score)}{' '}
+            {formatPoints(current.score - previous.score)}{' '}
             <span className="text-[15px] font-normal text-slate-600">
               since your last test on {formatDate(previous.recorded_at)}
             </span>

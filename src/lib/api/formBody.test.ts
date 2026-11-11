@@ -7,7 +7,6 @@ describe('api client form bodies', () => {
     );
     const client = createApiClient({
       baseUrl: 'https://api.example.test',
-      getToken: () => null,
       fetcher,
     });
     const form = new URLSearchParams({ username: 'skye@example.com', password: 'secret123' });

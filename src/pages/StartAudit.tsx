@@ -3,76 +3,149 @@ import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { Checkbox } from '../components/Checkbox';
 import { SECONDARY_ACTION } from '../components/ErrorPage';
 import { QueryState } from '../components/PageState';
-import { TextField } from '../components/TextField';
-import type { Organisation, TeamMember } from '../lib/api';
+import { StatusLabel } from '../components/StatusLabel';
+import { Table, type TableColumn } from '../components/Table';
+import type { AssessmentSummary, Organisation, Role, TeamMember } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
-import { combineResults, organisationQueries, useStartAudit } from '../lib/api/queries';
+import {
+  catalogQueries,
+  combineResults,
+  organisationQueries,
+  roleQueries,
+  useStartAudit,
+} from '../lib/api/queries';
+import { MEMBER_STATUS } from '../lib/organisation/labels';
+import { assignedTestTitle, auditFor, pageCount, pageOf } from '../lib/organisation/assignments';
+
+const PAGE_SIZE = 20;
 
 const people = (count: number) => `${count} ${count === 1 ? 'person' : 'people'}`;
 
-const rolesOf = (members: readonly TeamMember[]) => {
-  const roles = new Map<number, { title: string; count: number }>();
-  members.forEach(({ role_id, role_title }) => {
-    const role = roles.get(role_id) ?? { title: role_title, count: 0 };
-    roles.set(role_id, { ...role, count: role.count + 1 });
-  });
-  return [...roles.entries()].map(([roleId, role]) => ({ roleId, ...role }));
-};
-
-interface AuditFormProps {
+interface ReviewProps {
   readonly organisation: Organisation;
   readonly members: readonly TeamMember[];
+  readonly roles: ReadonlyMap<number, Role>;
+  readonly tests: readonly AssessmentSummary[];
 }
 
-const AuditForm = ({ organisation, members }: AuditFormProps) => {
+const Review = ({ organisation, members, roles, tests }: ReviewProps) => {
   const navigate = useNavigate();
-  const roles = rolesOf(members);
-  const [name, setName] = useState('');
-  const [chosen, setChosen] = useState<readonly number[]>(roles.map((role) => role.roleId));
   const startAudit = useStartAudit();
+  const [page, setPage] = useState(1);
+  const [assigned, setAssigned] = useState<ReadonlySet<number>>(new Set());
 
-  const invited = members.filter((item) => chosen.includes(item.role_id)).length;
-  const hasSeats = invited <= organisation.seats_total;
-  const canSend = name.trim() !== '' && invited > 0 && hasSeats;
+  const testFor = (person: TeamMember) => assignedTestTitle(roles.get(person.role_id), tests);
+  const assignable = members.filter(
+    (person) => person.status === 'not_invited' && testFor(person) !== null,
+  );
+  const pages = pageCount(members.length, PAGE_SIZE);
+  const hasSeats = assigned.size <= organisation.seats_total;
 
-  const toggle = (roleId: number) =>
-    setChosen((current) =>
-      current.includes(roleId) ? current.filter((id) => id !== roleId) : [...current, roleId],
-    );
+  const toggle = (memberId: number) =>
+    setAssigned((current) => {
+      const next = new Set(current);
+      if (next.has(memberId)) next.delete(memberId);
+      else next.add(memberId);
+      return next;
+    });
 
   const send = () =>
-    startAudit.mutate(
-      { name: name.trim(), role_ids: [...chosen], send_invitations: true },
-      { onSuccess: (audit) => navigate(`/team/audits/${audit.audit_id}`) },
-    );
+    startAudit.mutate(auditFor(members, assigned, new Date()), {
+      onSuccess: (audit) => navigate(`/team/audits/${audit.audit_id}`),
+    });
+
+  const columns: readonly TableColumn<TeamMember>[] = [
+    { key: 'name', header: 'Employee’s name', render: (person) => person.full_name },
+    { key: 'role', header: 'Role', render: (person) => person.role_title },
+    {
+      key: 'test',
+      header: 'Assigned test',
+      render: (person) =>
+        testFor(person) ?? <span className="text-slate-500">No test for this role yet</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      align: 'right',
+      render: (person) => {
+        if (person.status !== 'not_invited') {
+          const status = MEMBER_STATUS[person.status];
+          return <StatusLabel status={status.tone}>{status.label}</StatusLabel>;
+        }
+        if (testFor(person) === null) return null;
+        const isAssigned = assigned.has(person.member_id);
+        return (
+          <button
+            type="button"
+            aria-pressed={isAssigned}
+            aria-label={`${isAssigned ? 'Assigned' : 'Assign test'}: ${person.full_name}`}
+            onClick={() => toggle(person.member_id)}
+            className={`rounded-full border px-3 py-1 text-[13px] font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 ${
+              isAssigned
+                ? 'border-teal-700 bg-teal-700 text-white hover:bg-teal-800'
+                : 'border-slate-300 text-slate-700 hover:border-teal-700 hover:text-teal-800'
+            }`}
+          >
+            {isAssigned ? 'Assigned' : 'Assign test'}
+          </button>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="flex max-w-[640px] flex-col gap-6">
+    <div className="flex flex-col gap-5">
       {startAudit.isError && <Alert variant="error">{describeError(startAudit.error)}</Alert>}
-      <TextField
-        label="Audit name"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button
+          variant="transparent"
+          border="solid"
+          fullWidth={false}
+          disabled={assignable.length === 0}
+          onClick={() => setAssigned(new Set(assignable.map((person) => person.member_id)))}
+        >
+          Assign everyone
+        </Button>
+        <nav aria-label="Pages" className="flex items-center gap-2">
+          <Button
+            variant="transparent"
+            border="solid"
+            fullWidth={false}
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </Button>
+          <p className="min-w-24 rounded-lg border border-teal-300 px-4 py-2.5 text-center text-[15px] text-slate-800">
+            {page} of {pages}
+          </p>
+          <Button
+            variant="transparent"
+            border="solid"
+            fullWidth={false}
+            disabled={page === pages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </Button>
+        </nav>
+      </div>
+
+      <Table
+        caption="Staff, their roles and tests"
+        columns={columns}
+        rows={pageOf(members, page, PAGE_SIZE)}
+        getRowKey={(person) => String(person.member_id)}
       />
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-[14px] font-medium text-slate-800">Roles to test</legend>
-        {roles.map((role) => (
-          <Checkbox
-            key={role.roleId}
-            label={`${role.title} (${people(role.count)})`}
-            checked={chosen.includes(role.roleId)}
-            onChange={() => toggle(role.roleId)}
-          />
-        ))}
-      </fieldset>
+
       {!hasSeats && (
         <Alert variant="warning">
           <span className="flex flex-wrap gap-x-2">
             <span>
-              You need {invited} seats but have {organisation.seats_total}.
+              You need {assigned.size} seats but have {organisation.seats_total}.
             </span>
             <Link
               to={`/pricing?return=${encodeURIComponent('/team/audits/new')}`}
@@ -83,14 +156,16 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
           </span>
         </Alert>
       )}
+
       <Button
+        variant="teal"
         fullWidth={false}
-        className="self-start"
-        disabled={!canSend}
+        className="self-end px-8"
+        disabled={assigned.size === 0 || !hasSeats}
         isLoading={startAudit.isPending || startAudit.isSuccess}
         onClick={send}
       >
-        Send invitations to {people(invited)}
+        Send tests to {people(assigned.size)}
       </Button>
     </div>
   );
@@ -98,20 +173,28 @@ const AuditForm = ({ organisation, members }: AuditFormProps) => {
 
 export const StartAudit = () => {
   const team = useQueries({
-    queries: [organisationQueries.me(), organisationQueries.members()],
+    queries: [organisationQueries.me(), organisationQueries.members(), catalogQueries.tests()],
+    combine: combineResults,
+  });
+  const roleIds = [...new Set((team.data?.[1] ?? []).map((person) => person.role_id))];
+  const roleDetails = useQueries({
+    queries: roleIds.map((roleId) => roleQueries.detail(roleId)),
     combine: combineResults,
   });
 
   return (
-    <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
+    <div className="flex w-full max-w-[1200px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Start an audit</h1>
-        <p className="max-w-[60ch] text-[15px] text-slate-600">
-          Everyone in the roles you choose gets an email with a link to their test.
+        <h1 className="text-[28px] leading-[1.25] font-bold text-slate-800">
+          Review each person’s role and test
+        </h1>
+        <p className="max-w-[70ch] text-[15px] text-slate-600">
+          CareerLine AI has matched each person to the test for their role. Confirm who should take
+          it, then send the tests. Each person gets an email with a link.
         </p>
       </header>
       <QueryState query={team} loadingTitle="Loading your team">
-        {([organisation, members]) =>
+        {([organisation, members, tests]) =>
           members.length === 0 ? (
             <div className="flex flex-col gap-4">
               <p className="text-[15px] text-slate-600">
@@ -122,7 +205,16 @@ export const StartAudit = () => {
               </Link>
             </div>
           ) : (
-            <AuditForm organisation={organisation} members={members} />
+            <QueryState query={roleDetails} loadingTitle="Matching roles to tests">
+              {(roles) => (
+                <Review
+                  organisation={organisation}
+                  members={members}
+                  roles={new Map(roles.map((role) => [role.role_id, role]))}
+                  tests={tests}
+                />
+              )}
+            </QueryState>
           )
         }
       </QueryState>

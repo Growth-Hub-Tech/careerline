@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'transparent' | 'accent' | 'deep';
+type ButtonVariant = 'primary' | 'secondary' | 'transparent' | 'accent' | 'deep' | 'teal';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
@@ -8,6 +8,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   transparent: 'bg-transparent text-slate-950 hover:bg-gray-50',
   accent: 'bg-amber-500 text-slate-950 hover:bg-amber-600',
   deep: 'bg-indigo-800 text-white hover:bg-indigo-900',
+  teal: 'bg-teal-700 text-white hover:bg-teal-800',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

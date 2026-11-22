@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { PageLoader } from '../../components/Loader';
-import { Footer, Navbar } from '../../components';
+import { Footer } from '../../components/Footer';
+import { Navbar } from '../../components/Navbar';
 import { MAIN_ID, SkipLink } from '../../components/SkipLink';
 
 export const MainLayout = () => (

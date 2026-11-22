@@ -114,7 +114,7 @@ export const PathOptions = () => {
                   <button
                     type="button"
                     onClick={() => navigate(path)}
-                    className={`mt-6 flex h-11 w-full items-center justify-between rounded-full px-4 text-[14px] font-medium text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF] ${button}`}
+                    className={`mt-6 flex h-11 w-full items-center justify-between rounded-full px-4 text-[14px] font-medium text-white transition-colors focus-ring ${button}`}
                   >
                     {cta}
                     <LuArrowUpRight size={16} />

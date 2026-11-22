@@ -75,16 +75,12 @@ export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProp
             aria-expanded={open}
             aria-controls="app-sidebar"
             onClick={() => setOpen((prev) => !prev)}
-            className="-ml-1 cursor-pointer rounded-md p-1 text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:hidden"
+            className="-ml-1 cursor-pointer rounded-md p-1 text-slate-950 focus-ring lg:hidden"
           >
             {open ? <LuX size={24} aria-hidden="true" /> : <LuMenu size={24} aria-hidden="true" />}
           </button>
 
-          <Link
-            to="/"
-            aria-label="CareerLine AI home"
-            className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
+          <Link to="/" aria-label="CareerLine AI home" className="rounded-md focus-ring">
             <img src={logo} alt="" decoding="async" className="block h-7 w-auto sm:h-8" />
           </Link>
         </div>
@@ -93,7 +89,7 @@ export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProp
           <button
             type="button"
             aria-label="Notifications"
-            className="cursor-pointer rounded-full p-2 text-slate-700 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="cursor-pointer rounded-full p-2 text-slate-700 transition-colors hover:bg-gray-50 focus-ring"
           >
             <LuBell size={20} aria-hidden="true" />
           </button>
@@ -115,7 +111,7 @@ export const AppShell = ({ user, navigation, onSignOut, children }: AppShellProp
           <button
             type="button"
             onClick={onSignOut}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:bg-gray-50 focus-ring"
           >
             <LuLogOut size={18} aria-hidden="true" />
             <span className="sr-only sm:not-sr-only">Sign out</span>

@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
-const FOCUS_RING =
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+const FOCUS_RING = 'focus-ring';
 
 export const AuthTitle = ({
   children,

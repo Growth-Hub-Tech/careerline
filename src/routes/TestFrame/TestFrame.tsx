@@ -16,7 +16,7 @@ export const TestFrame = () => (
       <div className="flex w-full max-w-[960px] flex-col gap-4">
         <Link
           to="/dashboard"
-          className="inline-flex w-fit items-center gap-2 rounded-md text-[14px] font-medium text-indigo-800 transition-colors hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="inline-flex w-fit items-center gap-2 rounded-md text-[14px] font-medium text-indigo-800 transition-colors hover:text-indigo-900 focus-ring"
         >
           <LuX size={16} aria-hidden="true" />
           Exit test

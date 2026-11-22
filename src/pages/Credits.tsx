@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
+import { PRIMARY_ACTION } from '../components/Button';
 import { QueryState } from '../components/PageState';
 import { Table, type TableColumn } from '../components/Table';
 import type { CreditTransaction, Credits as CreditsData } from '../lib/api';
@@ -33,7 +33,7 @@ const CreditHistory = ({ credits }: { credits: CreditsData }) => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-3">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Credits</h1>
+        <h1 className="page-title">Credits</h1>
         <p className="text-[15px] text-slate-600">You have {describeCredits(balance)}.</p>
         <Link
           to={`/pricing?return=${encodeURIComponent('/credits')}`}

@@ -321,7 +321,7 @@ export const Candidates = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Candidates</h1>
+        <h1 className="page-title">Candidates</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Send a role-specific test to a candidate and follow it until their report is ready.
         </p>

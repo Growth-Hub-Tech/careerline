@@ -1,5 +1,5 @@
-import { Button } from '../Button';
-import { ErrorPage, SECONDARY_ACTION } from '../ErrorPage';
+import { Button, SECONDARY_ACTION } from '../Button';
+import { ErrorPage } from '../ErrorPage';
 
 interface ErrorScreenProps {
   readonly onRetry?: () => void;

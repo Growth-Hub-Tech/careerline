@@ -2,17 +2,16 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
-import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
+import { Button, PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { queryKeys } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { paymentQueries } from '../lib/api/queries';
 import { clearReturn, readReturn } from '../lib/payments/checkoutReturn';
 import { describeCredits } from '../lib/tests/catalog';
+import { POLL_INTERVAL } from '../lib/api/queryClient';
 
 // Paystack can take a moment to confirm: ask every 3 seconds, 10 times at most
-const POLL_INTERVAL = 3000;
 const MAX_CHECKS = 10;
 
 const Panel = ({ title, children }: { title: string; children: ReactNode }) => (

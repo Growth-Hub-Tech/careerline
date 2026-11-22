@@ -46,7 +46,7 @@ const InProgress = ({ attemptId, attemptPath, onCancelled }: InProgressProps) =>
       <div className="flex flex-wrap gap-3">
         <Link
           to={attemptPath}
-          className="inline-flex h-12 items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="inline-flex h-12 items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-ring"
         >
           Continue test
         </Link>

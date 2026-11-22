@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Button } from '../components/Button';
+import { Button, PRIMARY_ACTION } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { ProgrammeCard } from '../components/ProgrammeCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { LoadFailed } from '../components/PageState';
+import { EmptyState } from '../components/EmptyState';
 import { beginnerQueries, profileQueries, selectBudget } from '../lib/api/queries';
 
 const MAX_PATHS = 3;
 
 const VIEW_LINK =
-  'inline-flex h-11 w-fit items-center justify-center rounded-lg border border-indigo-800 bg-white px-5 text-[15px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+  'inline-flex h-11 w-fit items-center justify-center rounded-lg border border-indigo-800 bg-white px-5 text-[15px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-ring';
 
 export const AssessmentResults = () => {
   // Straight after the questionnaire the paths are already in the cache (the reply to it)
@@ -40,16 +41,35 @@ export const AssessmentResults = () => {
   const matches = path.recommendations.slice(0, MAX_PATHS);
   const programmeId = matches[0]?.programme?.programme_id;
 
+  if (matches.length === 0) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-white px-5">
+        <EmptyState
+          headingLevel={1}
+          title="We could not match a career path yet"
+          description="Your answers did not point to a clear path. Try the questionnaire again and answer every question."
+          action={
+            <Link to="/assessment/start" className={PRIMARY_ACTION}>
+              Take the questionnaire again
+            </Link>
+          }
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-dvh flex-col items-center bg-white px-5 py-12 sm:px-8 sm:py-16">
       <div className="flex w-full max-w-[1120px] flex-col gap-10">
         <header className="flex flex-col items-center gap-6 text-center">
-          <h1 className="max-w-[24ch] text-[30px] leading-[1.3] font-bold text-slate-950 sm:text-[36px]">
-            Congratulations... You have successfully completed your test
+          <h1 className="font-heading max-w-[24ch] text-[30px] leading-[1.3] font-bold text-slate-950 sm:text-[36px]">
+            You have finished the questionnaire
           </h1>
           <div className="flex flex-col gap-2">
             <h2 className="text-[24px] leading-[1.3] font-bold text-slate-700 sm:text-[28px]">
-              Here are your top {matches.length} recommended career paths
+              {matches.length === 1
+                ? 'Your recommended career path'
+                : `Your top ${matches.length} recommended career paths`}
             </h2>
             <p className="text-[14px] text-slate-600">
               These paths are ranked based on your personality, your goals, your available time, and
@@ -117,14 +137,14 @@ export const AssessmentResults = () => {
             className="min-w-[260px]"
             onClick={() => window.print()}
           >
-            Download PDF Report
+            Download PDF report
           </Button>
           {programmeId !== undefined && (
             <Link
               to={`/programmes/${programmeId}`}
-              className="inline-flex h-12 min-w-[240px] items-center justify-center rounded-lg bg-amber-500 px-6 text-[16px] font-medium text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="inline-flex h-12 min-w-[240px] items-center justify-center rounded-lg bg-amber-500 px-6 text-[16px] font-medium text-slate-950 transition-colors hover:bg-amber-600 focus-ring"
             >
-              Start Learning
+              Start learning
             </Link>
           )}
         </div>

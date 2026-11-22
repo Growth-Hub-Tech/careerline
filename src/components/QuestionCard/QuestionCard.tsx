@@ -20,7 +20,6 @@ interface QuestionCardProps {
   readonly onChange: (values: string[]) => void;
   readonly onNext: () => void;
   readonly onBack?: () => void;
-  readonly isBackDisabled?: boolean;
   readonly isLast?: boolean;
 }
 
@@ -36,7 +35,6 @@ export const QuestionCard = ({
   onChange,
   onNext,
   onBack,
-  isBackDisabled = false,
   isLast = false,
 }: QuestionCardProps) => {
   const groupId = useId();
@@ -111,8 +109,7 @@ export const QuestionCard = ({
           <button
             type="button"
             onClick={onBack}
-            disabled={isBackDisabled}
-            className="inline-flex h-11 min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-full border border-indigo-800 bg-white px-6 text-[16px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+            className="inline-flex h-11 min-w-[160px] cursor-pointer items-center justify-center gap-2 rounded-full border border-indigo-800 bg-white px-6 text-[16px] font-medium text-indigo-800 transition-colors hover:bg-indigo-50 focus-ring"
           >
             <LuArrowLeft size={18} aria-hidden="true" />
             Back

@@ -2,30 +2,29 @@ import { Link } from 'react-router-dom';
 import { LuBriefcase, LuCompass, LuSparkles } from 'react-icons/lu';
 import { Card } from '../components/Card';
 import { CreditsStrip } from '../components/CreditsStrip';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
+import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
 import { useCurrentUser, type UserType } from '../lib/user';
+import { firstNameOf } from '../lib/format';
 
 const FEATURES = [
   {
-    title: 'Your Top 3 Strengths',
-    description: 'CareerLine AI helps discover what naturally excel at through quick AI analysis',
+    title: 'Your top 3 strengths',
+    description:
+      'CareerLine AI helps you discover what you naturally excel at, through a quick AI analysis.',
     icon: <LuSparkles size={22} />,
   },
   {
-    title: 'Roles That Match You',
-    description: 'Get tech role recommendations tailored to your interests, passion and style',
+    title: 'Roles that match you',
+    description: 'Get tech role recommendations tailored to your interests, passion and style.',
     icon: <LuBriefcase size={22} />,
   },
   {
-    title: 'Explore Your Path',
+    title: 'Explore your path',
     description:
       'Start your learning journey with any of our recommended tech courses complete with learning resources and career insights.',
     icon: <LuCompass size={22} />,
   },
 ] as const;
-
-const SECONDARY_ACTION =
-  'inline-flex h-12 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 text-[16px] font-medium text-slate-800 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
 
 interface AreaLink {
   readonly label: string;
@@ -69,11 +68,11 @@ const BeginnerHome = () => (
         Not sure where to start? Find your path in just 10 minutes.
       </h2>
       <p className="max-w-[60ch] text-[14px] leading-[1.55] text-slate-600">
-        An AI powered career clarity test - answer a few questions to uncover your strengths,
+        An AI-powered career clarity test. Answer a few questions to uncover your strengths,
         matching roles and learning path tailored just for you.
       </p>
       <Link to="/assessment/start" className={PRIMARY_ACTION}>
-        Take Assessment Test
+        Take the assessment
       </Link>
     </div>
 
@@ -103,7 +102,7 @@ const AreaHome = ({ area }: { area: Area }) => (
 
 export const Dashboard = () => {
   const { name, userType } = useCurrentUser();
-  const firstName = name.trim().split(/\s+/)[0];
+  const firstName = firstNameOf(name);
 
   return (
     <div className="flex w-full flex-col gap-8 px-5 py-8 sm:px-8">

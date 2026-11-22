@@ -77,8 +77,6 @@ const Questionnaire = ({ questionnaire, returned }: QuestionnaireProps) => {
 
   const question = questions[index];
   const isLast = index === questions.length - 1;
-  const previous = index > 0 ? questions[index - 1] : undefined;
-  const isBackDisabled = previous !== undefined && (answers[previous.question_id]?.length ?? 0) > 0;
 
   const onNext = () => {
     if (!isLast) {
@@ -105,7 +103,7 @@ const Questionnaire = ({ questionnaire, returned }: QuestionnaireProps) => {
         <div className="flex flex-col gap-8">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-md text-[15px] font-medium text-indigo-800 transition-colors hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="inline-flex items-center gap-2 rounded-md text-[15px] font-medium text-indigo-800 transition-colors hover:text-indigo-900 focus-ring"
           >
             <LuArrowLeft size={16} aria-hidden="true" />
             Back To Homepage
@@ -136,7 +134,6 @@ const Questionnaire = ({ questionnaire, returned }: QuestionnaireProps) => {
           }}
           onNext={onNext}
           onBack={index > 0 ? () => setIndex((current) => current - 1) : undefined}
-          isBackDisabled={isBackDisabled}
           isLast={isLast}
         />
       </div>

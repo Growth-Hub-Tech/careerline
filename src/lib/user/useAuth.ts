@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { queryKeys } from '../api/queryKeys';
 import type { Account } from '../api/types';
 import { registerAccount, signInWithPassword, signOutOfApi } from './auth';
+import { forgetPendingEmail } from './pendingEmail';
 import { useUserStore } from './store';
 
 // Signing in replaces whoever was signed in before (the provider then clears their data) and
@@ -28,7 +29,8 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: registerAccount,
     onSuccess: (account) => {
-      if (account) startSession(account);
+      forgetPendingEmail();
+      startSession(account);
     },
   });
 };

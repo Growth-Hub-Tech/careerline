@@ -41,22 +41,16 @@ export const signInWithPassword = async ({ email, password }: Credentials): Prom
   return accountAfterSignIn();
 };
 
-// A new account is signed in straight away when it can be; if that fails the person signs in
-// after confirming their email
+// Signing up also signs in: the answer sets the session cookie
 export const registerAccount = async ({
   email,
   fullName,
   phone,
   password,
-}: Registration): Promise<Account | undefined> => {
+}: Registration): Promise<Account> => {
   const details: RegisterRequest = { full_name: fullName, email, phone, password };
   await apiPost<unknown>(API_ROUTES.auth.register, details, { auth: false });
-
-  try {
-    return await signInWithPassword({ email, password });
-  } catch {
-    return undefined;
-  }
+  return accountAfterSignIn();
 };
 
 export const signOutOfApi = (everywhere = false) =>

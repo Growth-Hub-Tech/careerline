@@ -33,29 +33,9 @@ export interface paths {
         put?: never;
         /**
          * Change My Password
-         * @description Needs the current password (400 wrong_password otherwise). Signs out every other device; this session stays signed in. An email tells the owner.
+         * @description Needs the current password (400 wrong_password otherwise; 5 wrong tries in 15 minutes: 429). Signs out every other device; this session stays signed in.
          */
         post: operations["change_my_password_api_v1_accounts_me_password_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accounts/password-reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Request Password Reset
-         * @description Always 202, whether or not the email has an account. If it has one, a reset link (valid 60 minutes, once) is emailed.
-         */
-        post: operations["request_password_reset_api_v1_accounts_password_reset_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -73,7 +53,7 @@ export interface paths {
         put?: never;
         /**
          * Confirm Password Reset
-         * @description Sets the new password and signs out every device. An old, used or unknown token is `expired` (410).
+         * @description Sets a new password with the account's email and the reset PIN (1234 for every account until emails are switched on). A wrong PIN or an unknown email is `invalid_reset_pin` (400). 5 wrong tries for one email (or 20 from one IP address) in 15 minutes: 429 with Retry-After. Signs out every device.
          */
         post: operations["confirm_password_reset_api_v1_accounts_password_reset_confirm_post"];
         delete?: never;
@@ -344,7 +324,7 @@ export interface paths {
         put?: never;
         /**
          * Register
-         * @description Creates the account and signs it in (the answer holds a token). A confirmation link is emailed; until it is opened, GET /accounts/me shows email_verified: false.
+         * @description Creates the account and signs it in: the answer holds a token and the careerline_session cookie is set. No email is sent. A taken email is 400 email_taken.
          */
         post: operations["register_api_v1_auth_register_post"];
         delete?: never;
@@ -885,7 +865,7 @@ export interface paths {
         put?: never;
         /**
          * Start Checkout
-         * @description Saves a pending payment and starts a Paystack transaction: send the person to authorization_url. Paystack sends them back to callback_url?reference=... (default: the website's /payments/callback; it must be a page of the website, 400 otherwise); then call GET /payments/{reference}. item_type credit_pack (a pack's credits) or subscription_plan (Day 25, the same as POST /subscriptions: 403/409 as there). 503 when payments are not set up or Paystack does not answer: nothing is charged.
+         * @description Saves a pending payment and starts a Paystack transaction: send the person to authorization_url. Paystack sends them back to callback_url?reference=... (default: the website's /payments/callback; it must be a page of the website, 400 otherwise); then call GET /payments/{reference}. item_type credit_pack (a pack's credits) or subscription_plan (the same as POST /subscriptions: 403/409 as there). 503 when payments are not set up or Paystack does not answer: nothing is charged.
          */
         post: operations["start_checkout_api_v1_payments_checkout_post"];
         delete?: never;
@@ -966,7 +946,7 @@ export interface paths {
         put?: never;
         /**
          * Request Account Deletion
-         * @description Needs the password (400 wrong_password). Deletion happens 30 days later and can be cancelled until then; the account keeps working meanwhile. Asking again while one is scheduled answers that one.
+         * @description Needs the password (400 wrong_password; 5 wrong tries in 15 minutes: 429). Deletion happens 30 days later and can be cancelled until then; the account keeps working meanwhile. Asking again while one is scheduled answers that one.
          */
         post: operations["request_account_deletion_api_v1_privacy_account_deletion_post"];
         /**
@@ -2594,7 +2574,7 @@ export interface components {
             audit_id: number;
             /**
              * Baseline Audit Id
-             * @description Day 24: a re-test of this audit (null: not a re-test)
+             * @description a re-test of this audit (null: not a re-test)
              */
             baseline_audit_id?: number | null;
             /** Benchmarks */
@@ -2648,7 +2628,7 @@ export interface components {
         };
         /**
          * AuditRetest
-         * @description Day 24: test the same people for the same tests again (after training, for example).
+         * @description test the same people for the same tests again (after training, for example).
          */
         AuditRetest: {
             /**
@@ -2673,7 +2653,7 @@ export interface components {
             audit_id: number;
             /**
              * Baseline Audit Id
-             * @description Day 24: a re-test of this audit (null: not a re-test)
+             * @description a re-test of this audit (null: not a re-test)
              */
             baseline_audit_id?: number | null;
             /** Completed At */
@@ -3541,18 +3521,15 @@ export interface components {
         };
         /** PasswordResetConfirm */
         PasswordResetConfirm: {
-            /** New Password */
-            new_password: string;
-            /** Token */
-            token: string;
-        };
-        /** PasswordResetRequest */
-        PasswordResetRequest: {
             /**
              * Email
              * Format: email
              */
             email: string;
+            /** New Password */
+            new_password: string;
+            /** Pin */
+            pin: string;
         };
         /** Payment */
         Payment: {
@@ -3609,7 +3586,7 @@ export interface components {
         };
         /**
          * PreviousResult
-         * @description The person's result in the same skill just before this one (Day 24, pre/post re-test).
+         * @description The person's result in the same skill just before this one (pre/post re-test).
          */
         PreviousResult: {
             /**
@@ -3832,7 +3809,7 @@ export interface components {
              * @description Share of all results of this skill (in %) with a lower score; null until the skill has enough results to compare
              */
             percentile: number | null;
-            /** @description Day 24: the result in the same skill just before this one */
+            /** @description the result in the same skill just before this one */
             previous_result?: components["schemas"]["PreviousResult"] | null;
             /** Recommendations */
             recommendations: components["schemas"]["ResultRecommendation"][];
@@ -3840,7 +3817,7 @@ export interface components {
             result_id: number;
             /**
              * Score Delta
-             * @description Day 24: percentage_score minus the previous result's (null without one)
+             * @description percentage_score minus the previous result's (null without one)
              */
             score_delta?: number | null;
             /** Skill Id */
@@ -3868,7 +3845,7 @@ export interface components {
         };
         /**
          * ResultSummary
-         * @description A finished test (Day 12: real; result_id is the attempt_id). No pass or fail.
+         * @description A finished test (result_id is the attempt_id). No pass or fail.
          */
         ResultSummary: {
             /** Attempt Id */
@@ -4099,7 +4076,7 @@ export interface components {
             /**
              * Declared Level
              * @deprecated
-             * @description Retired (Day 10): ignored. The test finds the level itself.
+             * @description Retired: ignored. The test finds the level itself.
              */
             declared_level?: string | null;
             /** Skill Id */
@@ -4463,32 +4440,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-        };
-    };
-    request_password_reset_api_v1_accounts_password_reset_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PasswordResetRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
+            /** @description Too many requests: slow down and retry after the Retry-After seconds */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4520,8 +4473,8 @@ export interface operations {
                     "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
                 };
             };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
+            /** @description Bad request: invalid input (the message says what is wrong) */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4531,6 +4484,15 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests: slow down and retry after the Retry-After seconds */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5194,6 +5156,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
                 headers: {
@@ -5279,6 +5250,15 @@ export interface operations {
             };
             /** @description Bad request: invalid input (the message says what is wrong) */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7397,6 +7377,15 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too many requests: slow down and retry after the Retry-After seconds */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -11,8 +11,7 @@ export const API_ROUTES = {
   accounts: {
     me: '/accounts/me',
     password: '/accounts/me/password',
-    passwordReset: '/accounts/password-reset',
-    passwordResetConfirm: '/accounts/password-reset/confirm',
+    passwordReset: '/accounts/password-reset/confirm',
     verifyEmail: '/accounts/verify-email',
     resendVerification: '/accounts/verify-email/resend',
   },

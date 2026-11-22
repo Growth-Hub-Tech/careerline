@@ -49,11 +49,11 @@ describe('signing in', () => {
 describe('creating an account', () => {
   const REGISTRATION = { ...CREDENTIALS, fullName: 'Skye Favour', phone: '08012345678' };
 
-  it('registers and signs straight in', async () => {
+  it('registers and is signed in by the answer, with no second sign-in', async () => {
     await expect(registerAccount(REGISTRATION)).resolves.toEqual(account());
 
-    expect(apiPost).toHaveBeenNthCalledWith(
-      1,
+    expect(apiPost).toHaveBeenCalledTimes(1);
+    expect(apiPost).toHaveBeenCalledWith(
       '/auth/register',
       {
         full_name: 'Skye Favour',
@@ -65,10 +65,12 @@ describe('creating an account', () => {
     );
   });
 
-  it('still succeeds when signing in afterwards does not work', async () => {
-    vi.mocked(apiGet).mockRejectedValue(new ApiError({ status: 403, message: 'Confirm first' }));
+  it('says so when the browser refused the session cookie', async () => {
+    vi.mocked(apiGet).mockRejectedValue(new ApiError({ status: 401, message: 'Signed out' }));
 
-    await expect(registerAccount(REGISTRATION)).resolves.toBeUndefined();
+    await expect(registerAccount(REGISTRATION)).rejects.toMatchObject({
+      code: 'session_cookie_blocked',
+    });
   });
 
   it('fails when the account cannot be created', async () => {

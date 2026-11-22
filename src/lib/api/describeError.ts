@@ -1,7 +1,7 @@
 import { ApiError } from './ApiError';
 
 const EMAIL_TAKEN = ['email_taken', 'email_exists', 'user_exists', 'already_exists'];
-const NOT_CONFIRMED = ['email_not_confirmed', 'email_not_verified', 'unverified_email'];
+const WRONG_PIN = 'invalid_reset_pin';
 const WRONG_LOGIN = ['invalid_credentials', 'wrong_password'];
 const TOO_MANY = ['too_many_requests', 'rate_limited'];
 
@@ -39,8 +39,8 @@ export const describeAuthError = (error: unknown): string => {
     const code = error.code?.toLowerCase() ?? '';
 
     if (code === SESSION_COOKIE_BLOCKED) return error.message;
-    if (NOT_CONFIRMED.includes(code)) {
-      return 'Confirm your email first. Check your inbox for the link we sent you.';
+    if (code === WRONG_PIN) {
+      return 'That email and reset PIN do not match. Check them and try again.';
     }
     if (EMAIL_TAKEN.includes(code) || error.status === 409) {
       return 'An account with this email already exists. Sign in instead.';

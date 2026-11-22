@@ -35,5 +35,4 @@ export * from './Support';
 export * from './Tasks';
 export * from './Users';
 export * from './AttemptReview';
-export * from './SetNewPassword';
 export * from './AssessmentStart';

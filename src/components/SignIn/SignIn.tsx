@@ -9,12 +9,14 @@ import { signInSchema, type SignInValues } from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthTitle, DashedLink, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
-import { Checkbox } from '../Checkbox';
 
 export const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation() as {
-    state: { from?: { pathname: string; search?: string; hash?: string } } | null;
+    state: {
+      from?: { pathname: string; search?: string; hash?: string };
+      passwordReset?: boolean;
+    } | null;
   };
   const from = location.state?.from;
   const signIn = useSignIn();
@@ -28,7 +30,7 @@ export const SignIn = () => {
     formState: { errors, isSubmitting },
   } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
-    defaultValues: { email: '', password: '', remember: false },
+    defaultValues: { email: '', password: '' },
   });
 
   const submit = handleSubmit(async (values) => {
@@ -53,9 +55,14 @@ export const SignIn = () => {
 
   return (
     <SplitAuthLayout>
-      <AuthTitle>Welcome Back</AuthTitle>
-      <p className="mt-3 text-[16px] text-slate-700">Welcome back! Please enter your details.</p>
-      {hadExpired && (
+      <AuthTitle>Welcome back</AuthTitle>
+      <p className="mt-3 text-[16px] text-slate-700">Sign in with your email and password.</p>
+      {location.state?.passwordReset && (
+        <Alert variant="success" className="mt-4">
+          Your password was changed. Sign in with your new password.
+        </Alert>
+      )}
+      {hadExpired && !location.state?.passwordReset && (
         <Alert variant="info" className="mt-4">
           Your session has ended. Sign in again to carry on where you left off.
         </Alert>
@@ -87,11 +94,10 @@ export const SignIn = () => {
           />
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <Checkbox label="Remember me" {...register('remember')} />
+        <div className="mt-6 flex justify-end">
           <Link
             to={AUTH_PATHS.forgotPassword}
-            className="rounded text-[14px] font-semibold text-indigo-700 hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="rounded text-[14px] font-semibold text-indigo-700 hover:text-indigo-900 focus-ring"
           >
             Forgot password
           </Link>

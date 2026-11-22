@@ -1,38 +1,41 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRequestPasswordReset } from '../../lib/api/queries';
+import { useNavigate } from 'react-router-dom';
+import { useResetPassword } from '../../lib/api/queries';
 import { describeAuthError } from '../../lib/api/describeError';
 import { applyFieldErrors } from '../../lib/forms/applyFieldErrors';
-import { forgotPasswordSchema, type ForgotPasswordValues } from '../../lib/validation/auth';
+import {
+  RESET_PIN,
+  resetPasswordSchema,
+  type ResetPasswordValues,
+} from '../../lib/validation/auth';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthText, AuthTitle, CardAuthLayout, DashedLink, TextField } from '../Auth';
 import { Button } from '../Button';
 
 export const ResetPassword = () => {
-  const requestReset = useRequestPasswordReset();
+  const navigate = useNavigate();
+  const resetPassword = useResetPassword();
   const [formError, setFormError] = useState<string>();
-  const [sentTo, setSentTo] = useState<string>();
 
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: '' },
+  } = useForm<ResetPasswordValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { email: '', pin: '', password: '', confirmPassword: '' },
   });
 
   const submit = handleSubmit(async (values) => {
     setFormError(undefined);
-    setSentTo(undefined);
-
     try {
-      await requestReset.mutateAsync(values.email);
-      setSentTo(values.email);
+      await resetPassword.mutateAsync(values);
+      navigate(AUTH_PATHS.signIn, { replace: true, state: { passwordReset: true } });
     } catch (error) {
-      if (!applyFieldErrors(error, ['email'], setError)) {
+      if (!applyFieldErrors(error, ['email', 'pin'], setError)) {
         setFormError(describeAuthError(error));
       }
     }
@@ -41,19 +44,13 @@ export const ResetPassword = () => {
   return (
     <CardAuthLayout showActions>
       <AuthTitle>Reset your password</AuthTitle>
-
       <AuthText className="mt-6">
-        Enter the email address on your account and we will send you a link to reset your password.
+        Enter the email on your account, the reset PIN and a new password. Every device signed in to
+        your account will be signed out.
       </AuthText>
 
       <form onSubmit={submit} noValidate className="mt-8 flex flex-col gap-6">
         {formError && <Alert variant="error">{formError}</Alert>}
-        {sentTo && (
-          <Alert variant="success">
-            If an account exists for {sentTo}, we have sent a link to reset the password.
-          </Alert>
-        )}
-
         <TextField
           label="Email"
           type="email"
@@ -62,8 +59,33 @@ export const ResetPassword = () => {
           error={errors.email?.message}
           {...register('email')}
         />
+        <TextField
+          label="Reset PIN"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={10}
+          placeholder="Enter the reset PIN"
+          hint={`Your reset PIN is ${RESET_PIN}.`}
+          error={errors.pin?.message}
+          {...register('pin')}
+        />
+        <TextField
+          label="New password"
+          type="password"
+          autoComplete="new-password"
+          placeholder="At least 8 characters"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <TextField
+          label="Confirm new password"
+          type="password"
+          autoComplete="new-password"
+          error={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
+        />
         <Button type="submit" variant="secondary" isLoading={isSubmitting}>
-          Send reset link
+          Reset password
         </Button>
       </form>
 

@@ -6,7 +6,7 @@ const failure = (status: number, code?: string, message = 'Server message') =>
 
 describe('describeAuthError', () => {
   it('explains an email that is already taken', () => {
-    expect(describeAuthError(failure(409, 'email_taken'))).toBe(
+    expect(describeAuthError(failure(400, 'email_taken'))).toBe(
       'An account with this email already exists. Sign in instead.',
     );
   });
@@ -17,9 +17,9 @@ describe('describeAuthError', () => {
     );
   });
 
-  it('explains an email that is not confirmed yet', () => {
-    expect(describeAuthError(failure(403, 'email_not_confirmed'))).toBe(
-      'Confirm your email first. Check your inbox for the link we sent you.',
+  it('explains a wrong reset PIN', () => {
+    expect(describeAuthError(failure(400, 'invalid_reset_pin'))).toBe(
+      'That email and reset PIN do not match. Check them and try again.',
     );
   });
 

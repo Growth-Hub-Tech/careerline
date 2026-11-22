@@ -2,21 +2,18 @@ import { useId, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
+import { Button, SECONDARY_ACTION } from '../components/Button';
 import { ChangeBlock } from '../components/ChangeBlock';
 import { DecisionNote } from '../components/DecisionNote';
-import { SECONDARY_ACTION } from '../components/ErrorPage';
 import { QueryState } from '../components/PageState';
 import type { ResultDetail, SubskillScore } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { resultQueries, useDownloadReport } from '../lib/api/queries';
-import { formatDate } from '../lib/format';
+import { formatDate, formatPercent } from '../lib/format';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
 
 const STILL_PREPARING = 'Your report is still being prepared. Try again in a minute.';
 const NOT_CREATED = 'We could not create your report. Try again in a few minutes.';
-
-const percent = (score: number) => `${Math.round(score)}%`;
 
 const Arcs = () => (
   <div
@@ -196,10 +193,12 @@ const ResultView = ({ result }: { result: ResultDetail }) => (
     <Arcs />
 
     <div className="relative flex w-full flex-col items-center gap-10">
-      <h1 className="text-center text-[28px] font-bold text-slate-700">Your results are ready.</h1>
+      <h1 className="font-heading text-center text-[28px] font-bold text-slate-950">
+        Your results are ready.
+      </h1>
       <p className="flex size-[180px] items-center justify-center rounded-full bg-teal-400 text-[36px] font-bold text-teal-900">
         <span className="sr-only">Overall score </span>
-        <span>{percent(result.percentage_score)}</span>
+        <span>{formatPercent(result.percentage_score)}</span>
       </p>
       <div className="grid w-full max-w-[680px] gap-10 sm:grid-cols-2">
         <SummaryCard title="Your strengths" items={result.strengths} tone="teal" />

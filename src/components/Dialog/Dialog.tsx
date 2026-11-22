@@ -108,7 +108,7 @@ export const Dialog = ({
             type="button"
             aria-label="Close dialog"
             onClick={onClose}
-            className="-mt-1 -mr-1 cursor-pointer rounded-md p-1 text-slate-500 transition-colors hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="-mt-1 -mr-1 cursor-pointer rounded-md p-1 text-slate-500 transition-colors hover:text-slate-950 focus-ring"
           >
             <LuX size={20} aria-hidden="true" />
           </button>

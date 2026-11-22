@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ErrorPage, PRIMARY_ACTION, SECONDARY_ACTION } from '../ErrorPage';
+import { ErrorPage } from '../ErrorPage';
+import { PRIMARY_ACTION, SECONDARY_ACTION } from '../Button';
 
 export const NoAccess = () => (
   <ErrorPage

@@ -107,7 +107,7 @@ export const Tasks = () => {
   return (
     <div className="flex w-full max-w-[900px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Tasks</h1>
+        <h1 className="page-title">Tasks</h1>
         <p className="text-[15px] text-slate-600">What to do next, worked out from your account.</p>
       </header>
       <UserTasks />

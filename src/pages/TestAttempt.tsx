@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
+import { PRIMARY_ACTION } from '../components/Button';
 import { PageLoader } from '../components/Loader';
 import { SkillQuestion } from '../components/SkillQuestion';
 import { queryKeys, type AttemptState } from '../lib/api';
@@ -10,9 +10,7 @@ import { hasStatus } from '../lib/api/ApiError';
 import { describeError } from '../lib/api/describeError';
 import { attemptQueries, useAnswer } from '../lib/api/queries';
 import { clearAttempt, readAttempt, type SavedAttempt } from '../lib/tests/attemptStore';
-
-const LINK_CLASS =
-  'inline-flex h-12 w-fit items-center justify-center rounded-lg bg-indigo-600 px-5 text-[16px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+import { LoadFailed } from '../components/PageState';
 
 const Panel = ({ title, children }: { title: string; children: ReactNode }) => (
   <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 sm:p-8">
@@ -35,7 +33,7 @@ const TestEnded = ({
   return (
     <Panel title={title}>
       <p className="text-[15px] text-slate-600">{message}</p>
-      <Link to={`/tests/${testId}`} className={LINK_CLASS}>
+      <Link to={`/tests/${testId}`} className={`${PRIMARY_ACTION} w-fit`}>
         Back to the test
       </Link>
     </Panel>
@@ -108,7 +106,7 @@ const Player = ({ title, attempt, onOutOfStep }: PlayerProps) => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-[28px] leading-[1.25] font-bold text-slate-700 sm:text-[36px]">
+        <h1 className="font-heading text-[28px] leading-[1.25] font-bold text-slate-950 sm:text-[36px]">
           {title} Skill Test
         </h1>
         {attempt.expires_at && <Countdown expiresAt={attempt.expires_at} onTimeUp={onOutOfStep} />}
@@ -163,14 +161,7 @@ const Attempt = ({ saved }: { saved: SavedAttempt }) => {
     }
 
     if (query.isError) {
-      return (
-        <div className="flex w-full max-w-[480px] flex-col gap-4">
-          <Alert variant="error">{describeError(query.error)}</Alert>
-          <Button fullWidth={false} onClick={() => void query.refetch()}>
-            Try again
-          </Button>
-        </div>
-      );
+      return <LoadFailed error={query.error} onRetry={() => void query.refetch()} />;
     }
 
     return <PageLoader title="Loading your test" className="flex-1" />;

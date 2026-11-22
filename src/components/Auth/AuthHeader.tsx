@@ -16,11 +16,7 @@ export const AuthHeader = ({ contained = false, showActions = false }: AuthHeade
         contained ? 'mx-auto w-full max-w-[1280px]' : ''
       }`}
     >
-      <Link
-        to="/"
-        aria-label="CareerLine AI home"
-        className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-      >
+      <Link to="/" aria-label="CareerLine AI home" className="rounded-md focus-ring">
         <img src={logo} alt="CareerLine AI" decoding="async" className="block h-7 w-auto sm:h-8" />
       </Link>
 
@@ -28,13 +24,13 @@ export const AuthHeader = ({ contained = false, showActions = false }: AuthHeade
         <nav className="flex items-center gap-4 sm:gap-7">
           <Link
             to={AUTH_PATHS.signIn}
-            className="rounded-md text-[15px] font-medium text-slate-950 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:text-[16px]"
+            className="rounded-md text-[15px] font-medium text-slate-950 hover:text-indigo-700 focus-ring sm:text-[16px]"
           >
             Log in
           </Link>
           <Link
             to={AUTH_PATHS.signUp}
-            className="inline-flex h-10 items-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium whitespace-nowrap text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:h-12 sm:text-[16px]"
+            className="inline-flex h-10 items-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium whitespace-nowrap text-white transition-colors hover:bg-indigo-700 focus-ring sm:h-12 sm:text-[16px]"
           >
             Take a test
           </Link>

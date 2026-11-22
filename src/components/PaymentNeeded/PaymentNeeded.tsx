@@ -45,13 +45,13 @@ export const PaymentNeeded = ({
       <div className="flex flex-wrap items-center gap-3">
         <Link
           to={buyHref}
-          className="inline-flex h-11 items-center justify-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="inline-flex h-11 items-center justify-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium text-white transition-colors hover:bg-indigo-700 focus-ring"
         >
           Buy credits
         </Link>
         <Link
           to="/tests"
-          className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-[15px] font-medium text-slate-800 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-[15px] font-medium text-slate-800 transition-colors hover:bg-gray-50 focus-ring"
         >
           Back to tests
         </Link>

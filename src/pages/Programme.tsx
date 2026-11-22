@@ -67,9 +67,7 @@ const ProgrammeDetails = ({ id }: { id: number }) => {
   return (
     <ProgrammeFrame>
       <main className="w-full max-w-[1200px] px-5 py-10 sm:px-10 lg:px-20">
-        <h1 className="text-[32px] leading-[1.2] font-bold text-slate-800">
-          {recommendation?.title ?? programme.name}
-        </h1>
+        <h1 className="page-title">{recommendation?.title ?? programme.name}</h1>
         {recommendation && (
           <p className="mt-3 text-[15px] text-slate-600">
             Your {recommendation.rank === 1 ? 'top ' : ''}recommended path, based on a{' '}

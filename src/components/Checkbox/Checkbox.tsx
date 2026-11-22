@@ -20,7 +20,7 @@ export const Checkbox = ({ label, error, hint, id, className = '', ...rest }: Ch
           type="checkbox"
           aria-invalid={error ? true : undefined}
           aria-describedby={hasMessage ? messageId : undefined}
-          className={`mt-0.5 size-4 shrink-0 cursor-pointer rounded accent-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+          className={`mt-0.5 size-4 shrink-0 cursor-pointer rounded accent-indigo-600 focus-ring disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
           {...rest}
         />
         <label

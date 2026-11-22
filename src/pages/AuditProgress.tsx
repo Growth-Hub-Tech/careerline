@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
+import { Button, LINK_CLASS } from '../components/Button';
 import { QueryState } from '../components/PageState';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusLabel } from '../components/StatusLabel';
@@ -10,20 +10,16 @@ import { Table, type TableColumn } from '../components/Table';
 import type { Audit, Benchmark, MemberDelta, TeamMember } from '../lib/api';
 import { describeError } from '../lib/api/describeError';
 import { combineResults, organisationQueries, useRetestAudit } from '../lib/api/queries';
-import { formatPoints } from '../lib/format';
+import { formatPoints, formatPercent } from '../lib/format';
 import { AUDIT_STATUS, MEMBER_STATUS } from '../lib/organisation/labels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
-
-const percent = (score: number | null) => (score === null ? '—' : `${Math.round(score)}%`);
-
-const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
 
 const PEOPLE: readonly TableColumn<TeamMember>[] = [
   {
     key: 'name',
     header: 'Name',
     render: (row) => (
-      <Link to={`/team/members/${row.member_id}`} className={LINK}>
+      <Link to={`/team/members/${row.member_id}`} className={LINK_CLASS}>
         {row.full_name}
       </Link>
     ),
@@ -54,13 +50,13 @@ const BENCHMARKS: readonly TableColumn<Benchmark>[] = [
     key: 'team',
     header: 'Team average',
     align: 'right',
-    render: (row) => percent(row.team_average_score),
+    render: (row) => formatPercent(row.team_average_score),
   },
   {
     key: 'industry',
     header: 'Industry average',
     align: 'right',
-    render: (row) => percent(row.industry_average_score),
+    render: (row) => formatPercent(row.industry_average_score),
   },
   {
     key: 'meeting',
@@ -75,14 +71,24 @@ const CHANGES: readonly TableColumn<MemberDelta>[] = [
     key: 'name',
     header: 'Name',
     render: (row) => (
-      <Link to={`/team/members/${row.member_id}`} className={LINK}>
+      <Link to={`/team/members/${row.member_id}`} className={LINK_CLASS}>
         {row.full_name}
       </Link>
     ),
   },
   { key: 'skill', header: 'Skill', render: (row) => row.skill_name },
-  { key: 'before', header: 'Before', align: 'right', render: (row) => percent(row.before_score) },
-  { key: 'after', header: 'After', align: 'right', render: (row) => percent(row.after_score) },
+  {
+    key: 'before',
+    header: 'Before',
+    align: 'right',
+    render: (row) => formatPercent(row.before_score),
+  },
+  {
+    key: 'after',
+    header: 'After',
+    align: 'right',
+    render: (row) => formatPercent(row.after_score),
+  },
   {
     key: 'change',
     header: 'Change',
@@ -175,11 +181,11 @@ const AuditView = ({ audit, team }: { audit: Audit; team: readonly TeamMember[] 
 
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
-      <Link to="/team" className={`w-fit text-[14px] ${LINK}`}>
+      <Link to="/team" className={`w-fit text-[14px] ${LINK_CLASS}`}>
         Back to team audits
       </Link>
       <header className="flex flex-col gap-3">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">{audit.name}</h1>
+        <h1 className="page-title">{audit.name}</h1>
         <StatusLabel status={AUDIT_STATUS[audit.status].tone} className="w-fit">
           {AUDIT_STATUS[audit.status].label}
         </StatusLabel>

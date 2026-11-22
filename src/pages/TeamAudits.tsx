@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
+import { PRIMARY_ACTION, SECONDARY_ACTION, LINK_CLASS } from '../components/Button';
 import { QueryState } from '../components/PageState';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
@@ -10,14 +10,12 @@ import { combineResults, organisationQueries } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
 import { AUDIT_STATUS } from '../lib/organisation/labels';
 
-const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
-
 const COLUMNS: readonly TableColumn<AuditSummary>[] = [
   {
     key: 'name',
     header: 'Audit',
     render: (row) => (
-      <Link to={`/team/audits/${row.audit_id}`} className={LINK}>
+      <Link to={`/team/audits/${row.audit_id}`} className={LINK_CLASS}>
         {row.name}
       </Link>
     ),
@@ -58,7 +56,7 @@ const Seats = ({ organisation }: { organisation: Organisation }) => {
         {organisation.seats_used} of {organisation.seats_total} seats used
       </p>
       <p className="text-[13px] text-slate-500">Seats are sold in blocks of at least 50.</p>
-      <Link to={`/pricing?return=${encodeURIComponent('/team')}`} className={LINK}>
+      <Link to={`/pricing?return=${encodeURIComponent('/team')}`} className={LINK_CLASS}>
         Buy seats
       </Link>
     </section>
@@ -74,7 +72,7 @@ export const TeamAudits = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Team audits</h1>
+        <h1 className="page-title">Team audits</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Test your staff against the skills their roles need and follow each audit to the end.
         </p>

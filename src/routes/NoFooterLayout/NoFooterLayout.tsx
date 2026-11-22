@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Navbar } from '../../components';
+import { Navbar } from '../../components/Navbar';
 import { MAIN_ID, SkipLink } from '../../components/SkipLink';
 
 export const NoFooterLayout = () => (

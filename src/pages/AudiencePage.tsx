@@ -1,21 +1,9 @@
-import { useId, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
 import { DecisionNote } from '../components/DecisionNote';
-import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
+import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
 import { AUDIENCES, type AudienceKey } from '../content/audiences';
-
-const Section = ({ title, children }: { title: string; children: ReactNode }) => {
-  const headingId = useId();
-  return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <h2 id={headingId} className="font-heading text-[24px] font-bold text-slate-950">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-};
+import { Section } from '../components/Section';
 
 export const AudiencePage = ({ audience: key }: { audience: AudienceKey }) => {
   const audience = AUDIENCES.find((item) => item.key === key) ?? AUDIENCES[0];
@@ -39,7 +27,7 @@ export const AudiencePage = ({ audience: key }: { audience: AudienceKey }) => {
         </div>
       </header>
 
-      <Section title="What you get">
+      <Section plain title="What you get">
         <ul className="grid gap-4 sm:grid-cols-2">
           {audience.benefits.map((benefit) => (
             <li
@@ -53,7 +41,7 @@ export const AudiencePage = ({ audience: key }: { audience: AudienceKey }) => {
         </ul>
       </Section>
 
-      <Section title="How it works">
+      <Section plain title="How it works">
         <ol className="flex flex-col gap-3">
           {audience.steps.map((step, index) => (
             <li key={step} className="flex items-start gap-4 text-[16px] text-slate-700">

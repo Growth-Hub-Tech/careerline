@@ -78,3 +78,20 @@
   --color-gray-900: #484960;
   --color-gray-950: #2f2f3c;
 }
+
+@utility focus-ring {
+  &:focus-visible {
+    outline-style: solid;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-color: var(--color-indigo-600);
+  }
+}
+
+@utility page-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--color-slate-950);
+}

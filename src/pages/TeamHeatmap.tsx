@@ -188,7 +188,7 @@ export const TeamHeatmap = () => {
   return (
     <div className="flex w-full max-w-[1200px] flex-col gap-6 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Capability heatmap</h1>
+        <h1 className="page-title">Capability heatmap</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           See how your team measures up, skill by skill.
         </p>

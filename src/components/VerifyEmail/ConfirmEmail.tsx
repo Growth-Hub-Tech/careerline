@@ -6,8 +6,7 @@ import { accountQueries } from '../../lib/api/queries';
 import { useUser } from '../../lib/user';
 import { Alert } from '../Alert';
 import { AUTH_PATHS, AuthText, AuthTitle, CardAuthLayout } from '../Auth';
-import { Button } from '../Button';
-import { PRIMARY_ACTION } from '../ErrorPage';
+import { Button, PRIMARY_ACTION } from '../Button';
 import { Spinner } from '../Loader';
 import { ResendEmail } from './ResendEmail';
 

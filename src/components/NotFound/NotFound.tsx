@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../Button';
-import { ErrorPage, PRIMARY_ACTION } from '../ErrorPage';
+import { Button, PRIMARY_ACTION } from '../Button';
+import { ErrorPage } from '../ErrorPage';
 
 export const NotFound = () => {
   const navigate = useNavigate();

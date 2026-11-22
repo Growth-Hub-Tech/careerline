@@ -69,9 +69,7 @@ const MemberReport = ({ person, cells, targets }: MemberReportProps) => {
           </Link>
           <header className="flex flex-col gap-2">
             <p className="text-[14px] font-medium text-slate-500">Employee report</p>
-            <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">
-              {person.full_name}
-            </h1>
+            <h1 className="page-title">{person.full_name}</h1>
             <p className="text-[16px] text-slate-600">
               {[person.role_title, person.department].filter(Boolean).join(' · ')}
             </p>

@@ -8,10 +8,10 @@ import { StatusLabel } from '../components/StatusLabel';
 import type { ReviewItem } from '../lib/api';
 import { hasStatus } from '../lib/api/ApiError';
 import { attemptQueries } from '../lib/api/queries';
+import { POLL_INTERVAL } from '../lib/api/queryClient';
 
 // Fuller explanations are written in the background: ask every 3 seconds until they are there.
 // If asking fails, the short explanations stay.
-const POLL_INTERVAL = 3000;
 
 const Question = ({ item }: { item: ReviewItem }) => {
   const headingId = useId();
@@ -135,7 +135,7 @@ export const AttemptReview = () => {
       >
         Back to reports
       </Link>
-      <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Review your answers</h1>
+      <h1 className="page-title">Review your answers</h1>
       <ReviewDetails key={id} attemptId={id} />
     </div>
   );

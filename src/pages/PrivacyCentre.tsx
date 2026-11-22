@@ -1,10 +1,9 @@
-import { useCallback, useId, useState, type ReactNode } from 'react';
+import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
+import { Button, PRIMARY_ACTION } from '../components/Button';
 import { Checkbox } from '../components/Checkbox';
 import { Dialog } from '../components/Dialog';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { PageLoader } from '../components/Loader';
 import { LoadFailed, QueryState } from '../components/PageState';
 import { Textarea } from '../components/Textarea';
@@ -19,24 +18,10 @@ import {
   useUpdateConsents,
 } from '../lib/api/queries';
 import { formatDate } from '../lib/format';
+import { Section } from '../components/Section';
+import { POLL_INTERVAL } from '../lib/api/queryClient';
 
 type ConsentKey = Consent['key'];
-
-const Section = ({ title, children }: { title: string; children: ReactNode }) => {
-  const headingId = useId();
-
-  return (
-    <section
-      aria-labelledby={headingId}
-      className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6"
-    >
-      <h2 id={headingId} className="font-heading text-[20px] font-bold text-slate-950">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-};
 
 interface ConsentProps {
   readonly granted: (key: ConsentKey) => boolean;
@@ -166,7 +151,6 @@ const EmailChoices = ({ granted, update }: ConsentProps) => {
 };
 
 // The file is made in the background: ask every 3 seconds until it is ready
-const POLL_INTERVAL = 3000;
 
 const isReady = (file: DataExport) => file.status === 'ready' && Boolean(file.download_url);
 
@@ -383,7 +367,7 @@ export const PrivacyCentre = () => {
   return (
     <div className="flex w-full max-w-[860px] flex-col gap-6 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Privacy centre</h1>
+        <h1 className="page-title">Privacy centre</h1>
         <p className="text-[15px] text-slate-600">
           Choose who sees your results, what we may email you about, and what happens to your data.
         </p>

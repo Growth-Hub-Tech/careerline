@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
-import { SECONDARY_ACTION } from '../components/ErrorPage';
+import { Button, SECONDARY_ACTION } from '../components/Button';
 import { QueryState } from '../components/PageState';
 import { StatusLabel } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
@@ -185,7 +184,7 @@ export const StartAudit = () => {
   return (
     <div className="flex w-full max-w-[1200px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] leading-[1.25] font-bold text-slate-800">
+        <h1 className="font-heading text-[28px] leading-[1.25] font-bold text-slate-950">
           Review each person’s role and test
         </h1>
         <p className="max-w-[70ch] text-[15px] text-slate-600">

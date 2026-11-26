@@ -30,6 +30,7 @@ describe('checkout return', () => {
     ['/credits?tab=1', '/credits?tab=1'],
     ['https://evil.test', null],
     ['//evil.test', null],
+    ['/\\evil.test', null],
     ['tests', null],
     [null, null],
   ])('only trusts the address %s inside the app', (value, expected) => {

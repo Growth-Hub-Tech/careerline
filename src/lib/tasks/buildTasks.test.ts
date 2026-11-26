@@ -1,7 +1,13 @@
-import type { BeginnerPath, Invitation } from '../api/types';
+import type { BeginnerPath, Invitation, InvitationPublic } from '../api/types';
 import { AUDITS, member, MEMBERS } from '../../test/fixtures/organisation';
 import { RESULT_SUMMARIES } from '../../test/fixtures/results';
-import { beginnerTasks, organisationTasks, professionalTasks, recruiterTasks } from './buildTasks';
+import {
+  beginnerTasks,
+  invitationTasks,
+  organisationTasks,
+  professionalTasks,
+  recruiterTasks,
+} from './buildTasks';
 
 const ids = (tasks: readonly { id: string }[]) => tasks.map((task) => task.id);
 
@@ -104,5 +110,49 @@ describe('tasks for an organisation', () => {
 
     expect(ids(tasks)).toEqual(['audit-3', 'not-invited']);
     expect(tasks[1].text).toBe('2 people have not been invited to a test yet.');
+  });
+});
+
+const received = (token: string, overrides: Partial<InvitationPublic> = {}): InvitationPublic => ({
+  token,
+  status: 'sent',
+  invited_by: 'Acme Recruiting',
+  full_name: 'Skye Favour',
+  test_id: 201,
+  test_title: 'Frontend Web Development',
+  duration_minutes: 30,
+  message: null,
+  expires_at: '2026-10-27T09:00:00Z',
+  attempt_id: null,
+  ...overrides,
+});
+
+describe('tasks from invitations sent to the account', () => {
+  it('opens a waiting invitation and continues a started one', () => {
+    const tasks = invitationTasks([
+      received('new'),
+      received('started', { status: 'accepted', attempt_id: 7 }),
+    ]);
+
+    expect(tasks.map(({ text, to, action }) => ({ text, to, action }))).toEqual([
+      {
+        text: 'Acme Recruiting invited you to take the Frontend Web Development test.',
+        to: '/invitations/new',
+        action: 'Open the invitation',
+      },
+      {
+        text: 'Finish the Frontend Web Development test Acme Recruiting invited you to.',
+        to: '/invitations/started',
+        action: 'Continue the test',
+      },
+    ]);
+  });
+
+  it('leaves out invitations that are over', () => {
+    const over = (['completed', 'expired', 'revoked'] as const).map((status) =>
+      received(status, { status }),
+    );
+
+    expect(invitationTasks(over)).toEqual([]);
   });
 });

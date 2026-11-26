@@ -1,8 +1,8 @@
 import {
   completeProfileSchema,
-  forgotPasswordSchema,
   LIMITS,
   newPassword,
+  resetPasswordSchema,
   signInSchema,
   signUpSchema,
 } from './auth';
@@ -12,20 +12,19 @@ const messagesOf = (result: { success: boolean; error?: { issues: { message: str
 
 describe('signInSchema', () => {
   it('accepts an email and a password', () => {
-    expect(
-      signInSchema.safeParse({ email: 'skye@example.com', password: 'secret', remember: false })
-        .success,
-    ).toBe(true);
+    expect(signInSchema.safeParse({ email: 'skye@example.com', password: 'secret' }).success).toBe(
+      true,
+    );
   });
 
   it('asks for both when empty', () => {
-    const result = signInSchema.safeParse({ email: '', password: '', remember: false });
+    const result = signInSchema.safeParse({ email: '', password: '' });
 
     expect(messagesOf(result)).toEqual(['Email is required', 'Password is required']);
   });
 
   it('rejects an email that is not an address', () => {
-    const result = signInSchema.safeParse({ email: 'skye', password: 'secret', remember: false });
+    const result = signInSchema.safeParse({ email: 'skye', password: 'secret' });
 
     expect(messagesOf(result)).toEqual(['Enter a valid email address']);
   });
@@ -34,20 +33,44 @@ describe('signInSchema', () => {
     const result = signInSchema.safeParse({
       email: '  skye@example.com ',
       password: 'secret',
-      remember: false,
     });
 
     expect(result.success && result.data.email).toBe('skye@example.com');
   });
 });
 
-describe('signUpSchema and forgotPasswordSchema', () => {
-  it.each([signUpSchema, forgotPasswordSchema])('need a valid email', (schema) => {
-    expect(schema.safeParse({ email: 'skye@example.com' }).success).toBe(true);
-    expect(messagesOf(schema.safeParse({ email: '' }))).toEqual(['Email is required']);
-    expect(messagesOf(schema.safeParse({ email: 'nope' }))).toEqual([
+describe('signUpSchema', () => {
+  it('needs a valid email', () => {
+    expect(signUpSchema.safeParse({ email: 'skye@example.com' }).success).toBe(true);
+    expect(messagesOf(signUpSchema.safeParse({ email: '' }))).toEqual(['Email is required']);
+    expect(messagesOf(signUpSchema.safeParse({ email: 'nope' }))).toEqual([
       'Enter a valid email address',
     ]);
+  });
+});
+
+describe('resetPasswordSchema', () => {
+  const valid = {
+    email: 'skye@example.com',
+    pin: '1234',
+    password: 'longenough1',
+    confirmPassword: 'longenough1',
+  };
+
+  it('accepts an email, a PIN and a matching new password', () => {
+    expect(resetPasswordSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it('asks for the PIN', () => {
+    expect(messagesOf(resetPasswordSchema.safeParse({ ...valid, pin: ' ' }))).toEqual([
+      'Enter the reset PIN',
+    ]);
+  });
+
+  it('needs the passwords to match', () => {
+    expect(
+      messagesOf(resetPasswordSchema.safeParse({ ...valid, confirmPassword: 'different1' })),
+    ).toEqual(['Passwords do not match']);
   });
 });
 

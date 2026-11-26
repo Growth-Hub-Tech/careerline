@@ -1,7 +1,4 @@
 import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import tseslint from 'typescript-eslint';
@@ -13,37 +10,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import * as importPlugin from 'eslint-plugin-import';
 import { fixupPluginRules } from '@eslint/compat';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-if (tseslint.plugin.rules && !tseslint.plugin.rules['lines-between-class-members']) {
-  tseslint.plugin.rules['lines-between-class-members'] = {
-    meta: {
-      type: 'layout',
-      docs: { description: 'shimmed' },
-      schema: [{ enum: ['always', 'never'] }, { type: 'object', additionalProperties: true }],
-    },
-  };
-}
-
-if (tseslint.plugin.rules && !tseslint.plugin.rules['no-throw-literal']) {
-  tseslint.plugin.rules['no-throw-literal'] = {
-    meta: {
-      docs: { description: 'shimmed' },
-      schema: false,
-    },
-  };
-}
-if (tseslint.plugin.rules && !tseslint.plugin.rules['imports-first']) {
-  // sometimes airbnb-typescript or others reference this? No, imports-first is eslint-plugin-import.
-}
-
 export default tseslint.config(
-  // Ignore files
   {
     ignores: [
       'dist',
@@ -70,7 +37,7 @@ export default tseslint.config(
       parser: tsParser,
       parserOptions: {
         project: './tsconfig.json',
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.browser,
@@ -112,8 +79,7 @@ export default tseslint.config(
         },
       ],
 
-      // Unused imports
-      'no-unused-vars': 'off', // Turn off default, use TS one or unused-imports
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [

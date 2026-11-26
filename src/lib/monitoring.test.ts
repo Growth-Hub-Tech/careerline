@@ -6,7 +6,11 @@ vi.mock('@sentry/react', () => ({ init: vi.fn() }));
 
 describe('scrubUrl', () => {
   it.each([
-    ['https://careerline.ng/reset-password?token=secret', 'https://careerline.ng/reset-password'],
+    ['https://careerline.ng/sign-in?token=secret', 'https://careerline.ng/sign-in'],
+    [
+      'https://careerline.ng/payments/callback?reference=secret#top',
+      'https://careerline.ng/payments/callback',
+    ],
     ['https://careerline.ng/invitations/secret', 'https://careerline.ng/invitations/:token'],
     [
       'https://api.example.ng/api/v1/invitations/token/secret/accept',
@@ -51,14 +55,14 @@ describe('startErrorMonitoring', () => {
       },
     });
     const event = options.beforeSend?.(
-      { request: { url: 'https://careerline.ng/reset-password?token=secret' } } as ErrorEvent,
+      { request: { url: 'https://careerline.ng/sign-in?token=secret' } } as ErrorEvent,
       {},
     ) as ErrorEvent;
-    expect(event.request?.url).toBe('https://careerline.ng/reset-password');
+    expect(event.request?.url).toBe('https://careerline.ng/sign-in');
     const crumb = options.beforeBreadcrumb?.({
       category: 'navigation',
-      data: { from: '/invitations/secret', to: '/dashboard' },
+      data: { from: '/invitations/secret', to: '/payments/callback?reference=secret' },
     });
-    expect(crumb?.data).toEqual({ from: '/invitations/:token', to: '/dashboard' });
+    expect(crumb?.data).toEqual({ from: '/invitations/:token', to: '/payments/callback' });
   });
 });

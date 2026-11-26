@@ -2,9 +2,8 @@ import { useId, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
+import { Button, PRIMARY_ACTION, LINK_CLASS } from '../components/Button';
 import { Dialog } from '../components/Dialog';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { QueryState } from '../components/PageState';
 import { StatusLabel, type Status } from '../components/StatusLabel';
 import { Table, type TableColumn } from '../components/Table';
@@ -19,8 +18,6 @@ import {
 import { formatDate, formatMoney } from '../lib/format';
 
 const PRICING = `/pricing?return=${encodeURIComponent('/billing')}`;
-
-const LINK = 'w-fit font-medium text-indigo-700 underline hover:text-indigo-900';
 
 const PLAN_STATUS: Record<Subscription['status'], { label: string; tone: Status }> = {
   active: { label: 'Active', tone: 'success' },
@@ -175,7 +172,7 @@ export const Billing = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Billing</h1>
+        <h1 className="page-title">Billing</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Your plan, when it renews, and what you have paid.
         </p>
@@ -196,7 +193,7 @@ export const Billing = () => {
                   getRowKey={(row) => `${row.reference}-${row.created_at}-${row.status}`}
                 />
               )}
-              <Link to="/credits" className={LINK}>
+              <Link to="/credits" className={`${LINK_CLASS} w-fit`}>
                 See your credits
               </Link>
             </section>

@@ -20,7 +20,7 @@ export const PRIVACY_SECTIONS: readonly LegalSection[] = [
     paragraphs: [
       'To run your tests, work out your results and write your reports.',
       'To recommend career paths and programmes that fit your results.',
-      'To send you the emails the service needs, such as confirming your address. Marketing emails are only sent if you turn them on.',
+      'To contact you about your account when we need to. Marketing emails are only sent if you turn them on.',
     ],
   },
   {
@@ -82,7 +82,7 @@ export const TERMS_SECTIONS: readonly LegalSection[] = [
   {
     title: 'Changes',
     paragraphs: [
-      'We may update these terms. When we make an important change, we will tell you by email or in the app before it applies.',
+      'We may update these terms. When we make an important change, we will tell you in the app before it applies.',
     ],
   },
 ];

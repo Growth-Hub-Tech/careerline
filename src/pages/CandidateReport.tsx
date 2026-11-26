@@ -1,20 +1,18 @@
-import { useId, type ReactNode } from 'react';
+import { useId } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { Button } from '../components/Button';
+import { Button, PRIMARY_ACTION } from '../components/Button';
 import { DecisionNote } from '../components/DecisionNote';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
 import { QueryState } from '../components/PageState';
 import type { Candidate, CandidateReport as Report, CandidateTestResult } from '../lib/api';
 import { combineResults, recruiterQueries } from '../lib/api/queries';
-import { formatDate } from '../lib/format';
+import { formatDate, formatPercent } from '../lib/format';
 import { overallScore } from '../lib/recruiter/candidateReport';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
-
-const percent = (score: number) => `${Math.round(score)}%`;
+import { Section } from '../components/Section';
 
 const BACK_LINK =
-  'w-fit text-[14px] font-medium text-indigo-700 underline hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+  'w-fit text-[14px] font-medium text-indigo-700 underline hover:text-indigo-900 focus-ring';
 
 const SkillCard = ({ result }: { result: CandidateTestResult }) => {
   const headingId = useId();
@@ -30,7 +28,7 @@ const SkillCard = ({ result }: { result: CandidateTestResult }) => {
       {result.shared ? (
         <dl className="grid grid-cols-2 gap-2 text-[14px]">
           <dt className="text-slate-500">Score</dt>
-          <dd className="font-semibold text-slate-900">{percent(result.percentage_score)}</dd>
+          <dd className="font-semibold text-slate-900">{formatPercent(result.percentage_score)}</dd>
           <dt className="text-slate-500">Level</dt>
           <dd className="font-semibold text-slate-900">{LEVEL_LABELS[result.level]} level</dd>
           <dt className="text-slate-500">Finished</dt>
@@ -40,18 +38,6 @@ const SkillCard = ({ result }: { result: CandidateTestResult }) => {
         <p className="text-[14px] text-slate-600">The candidate has not shared this result.</p>
       )}
     </article>
-  );
-};
-
-const Section = ({ title, children }: { title: string; children: ReactNode }) => {
-  const headingId = useId();
-  return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <h2 id={headingId} className="text-[20px] font-bold text-slate-800">
-        {title}
-      </h2>
-      {children}
-    </section>
   );
 };
 
@@ -73,9 +59,7 @@ const ReportView = ({ candidate, report, isChecking, onCheckAgain }: ReportViewP
       </Link>
       <header className="flex flex-col gap-1">
         <p className="text-[14px] font-medium text-slate-500">Candidate report</p>
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">
-          {candidate.full_name}
-        </h1>
+        <h1 className="page-title">{candidate.full_name}</h1>
         {(report?.role_title ?? candidate.role_title) && (
           <p className="text-[16px] text-slate-600">{report?.role_title ?? candidate.role_title}</p>
         )}
@@ -91,7 +75,9 @@ const ReportView = ({ candidate, report, isChecking, onCheckAgain }: ReportViewP
             {overall !== null && (
               <p className="flex flex-col">
                 <span className="text-[14px] text-slate-500">Overall score</span>
-                <span className="text-[36px] font-bold text-slate-900">{percent(overall)}</span>
+                <span className="text-[36px] font-bold text-slate-900">
+                  {formatPercent(overall)}
+                </span>
               </p>
             )}
             {report.report_url ? (
@@ -114,13 +100,13 @@ const ReportView = ({ candidate, report, isChecking, onCheckAgain }: ReportViewP
             )}
           </div>
 
-          <Section title="Recommendation">
+          <Section plain title="Recommendation">
             <p className="max-w-[70ch] text-[16px] leading-[1.6] text-slate-800">
               {report.summary}
             </p>
           </Section>
 
-          <Section title="Skills tested">
+          <Section plain title="Skills tested">
             {results.length === 0 ? (
               <p className="text-[15px] text-slate-600">
                 Not enough evidence yet. No shared result to show.

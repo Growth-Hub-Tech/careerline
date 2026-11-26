@@ -7,8 +7,7 @@ import {
   type LegalSection,
 } from '../content/legal';
 import { formatDate } from '../lib/format';
-
-const LINK = 'font-medium text-indigo-700 underline hover:text-indigo-900';
+import { LINK_CLASS } from '../components/Button';
 
 interface LegalPageProps {
   readonly title: string;
@@ -37,7 +36,7 @@ const LegalPage = ({ title, intro, sections }: LegalPageProps) => (
 
     <p className="text-[16px] text-slate-700">
       Questions?{' '}
-      <Link to="/contact" className={LINK}>
+      <Link to="/contact" className={LINK_CLASS}>
         Contact us
       </Link>
     </p>
@@ -51,7 +50,7 @@ export const PrivacyPolicy = () => (
       <>
         This page explains what CareerLine AI collects, why, and who can see it. You can manage your
         data at any time in your{' '}
-        <Link to="/settings/privacy" className={LINK}>
+        <Link to="/settings/privacy" className={LINK_CLASS}>
           privacy centre
         </Link>
         .

@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react';
 
-// Addresses can carry secrets: reset and confirmation tokens in the query, invitation and
-// download tokens in the path. Error reports keep the page, never those.
+// Addresses can carry secrets: a payment reference in the query, invitation and download
+// tokens in the path. Error reports keep the page, never those.
 const TOKEN_IN_PATH = /\/(invitations\/token|invitations|reports|download)\/[^/?#]+/g;
 
 export const scrubUrl = (url: string) => {

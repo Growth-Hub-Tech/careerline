@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Alert } from '../components/Alert';
 import { Button } from '../components/Button';
-import { Dialog } from '../components/Dialog';
+import { ConfirmDialog } from '../components/Dialog';
+import { Section } from '../components/Section';
 import { QueryState } from '../components/PageState';
 import { Select } from '../components/Select';
 import { Table, type TableColumn } from '../components/Table';
@@ -46,6 +47,7 @@ const People = ({ users, canManage }: PeopleProps) => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<OrganisationRole>('recruiter');
   const [removing, setRemoving] = useState<OrganisationUser | null>(null);
+  const [changing, setChanging] = useState<{ person: OrganisationUser; role: OrganisationRole }>();
   const [notice, setNotice] = useState<string>();
   const [error, setError] = useState<string>();
 
@@ -68,13 +70,16 @@ const People = ({ users, canManage }: PeopleProps) => {
     );
   };
 
-  const change = (person: OrganisationUser, next: OrganisationRole) => {
+  const change = () => {
+    if (!changing) return;
+    const { person, role: next } = changing;
     start();
     changeRole.mutate(
       { learnerId: person.learner_id, role: next },
       {
         onSuccess: () => setNotice(`${person.full_name} is now ${roleArticle(next)}.`),
         onError: (changeError) => setError(describeError(changeError)),
+        onSettled: () => setChanging(undefined),
       },
     );
   };
@@ -112,8 +117,11 @@ const People = ({ users, canManage }: PeopleProps) => {
             <select
               id={`role-${row.learner_id}`}
               value={row.role}
-              onChange={(event) => change(row, event.target.value as OrganisationRole)}
-              className="h-10 rounded-lg border border-slate-200 bg-white px-2"
+              disabled={changeRole.isPending}
+              onChange={(event) =>
+                setChanging({ person: row, role: event.target.value as OrganisationRole })
+              }
+              className="focus-ring h-10 rounded-lg border border-slate-200 bg-white px-2 disabled:opacity-60"
             >
               {ROLES.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -138,7 +146,7 @@ const People = ({ users, canManage }: PeopleProps) => {
           type="button"
           aria-label={`Remove ${row.full_name}`}
           onClick={() => setRemoving(row)}
-          className="font-medium text-red-700 underline hover:text-red-900"
+          className="focus-ring rounded font-medium text-red-700 underline hover:text-red-900"
         >
           Remove
         </button>
@@ -152,8 +160,7 @@ const People = ({ users, canManage }: PeopleProps) => {
       {notice && <Alert variant="success">{notice}</Alert>}
 
       {canManage ? (
-        <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-[20px] font-bold text-slate-800">Add a person</h2>
+        <Section title="Add a person">
           <p className="text-[14px] text-slate-600">
             They need a CareerLine AI account first. Owners and admins can change users; recruiters
             can send tests.
@@ -175,13 +182,13 @@ const People = ({ users, canManage }: PeopleProps) => {
           <Button
             fullWidth={false}
             className="self-start"
-            disabled={!email.includes('@')}
+            disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())}
             isLoading={addUser.isPending}
             onClick={add}
           >
             Add person
           </Button>
-        </section>
+        </Section>
       ) : (
         <p className="text-[15px] text-slate-600">
           Only owners and admins can change who has access.
@@ -195,26 +202,28 @@ const People = ({ users, canManage }: PeopleProps) => {
         getRowKey={(row) => String(row.learner_id)}
       />
 
-      <Dialog
+      <ConfirmDialog
         open={removing !== null}
-        onClose={() => setRemoving(null)}
         title={`Remove ${removing?.full_name ?? ''}?`}
         description="Their own account stays. They lose access to this organisation."
-        footer={
-          <>
-            <Button
-              variant="transparent"
-              border="solid"
-              fullWidth={false}
-              onClick={() => setRemoving(null)}
-            >
-              Keep
-            </Button>
-            <Button fullWidth={false} isLoading={removeUser.isPending} onClick={remove}>
-              Remove
-            </Button>
-          </>
+        confirmLabel="Remove"
+        isPending={removeUser.isPending}
+        onConfirm={remove}
+        onClose={() => setRemoving(null)}
+      />
+
+      <ConfirmDialog
+        open={changing !== undefined}
+        title={`Make ${changing?.person.full_name ?? ''} ${changing ? roleArticle(changing.role) : ''}?`}
+        description={
+          changing?.role === 'owner'
+            ? 'Owners can manage everyone, including other owners.'
+            : 'They keep their account. What they can do in this organisation changes now.'
         }
+        confirmLabel="Change role"
+        isPending={changeRole.isPending}
+        onConfirm={change}
+        onClose={() => setChanging(undefined)}
       />
     </div>
   );
@@ -236,7 +245,7 @@ export const Users = () => {
   return (
     <div className="flex w-full max-w-[1000px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Users</h1>
+        <h1 className="page-title">Users</h1>
         <p className="text-[15px] text-slate-600">People who can sign in to your organisation.</p>
       </header>
       <QueryState query={account} loadingTitle="Loading the people">

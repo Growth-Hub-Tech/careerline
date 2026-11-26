@@ -7,6 +7,7 @@ import type { AssessmentSummary, Skill } from '../lib/api';
 import { catalogQueries, combineResults } from '../lib/api/queries';
 import { useCurrentUser } from '../lib/user';
 import { groupByCategory, type CatalogGroup } from '../lib/tests/catalog';
+import { firstNameOf } from '../lib/format';
 
 const CategorySection = ({ group }: { group: CatalogGroup }) => {
   const headingId = useId();
@@ -22,7 +23,7 @@ const CategorySection = ({ group }: { group: CatalogGroup }) => {
           <li key={test.test_id}>
             <Link
               to={`/tests/${test.test_id}`}
-              className="flex h-full flex-col gap-4 rounded-2xl border border-indigo-300 bg-white px-6 py-8 transition-colors hover:border-indigo-600 hover:bg-indigo-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:px-[74px]"
+              className="flex h-full flex-col gap-4 rounded-2xl border border-indigo-300 bg-white px-6 py-8 transition-colors hover:border-indigo-600 hover:bg-indigo-50 focus-ring sm:px-[74px]"
             >
               <h3 className="text-[17px] font-semibold text-slate-700">{test.title}</h3>
               {skill.description && (
@@ -42,14 +43,14 @@ interface CatalogProps {
 }
 
 const Catalog = ({ skills, tests }: CatalogProps) => {
-  const firstName = useCurrentUser().name.trim().split(/\s+/)[0];
+  const firstName = firstNameOf(useCurrentUser().name);
   const groups = groupByCategory(skills, tests);
 
   return (
     <div className="flex w-full max-w-[1280px] flex-col gap-12 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-3">
         <p className="text-[15px] text-slate-950">Self Tester dashboard</p>
-        <h1 className="text-[36px] leading-[1.2] font-bold text-slate-700 sm:text-[44px]">
+        <h1 className="font-heading text-[36px] leading-[1.2] font-bold text-slate-950 sm:text-[44px]">
           {firstName ? `Welcome, ${firstName}` : 'Welcome'}
         </h1>
         <p className="text-[22px] font-bold text-slate-500 sm:text-[26px]">

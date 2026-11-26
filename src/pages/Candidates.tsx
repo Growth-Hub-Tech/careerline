@@ -112,7 +112,8 @@ const AssignForm = ({ tests, candidates }: AssignFormProps) => {
           Send a test
         </h2>
         <p className="text-[14px] text-slate-600">
-          {candidates.length} of {SHORTLIST_LIMIT} candidates on your shortlist.
+          {candidates.length} of {SHORTLIST_LIMIT} candidates on your shortlist. A candidate needs a
+          CareerLine account with this email, and finds the test under Tasks.
         </p>
       </div>
       {isFull && (
@@ -138,7 +139,7 @@ const AssignForm = ({ tests, candidates }: AssignFormProps) => {
           error={errors.testId?.message}
           {...register('testId')}
         />
-        <Select label="Link works for" options={EXPIRY_OPTIONS} {...register('expiresInDays')} />
+        <Select label="Open for" options={EXPIRY_OPTIONS} {...register('expiresInDays')} />
         <div className="sm:col-span-2">
           <Button
             type="submit"
@@ -269,7 +270,7 @@ const CancelDialog = ({ invitation, onClose }: CancelDialogProps) => {
       open
       onClose={onClose}
       title="Cancel this test?"
-      description={`${invitation.full_name} will no longer be able to open the link for ${invitation.test_title}.`}
+      description={`${invitation.full_name} will no longer be able to take ${invitation.test_title} from this invitation.`}
       footer={
         <>
           <Button variant="transparent" border="solid" fullWidth={false} onClick={onClose}>
@@ -321,7 +322,7 @@ export const Candidates = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Candidates</h1>
+        <h1 className="page-title">Candidates</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Send a role-specific test to a candidate and follow it until their report is ready.
         </p>

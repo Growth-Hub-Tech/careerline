@@ -1,6 +1,6 @@
-import { useId, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { PRIMARY_ACTION } from '../components/ErrorPage';
+import { PRIMARY_ACTION } from '../components/Button';
+import { Section } from '../components/Section';
 
 const GROUPS = [
   {
@@ -40,21 +40,6 @@ const GROUPS = [
     ],
   },
 ];
-
-const Section = ({ title, children }: { title: string; children: ReactNode }) => {
-  const headingId = useId();
-  return (
-    <section
-      aria-labelledby={headingId}
-      className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6"
-    >
-      <h2 id={headingId} className="font-heading text-[22px] font-bold text-slate-950">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-};
 
 export const HowItWorks = () => (
   <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-10 px-5 py-14 sm:px-8">

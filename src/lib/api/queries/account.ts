@@ -30,23 +30,12 @@ export const useChangePassword = () =>
       apiPost<Acknowledgement>(API_ROUTES.accounts.password, request),
   });
 
-export const useResendVerification = () =>
+export const useResetPassword = () =>
   useMutation({
-    mutationFn: () => apiPost<Acknowledgement>(API_ROUTES.accounts.resendVerification),
-  });
-
-export const useRequestPasswordReset = () =>
-  useMutation({
-    mutationFn: (email: string) =>
-      apiPost<Acknowledgement>(API_ROUTES.accounts.passwordReset, { email }, { auth: false }),
-  });
-
-export const useConfirmPasswordReset = () =>
-  useMutation({
-    mutationFn: ({ token, newPassword }: { token: string; newPassword: string }) =>
+    mutationFn: ({ email, pin, password }: { email: string; pin: string; password: string }) =>
       apiPost<Acknowledgement>(
-        API_ROUTES.accounts.passwordResetConfirm,
-        { token, new_password: newPassword },
+        API_ROUTES.accounts.passwordReset,
+        { email, pin, new_password: password },
         { auth: false },
       ),
   });

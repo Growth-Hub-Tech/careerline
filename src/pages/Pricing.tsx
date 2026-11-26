@@ -2,9 +2,8 @@ import { useId, useState, type ReactNode } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { LuCheck } from 'react-icons/lu';
-import { Button } from '../components/Button';
+import { Button, PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
 import { BuyDialog, type BuyItem } from '../components/BuyDialog';
-import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/ErrorPage';
 import { QueryState } from '../components/PageState';
 import type { CreditPack, Plan } from '../lib/api';
 import { combineResults, paymentQueries } from '../lib/api/queries';
@@ -129,11 +128,11 @@ const Enterprise = () => (
   <Group title="Enterprise">
     <div className="flex flex-col gap-4 rounded-2xl bg-indigo-50 p-6 sm:col-span-2 lg:col-span-3">
       <p className="max-w-[60ch] text-[15px] text-slate-700">
-        Need more seats, your own role standards or a custom set-up for your organisation? Tell us
-        what you need and we will send you a quote.
+        Need more seats, your own role standards or a custom set-up for your organisation? Contact
+        us and we will put together a quote.
       </p>
-      <Link to="/quote" className={`${SECONDARY_ACTION} w-fit`}>
-        Request a quote
+      <Link to="/contact" className={`${SECONDARY_ACTION} w-fit`}>
+        Contact us
       </Link>
     </div>
   </Group>

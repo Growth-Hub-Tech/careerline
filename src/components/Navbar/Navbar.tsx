@@ -25,7 +25,7 @@ const NAV_ITEMS: readonly NavItem[] = [
 ];
 
 const linkBase =
-  'flex items-center gap-1 rounded-md text-[15px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]';
+  'flex items-center gap-1 rounded-md text-[15px] font-medium transition-colors focus-ring';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export const Navbar = () => {
         <div className="mx-auto grid h-20 w-full max-w-[1280px] grid-cols-[1fr_auto] items-center lg:grid-cols-[1fr_auto_1fr]">
           <button
             type="button"
-            className="flex h-full items-center justify-self-start self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+            className="flex h-full items-center justify-self-start self-center rounded-md focus-ring"
             onClick={() => go('/')}
             aria-label="CareerLine AI home"
           >
@@ -180,7 +180,7 @@ export const Navbar = () => {
           <div className="flex items-center justify-self-end gap-2 lg:hidden">
             <button
               type="button"
-              className="whitespace-nowrap rounded-xl bg-[#6C5CCF] h-[30px] px-4 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#5B4CBF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6C5CCF]"
+              className="whitespace-nowrap rounded-xl bg-[#6C5CCF] h-[30px] px-4 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#5B4CBF] focus-ring"
               onClick={() => go(TAKE_TEST_PATH)}
             >
               Take a test

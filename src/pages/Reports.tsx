@@ -41,7 +41,7 @@ const SkillLevels = () => {
 };
 
 const LINK_CLASS =
-  'rounded-md font-medium text-indigo-700 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+  'rounded-md font-medium text-indigo-700 underline-offset-2 hover:underline focus-ring';
 
 const COLUMNS: readonly TableColumn<ResultSummary>[] = [
   {
@@ -69,7 +69,7 @@ const newestFirst = (results: readonly ResultSummary[]) =>
 const ResultList = ({ results }: { results: readonly ResultSummary[] }) => (
   <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
     <header className="flex flex-col gap-2">
-      <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Reports</h1>
+      <h1 className="page-title">Reports</h1>
       <p className="text-[15px] text-slate-600">
         Every skill test you have finished, newest first.
       </p>
@@ -84,7 +84,7 @@ const ResultList = ({ results }: { results: readonly ResultSummary[] }) => (
         action={
           <Link
             to="/tests"
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="inline-flex h-11 items-center justify-center rounded-lg bg-indigo-600 px-4 text-[15px] font-medium text-white transition-colors hover:bg-indigo-700 focus-ring"
           >
             Choose a test
           </Link>

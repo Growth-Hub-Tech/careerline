@@ -68,7 +68,7 @@ export const Alert = ({
           type="button"
           aria-label="Dismiss"
           onClick={onDismiss}
-          className="-mt-1 -mr-1 shrink-0 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          className="-mt-1 -mr-1 shrink-0 cursor-pointer rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus-ring"
         >
           <LuX size={18} aria-hidden="true" />
         </button>

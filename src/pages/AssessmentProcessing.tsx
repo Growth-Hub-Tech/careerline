@@ -78,7 +78,7 @@ export const AssessmentProcessing = () => {
             to="/assessment"
             replace
             state={{ submission }}
-            className="rounded-md text-[15px] font-medium text-indigo-800 underline hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="rounded-md text-[15px] font-medium text-indigo-800 underline hover:text-indigo-900 focus-ring"
           >
             Review your answers
           </Link>

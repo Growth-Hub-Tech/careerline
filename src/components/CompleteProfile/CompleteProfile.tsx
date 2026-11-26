@@ -11,7 +11,7 @@ import { AUTH_PATHS, AuthTitle, SplitAuthLayout, TextField } from '../Auth';
 import { Button } from '../Button';
 
 export const CompleteProfile = () => {
-  const email = readPendingEmail() ?? '';
+  const [email] = useState(() => readPendingEmail() ?? '');
   const navigate = useNavigate();
   const registerAccount = useRegister();
   const [formError, setFormError] = useState<string>();
@@ -32,7 +32,7 @@ export const CompleteProfile = () => {
     try {
       const { fullName, phone, password } = values;
       await registerAccount.mutateAsync({ email, fullName, phone, password });
-      navigate(AUTH_PATHS.getStarted);
+      navigate(AUTH_PATHS.getStarted, { replace: true });
     } catch (error) {
       if (!applyFieldErrors(error, ['fullName', 'phone', 'password'], setError)) {
         setFormError(describeAuthError(error));

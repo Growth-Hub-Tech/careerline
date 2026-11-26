@@ -47,12 +47,12 @@ export const AUDIENCES: readonly Audience[] = [
     ],
     steps: [
       'Upload your staff list with each person’s role.',
-      'Start an audit. Everyone gets an email with their test.',
+      'Start an audit. Everyone finds their tests under Tasks when they sign in.',
       'Follow progress as people finish.',
       'Read the heatmap and each employee report, then set targets.',
     ],
     action: { label: 'Get started', to: '/sign-up' },
-    secondary: { label: 'Request a quote', to: '/quote' },
+    secondary: { label: 'Ask for a quote', to: '/contact' },
   },
   {
     key: 'recruiters',

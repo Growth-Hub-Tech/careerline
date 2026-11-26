@@ -16,6 +16,7 @@ import {
 import { formatDate } from '../lib/format';
 import { LEVEL_ORDER } from '../lib/organisation/levels';
 import { LEVEL_LABELS } from '../lib/tests/catalog';
+import { ConfirmDialog } from '../components/Dialog';
 
 interface DraftRow {
   readonly role_id: number;
@@ -50,6 +51,7 @@ interface DraftProps {
 
 // The draft stays on this page until it is approved; the saved targets live in the cache
 const Draft = ({ targets, roles, onDone }: DraftProps) => {
+  const [isDiscarding, setIsDiscarding] = useState(false);
   const client = useQueryClient();
   const setTargets = useSetTargets();
   const [rows, setRows] = useState<readonly DraftRow[]>(targets.items);
@@ -194,9 +196,23 @@ const Draft = ({ targets, roles, onDone }: DraftProps) => {
         <Button fullWidth={false} isLoading={setTargets.isPending} onClick={save}>
           Approve and save
         </Button>
-        <Button variant="transparent" border="solid" fullWidth={false} onClick={onDone}>
+        <Button
+          variant="transparent"
+          border="solid"
+          fullWidth={false}
+          onClick={() => setIsDiscarding(true)}
+        >
           Discard draft
         </Button>
+        <ConfirmDialog
+          open={isDiscarding}
+          title="Discard this draft?"
+          description="Your changes to the targets will be lost. The saved targets stay as they are."
+          confirmLabel="Discard draft"
+          cancelLabel="Keep editing"
+          onConfirm={onDone}
+          onClose={() => setIsDiscarding(false)}
+        />
       </div>
     </div>
   );
@@ -242,7 +258,7 @@ export const CompanyTargets = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-2">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Company targets</h1>
+        <h1 className="page-title">Company targets</h1>
         <p className="max-w-[60ch] text-[15px] text-slate-600">
           Set the level each role should reach in each skill, and by when.
         </p>

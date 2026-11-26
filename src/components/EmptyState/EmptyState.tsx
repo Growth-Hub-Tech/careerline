@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-type HeadingLevel = 2 | 3 | 4;
+type HeadingLevel = 1 | 2 | 3 | 4;
 
 interface EmptyStateProps {
   readonly title: string;
@@ -19,7 +19,7 @@ export const EmptyState = ({
   headingLevel = 3,
   className = '',
 }: EmptyStateProps) => {
-  const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+  const Heading = `h${headingLevel}` as 'h1' | 'h2' | 'h3' | 'h4';
 
   return (
     <div

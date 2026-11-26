@@ -3,7 +3,6 @@ export * from './attempts';
 export * from './beginner';
 export * from './catalog';
 export * from './combine';
-export * from './contact';
 export * from './organisation';
 export * from './payments';
 export * from './privacy';

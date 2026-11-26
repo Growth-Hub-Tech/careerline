@@ -55,7 +55,7 @@ export const HeroCard = () => {
       <button
         type="button"
         onClick={() => navigate(INTENTS[selected].path)}
-        className="h-14 w-full rounded-full bg-slate-950 text-[16px] font-semibold text-white transition-colors hover:bg-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:h-[66px] sm:text-[18px]"
+        className="h-14 w-full rounded-full bg-slate-950 text-[16px] font-semibold text-white transition-colors hover:bg-indigo-600 focus-ring sm:h-[66px] sm:text-[18px]"
       >
         Start Testing
       </button>

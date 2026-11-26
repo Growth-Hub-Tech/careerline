@@ -4,9 +4,7 @@ import { Link } from 'react-router-dom';
 import { LuWallet } from 'react-icons/lu';
 import { paymentQueries } from '../../lib/api/queries';
 import { describeCredits } from '../../lib/tests/catalog';
-
-const LINK_CLASS =
-  'text-[14px] font-medium text-indigo-800 underline hover:text-indigo-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+import { LINK_CLASS } from '../Button';
 
 interface CreditsStripProps {
   readonly returnTo?: string;
@@ -30,10 +28,13 @@ export const CreditsStrip = ({ returnTo = '/dashboard' }: CreditsStripProps) => 
         <LuWallet size={18} aria-hidden="true" className="text-indigo-700" />
         You have {describeCredits(credits.credits_balance)}
       </p>
-      <Link to={`/pricing?return=${encodeURIComponent(returnTo)}`} className={LINK_CLASS}>
+      <Link
+        to={`/pricing?return=${encodeURIComponent(returnTo)}`}
+        className={`${LINK_CLASS} text-[14px]`}
+      >
         Buy credits
       </Link>
-      <Link to="/credits" className={LINK_CLASS}>
+      <Link to="/credits" className={`${LINK_CLASS} text-[14px]`}>
         View history
       </Link>
     </section>

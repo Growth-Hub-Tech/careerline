@@ -16,7 +16,7 @@ export const Help = () => (
         <div className="flex flex-col divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
           {topic.questions.map(({ question, answer }) => (
             <details key={question} className="group px-5 py-4">
-              <summary className="cursor-pointer list-none text-[16px] font-medium text-slate-900 marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              <summary className="cursor-pointer list-none text-[16px] font-medium text-slate-900 marker:hidden focus-ring">
                 <span className="flex items-center justify-between gap-4">
                   {question}
                   <span aria-hidden="true" className="text-slate-400 group-open:rotate-45">
@@ -33,10 +33,7 @@ export const Help = () => (
 
     <p className="text-[16px] text-slate-700">
       Still stuck?{' '}
-      <Link
-        to="/contact?topic=support"
-        className="font-medium text-indigo-700 underline hover:text-indigo-900"
-      >
+      <Link to="/contact" className="font-medium text-indigo-700 underline hover:text-indigo-900">
         Contact support
       </Link>
     </p>

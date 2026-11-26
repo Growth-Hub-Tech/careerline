@@ -68,6 +68,7 @@ export const queryKeys = {
   },
 
   invitation: (token: string) => ['invitation', token] as const,
+  receivedInvitations: ['invitations', 'received'] as const,
 
   payments: {
     credits: ['credits'] as const,

@@ -2,8 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button } from '../components/Button';
-import { SECONDARY_ACTION } from '../components/ErrorPage';
+import { Button, SECONDARY_ACTION } from '../components/Button';
 import { QueryState } from '../components/PageState';
 import { Table, type TableColumn } from '../components/Table';
 import type { RoleSummary, TeamMemberCreate } from '../lib/api';
@@ -130,10 +129,11 @@ export const StaffUpload = () => {
   return (
     <div className="flex w-full max-w-[1100px] flex-col gap-8 px-5 py-10 sm:px-20">
       <header className="flex flex-col gap-3">
-        <h1 className="text-[32px] leading-[1.25] font-bold text-slate-700">Upload staff list</h1>
+        <h1 className="page-title">Upload staff list</h1>
         <p className="max-w-[65ch] text-[15px] text-slate-600">
-          Fill in one row per person: name, work email, department and role. We check every row
-          before anything is uploaded.
+          Fill in one row per person: name, work email, department and role. Use the email each
+          person signs in to CareerLine with: an audit only invites people with an account. We check
+          every row before anything is uploaded.
         </p>
         <a
           href={TEMPLATE_HREF}

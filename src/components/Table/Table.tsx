@@ -86,7 +86,7 @@ export const Table = <T extends object>({
                     <button
                       type="button"
                       onClick={() => onSortChange?.(nextSort(key))}
-                      className={`inline-flex w-full cursor-pointer items-center gap-1.5 rounded-md font-semibold transition-colors hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${JUSTIFY[align]}`}
+                      className={`inline-flex w-full cursor-pointer items-center gap-1.5 rounded-md font-semibold transition-colors hover:text-indigo-700 focus-ring ${JUSTIFY[align]}`}
                     >
                       {header}
                       <SortIcon

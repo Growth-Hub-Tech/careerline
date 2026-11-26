@@ -33,3 +33,6 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// How often a page checks again on something the server is still preparing
+export const POLL_INTERVAL = 3000;

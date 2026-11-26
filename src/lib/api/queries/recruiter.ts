@@ -13,6 +13,7 @@ import type {
   InvitationCreate,
   InvitationPage,
   InvitationPublic,
+  InvitationPublicPage,
 } from '../types';
 
 const PAGE_SIZE = 50;
@@ -65,7 +66,20 @@ export const recruiterQueries = {
         ),
     }),
 
-  // The page a candidate opens from their email: it needs no session
+  // The invitations sent to the signed-in account (any kind of account can be invited)
+  receivedInvitations: () =>
+    queryOptions({
+      queryKey: queryKeys.receivedInvitations,
+      queryFn: ({ signal }) =>
+        fetchAll((offset) =>
+          apiGet<InvitationPublicPage>(API_ROUTES.invitations.received, {
+            query: { limit: PAGE_SIZE, offset },
+            signal,
+          }),
+        ),
+    }),
+
+  // One invitation's page, opened from Tasks: it needs no session to show who invited them
   invitation: (token: string) =>
     queryOptions({
       queryKey: queryKeys.invitation(token),
@@ -125,6 +139,7 @@ export const useAcceptInvitation = (token: string) => {
     onSuccess: (invitation) => {
       client.setQueryData(queryKeys.invitation(token), invitation);
       return Promise.all([
+        client.invalidateQueries({ queryKey: queryKeys.receivedInvitations }),
         client.invalidateQueries({ queryKey: queryKeys.payments.credits }),
         client.invalidateQueries({ queryKey: queryKeys.catalog.allAccess }),
       ]);

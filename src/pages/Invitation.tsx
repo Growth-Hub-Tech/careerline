@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
-import { Button, PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
+import { Button, PRIMARY_ACTION } from '../components/Button';
 import { Checkbox } from '../components/Checkbox';
 import { PageLoader } from '../components/Loader';
 import type { InvitationPublic } from '../lib/api';
@@ -22,8 +22,8 @@ const Frame = ({ title, children }: { title: string; children: ReactNode }) => (
 const InvalidLink = () => (
   <Frame title="This link is invalid or has expired">
     <p className="text-[15px] text-slate-600">
-      The test link may have been cancelled, used already, or it is too old. Ask the person who sent
-      it for a new link.
+      The invitation may have been cancelled, used already, or it is too old. Ask the organisation
+      that invited you to send a new one.
     </p>
   </Frame>
 );
@@ -34,7 +34,7 @@ const Details = ({ invitation }: { invitation: InvitationPublic }) => (
     <dd className="font-semibold text-slate-900">{invitation.test_title}</dd>
     <dt className="text-slate-500">Time</dt>
     <dd className="text-slate-900">{invitation.duration_minutes} minutes, in one sitting</dd>
-    <dt className="text-slate-500">Link works until</dt>
+    <dt className="text-slate-500">Accept by</dt>
     <dd className="text-slate-900">{formatDate(invitation.expires_at)}</dd>
   </dl>
 );
@@ -59,16 +59,12 @@ const StartTest = ({ token, invitation }: { token: string; invitation: Invitatio
   const start = () =>
     accept.mutate(undefined, { onSuccess: (accepted) => open(accepted.attempt_id) });
 
+  // Invitations go to accounts: the invited person signs in with the email they were invited at
   if (!user) {
     return (
-      <div className="flex flex-wrap gap-3">
-        <Link to="/sign-in" state={{ from: location }} className={`${PRIMARY_ACTION} w-fit`}>
-          Sign in to continue
-        </Link>
-        <Link to="/sign-up" className={`${SECONDARY_ACTION} w-fit`}>
-          Create an account
-        </Link>
-      </div>
+      <Link to="/sign-in" state={{ from: location }} className={`${PRIMARY_ACTION} w-fit`}>
+        Sign in to continue
+      </Link>
     );
   }
 

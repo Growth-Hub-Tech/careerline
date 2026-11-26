@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { QueryState } from '../components/PageState';
@@ -11,6 +12,7 @@ import {
 } from '../lib/api/queries';
 import {
   beginnerTasks,
+  invitationTasks,
   organisationTasks,
   professionalTasks,
   recruiterTasks,
@@ -20,11 +22,11 @@ import { useCurrentUser, type UserType } from '../lib/user';
 
 const LOADING = 'Loading your tasks';
 
-const TaskList = ({ tasks }: { tasks: readonly Task[] }) =>
+const TaskList = ({ tasks, label = 'Your tasks' }: { tasks: readonly Task[]; label?: string }) =>
   tasks.length === 0 ? (
     <p className="text-[15px] text-slate-600">Nothing to do right now.</p>
   ) : (
-    <ul aria-label="Your tasks" className="flex flex-col gap-3">
+    <ul aria-label={label} className="flex flex-col gap-3">
       {tasks.map((task) => (
         <li
           key={task.id}
@@ -46,6 +48,29 @@ const TaskList = ({ tasks }: { tasks: readonly Task[] }) =>
   );
 
 // Each list reads the same cached data as the pages it links to
+
+// Any account can be invited to a test; the section shows only while one is open
+const ReceivedInvitations = () => {
+  const invitations = useQuery(recruiterQueries.receivedInvitations());
+  const headingId = useId();
+
+  return (
+    <QueryState query={invitations} loadingTitle="Loading your invitations" loaderClassName="">
+      {(list) => {
+        const tasks = invitationTasks(list);
+        if (tasks.length === 0) return null;
+        return (
+          <section aria-labelledby={headingId} className="flex flex-col gap-3">
+            <h2 id={headingId} className="text-[20px] font-bold text-slate-800">
+              Invitations
+            </h2>
+            <TaskList tasks={tasks} label="Your invitations" />
+          </section>
+        );
+      }}
+    </QueryState>
+  );
+};
 
 const BeginnerTasks = () => {
   const path = useQuery(beginnerQueries.recommendations());
@@ -110,6 +135,7 @@ export const Tasks = () => {
         <h1 className="page-title">Tasks</h1>
         <p className="text-[15px] text-slate-600">What to do next, worked out from your account.</p>
       </header>
+      <ReceivedInvitations />
       <UserTasks />
     </div>
   );

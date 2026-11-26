@@ -4,7 +4,6 @@ import type { HeatmapGrouping } from './types';
 // everything under it.
 export const queryKeys = {
   account: ['account'] as const,
-  verifyEmail: (token: string) => ['verify-email', token] as const,
 
   organisation: {
     all: ['organisation'] as const,
@@ -69,6 +68,7 @@ export const queryKeys = {
   },
 
   invitation: (token: string) => ['invitation', token] as const,
+  receivedInvitations: ['invitations', 'received'] as const,
 
   payments: {
     credits: ['credits'] as const,

@@ -128,11 +128,11 @@ const Enterprise = () => (
   <Group title="Enterprise">
     <div className="flex flex-col gap-4 rounded-2xl bg-indigo-50 p-6 sm:col-span-2 lg:col-span-3">
       <p className="max-w-[60ch] text-[15px] text-slate-700">
-        Need more seats, your own role standards or a custom set-up for your organisation? Tell us
-        what you need and we will send you a quote.
+        Need more seats, your own role standards or a custom set-up for your organisation? Contact
+        us and we will put together a quote.
       </p>
-      <Link to="/quote" className={`${SECONDARY_ACTION} w-fit`}>
-        Request a quote
+      <Link to="/contact" className={`${SECONDARY_ACTION} w-fit`}>
+        Contact us
       </Link>
     </div>
   </Group>

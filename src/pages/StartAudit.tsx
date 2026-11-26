@@ -189,7 +189,8 @@ export const StartAudit = () => {
         </h1>
         <p className="max-w-[70ch] text-[15px] text-slate-600">
           CareerLine AI has matched each person to the test for their role. Confirm who should take
-          it, then send the tests. Each person gets an email with a link.
+          it, then send the tests. Each person needs a CareerLine account with the email on your
+          staff list, and finds their test under Tasks when they sign in.
         </p>
       </header>
       <QueryState query={team} loadingTitle="Loading your team">

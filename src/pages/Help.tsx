@@ -33,10 +33,7 @@ export const Help = () => (
 
     <p className="text-[16px] text-slate-700">
       Still stuck?{' '}
-      <Link
-        to="/contact?topic=support"
-        className="font-medium text-indigo-700 underline hover:text-indigo-900"
-      >
+      <Link to="/contact" className="font-medium text-indigo-700 underline hover:text-indigo-900">
         Contact support
       </Link>
     </p>

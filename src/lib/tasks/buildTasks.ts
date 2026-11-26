@@ -2,6 +2,7 @@ import type {
   AuditSummary,
   BeginnerPath,
   Invitation,
+  InvitationPublic,
   ResultSummary,
   TeamMember,
 } from '../api/types';
@@ -149,3 +150,30 @@ export const organisationTasks = (
       : []),
   ];
 };
+
+// The tests organisations invited this account to take (invitations are in-app, never emailed)
+export const invitationTasks = (invitations: readonly InvitationPublic[]): Task[] =>
+  invitations.flatMap((invitation): Task[] => {
+    const to = `/invitations/${invitation.token}`;
+    if (invitation.status === 'sent') {
+      return [
+        {
+          id: `invitation-${invitation.token}`,
+          text: `${invitation.invited_by} invited you to take the ${invitation.test_title} test.`,
+          to,
+          action: 'Open the invitation',
+        },
+      ];
+    }
+    if (invitation.status === 'accepted') {
+      return [
+        {
+          id: `invitation-${invitation.token}`,
+          text: `Finish the ${invitation.test_title} test ${invitation.invited_by} invited you to.`,
+          to,
+          action: 'Continue the test',
+        },
+      ];
+    }
+    return [];
+  });

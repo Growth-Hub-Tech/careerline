@@ -53,49 +53,9 @@ export interface paths {
         put?: never;
         /**
          * Confirm Password Reset
-         * @description Sets a new password with the account's email and the reset PIN (1234 for every account until emails are switched on). A wrong PIN or an unknown email is `invalid_reset_pin` (400). 5 wrong tries for one email (or 20 from one IP address) in 15 minutes: 429 with Retry-After. Signs out every device.
+         * @description Sets a new password with the account's email and the reset PIN (1234 for every account). A wrong PIN or an unknown email is `invalid_reset_pin` (400). 5 wrong tries for one email (or 20 from one IP address) in 15 minutes: 429 with Retry-After. Signs out every device.
          */
         post: operations["confirm_password_reset_api_v1_accounts_password_reset_confirm_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accounts/verify-email": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify Email
-         * @description The token from the confirmation link. An old, used or unknown token is `expired` (410).
-         */
-        post: operations["verify_email_api_v1_accounts_verify_email_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accounts/verify-email/resend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Resend Verification Email
-         * @description Emails a new confirmation link (the old one stops working). Nothing is sent if the email is already confirmed. At most 3 an hour.
-         */
-        post: operations["resend_verification_email_api_v1_accounts_verify_email_resend_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -324,7 +284,7 @@ export interface paths {
         put?: never;
         /**
          * Register
-         * @description Creates the account and signs it in: the answer holds a token and the careerline_session cookie is set. No email is sent. A taken email is 400 email_taken.
+         * @description Creates the account and signs it in: the answer holds a token and the careerline_session cookie is set. A taken email is 400 email_taken.
          */
         post: operations["register_api_v1_auth_register_post"];
         delete?: never;
@@ -371,26 +331,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/contact": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Send Contact Message
-         * @description Public, no login. Stores the message and emails the team (who can reply straight to the sender) and an acknowledgement to the sender. At most 5 messages an hour per email address and per IP address (then 429 with Retry-After).
-         */
-        post: operations["send_contact_message_api_v1_contact_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/credits": {
         parameters: {
             query?: never;
@@ -420,9 +360,29 @@ export interface paths {
         put?: never;
         /**
          * Send Invitation
-         * @description Emails the invitee the link. kind candidate (the default) adds the candidate by candidate_id or email when needed. 404: unknown test_id, candidate_id or another organisation_id. sent -> accepted (the invitee opens invite_url, signs in and calls POST /invitations/token/{token}/accept, which starts the test) -> completed (that test finished; result_id is set). A sent invitation past expires_at shows as expired.
+         * @description Invites someone who already has a CareerLine account; nothing is emailed. An email with no account is a 409 no_account. kind candidate (the default) adds the candidate by candidate_id or email when needed. 404: unknown test_id, candidate_id or another organisation_id. sent -> accepted (the invitee finds it in GET /invitations/received and calls POST /invitations/token/{token}/accept, which starts the test) -> completed (that test finished; result_id is set). A sent invitation past expires_at shows as expired.
          */
         post: operations["send_invitation_api_v1_invitations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Received Invitations
+         * @description The invitations sent to my account's email, newest first; revoked ones are left out. Open one with /invitations/token/{token}.
+         */
+        get: operations["list_received_invitations_api_v1_invitations_received_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -460,7 +420,7 @@ export interface paths {
         put?: never;
         /**
          * Accept Invitation
-         * @description Starts the invited test (free: the organisation invited them) and returns its attempt_id; take it with /attempts/{attempt_id}/... Accepting twice is fine; another account, or a revoked or completed invitation, is a 409; expired is a 410.
+         * @description Starts the invited test (free: the organisation invited them) and returns its attempt_id; take it with /attempts/{attempt_id}/... Only the invited account may accept (another one is a 403). Accepting twice is fine; a revoked or completed invitation is a 409; expired is a 410.
          */
         post: operations["accept_invitation_api_v1_invitations_token__token__accept_post"];
         delete?: never;
@@ -991,7 +951,7 @@ export interface paths {
         put?: never;
         /**
          * Request Data Export
-         * @description Queues a copy of everything we hold about me (JSON). One at a time: while one is queued or ready, this answers that one. An email says when it is ready.
+         * @description Queues a copy of everything we hold about me (JSON). One at a time: while one is queued or ready, this answers that one. Poll GET /privacy/data-exports/{export_id} until it is ready.
          */
         post: operations["request_data_export_api_v1_privacy_data_exports_post"];
         delete?: never;
@@ -1247,7 +1207,7 @@ export interface paths {
         put?: never;
         /**
          * Add Candidate
-         * @description 409: that email is already a candidate here. 404: unknown role_id.
+         * @description 409: that email is already a candidate here, or has no CareerLine account yet (no_account: only accounts can be invited). 404: unknown role_id.
          */
         post: operations["add_candidate_api_v1_recruiter_candidates_post"];
         delete?: never;
@@ -1539,30 +1499,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/test-mailbox": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Test Mailbox
-         * @description The emails sent to one address on the test server, newest first. Send the server's X-Test-Mailbox-Token (404 when the server has none).
-         */
-        get: operations["read_test_mailbox_api_v1_test_mailbox_get"];
-        put?: never;
-        post?: never;
-        /**
-         * Clear Test Mailbox
-         * @description Delete the emails sent to one address (start a test with an empty mailbox).
-         */
-        delete: operations["clear_test_mailbox_api_v1_test_mailbox_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/tests": {
         parameters: {
             query?: never;
@@ -1677,8 +1613,6 @@ export interface components {
              * Format: email
              */
             email: string;
-            /** Email Verified */
-            email_verified: boolean;
             /** Full Name */
             full_name: string;
             /** Organisation Id */
@@ -1728,7 +1662,7 @@ export interface components {
         };
         /**
          * Acknowledgement
-         * @description For actions with nothing else to return (e.g. a password reset email was queued).
+         * @description For actions with nothing else to return (e.g. a password was changed).
          */
         Acknowledgement: {
             /**
@@ -1933,18 +1867,6 @@ export interface components {
              */
             success: true;
         };
-        /** ApiResponse[ContactReceipt] */
-        ApiResponse_ContactReceipt_: {
-            data?: components["schemas"]["ContactReceipt"] | null;
-            /** Message */
-            message?: string | null;
-            /**
-             * Success
-             * @default true
-             * @constant
-             */
-            success: true;
-        };
         /** ApiResponse[Credits] */
         ApiResponse_Credits_: {
             data?: components["schemas"]["Credits"] | null;
@@ -2092,6 +2014,18 @@ export interface components {
         /** ApiResponse[Page[Candidate]] */
         ApiResponse_Page_Candidate__: {
             data?: components["schemas"]["Page_Candidate_"] | null;
+            /** Message */
+            message?: string | null;
+            /**
+             * Success
+             * @default true
+             * @constant
+             */
+            success: true;
+        };
+        /** ApiResponse[Page[InvitationPublic]] */
+        ApiResponse_Page_InvitationPublic__: {
+            data?: components["schemas"]["Page_InvitationPublic_"] | null;
             /** Message */
             message?: string | null;
             /**
@@ -2308,30 +2242,6 @@ export interface components {
         /** ApiResponse[Targets] */
         ApiResponse_Targets_: {
             data?: components["schemas"]["Targets"] | null;
-            /** Message */
-            message?: string | null;
-            /**
-             * Success
-             * @default true
-             * @constant
-             */
-            success: true;
-        };
-        /** ApiResponse[TestMailboxCleared] */
-        ApiResponse_TestMailboxCleared_: {
-            data?: components["schemas"]["TestMailboxCleared"] | null;
-            /** Message */
-            message?: string | null;
-            /**
-             * Success
-             * @default true
-             * @constant
-             */
-            success: true;
-        };
-        /** ApiResponse[TestMailbox] */
-        ApiResponse_TestMailbox_: {
-            data?: components["schemas"]["TestMailbox"] | null;
             /** Message */
             message?: string | null;
             /**
@@ -2954,46 +2864,6 @@ export interface components {
             /** Items */
             items: components["schemas"]["Consent"][];
         };
-        /** ContactReceipt */
-        ContactReceipt: {
-            /**
-             * Received At
-             * Format: date-time
-             */
-            received_at: string;
-            /**
-             * Status
-             * @constant
-             */
-            status: "received";
-            /** Ticket Id */
-            ticket_id: string;
-        };
-        /** ContactRequest */
-        ContactRequest: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** Full Name */
-            full_name: string;
-            /** Message */
-            message: string;
-            /** Organisation */
-            organisation?: string | null;
-            /**
-             * Topic
-             * @default general
-             * @enum {string}
-             */
-            topic: "general" | "support" | "sales" | "partnership" | "organisation_audit";
-            /**
-             * Website
-             * @description Spam trap: leave it out or empty. Hide this input from people; bots fill it.
-             */
-            website?: string | null;
-        };
         /** CreditPack */
         CreditPack: {
             /** Credits */
@@ -3446,6 +3316,17 @@ export interface components {
         Page_Candidate_: {
             /** Items */
             items: components["schemas"]["Candidate"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** Page[InvitationPublic] */
+        Page_InvitationPublic_: {
+            /** Items */
+            items: components["schemas"]["InvitationPublic"][];
             /** Limit */
             limit: number;
             /** Offset */
@@ -4248,48 +4129,6 @@ export interface components {
             /** Role Id */
             role_id: number;
         };
-        /** TestMailbox */
-        TestMailbox: {
-            /**
-             * Messages
-             * @description Newest first
-             */
-            messages: components["schemas"]["TestMailboxMessageOut"][];
-            /** To */
-            to: string;
-        };
-        /** TestMailboxCleared */
-        TestMailboxCleared: {
-            /** Deleted */
-            deleted: number;
-            /** To */
-            to: string;
-        };
-        /** TestMailboxMessageOut */
-        TestMailboxMessageOut: {
-            /** Html */
-            html: string;
-            /** Id */
-            id: number;
-            /**
-             * Links
-             * @description Every link in the email, e.g. a confirm or reset link
-             */
-            links: string[];
-            /**
-             * Received At
-             * Format: date-time
-             */
-            received_at: string;
-            /** Reply To */
-            reply_to: string | null;
-            /** Subject */
-            subject: string;
-            /** Text */
-            text: string;
-            /** To */
-            to: string;
-        };
         /** TokenResponse */
         TokenResponse: {
             /** Access Token */
@@ -4300,11 +4139,6 @@ export interface components {
             learner_id: number;
             /** Token Type */
             token_type: string;
-        };
-        /** VerifyEmailRequest */
-        VerifyEmailRequest: {
-            /** Token */
-            token: string;
         };
         /** WebhookReceipt */
         WebhookReceipt: {
@@ -4484,86 +4318,6 @@ export interface operations {
             };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    verify_email_api_v1_accounts_verify_email_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VerifyEmailRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
-                };
-            };
-            /** @description Gone or expired: this old route is retired, or the link/offer has expired (see the message) */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    resend_verification_email_api_v1_accounts_verify_email_resend_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_Acknowledgement_"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5386,48 +5140,6 @@ export interface operations {
             };
         };
     };
-    send_contact_message_api_v1_contact_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ContactRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_ContactReceipt_"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Too many requests: slow down and retry after the Retry-After seconds */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
     get_my_credits_api_v1_credits_get: {
         parameters: {
             query?: never;
@@ -5556,6 +5268,56 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Conflict: e.g. this attempt was already submitted */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error: the request body or parameters are invalid (see details) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_received_invitations_api_v1_invitations_received_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiResponse_Page_InvitationPublic__"];
+                };
+            };
+            /** @description Not logged in: missing, invalid or expired token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Validation error: the request body or parameters are invalid (see details) */
             422: {
                 headers: {
@@ -5638,6 +5400,15 @@ export interface operations {
             };
             /** @description Not logged in: missing, invalid or expired token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not allowed: e.g. this belongs to another person */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8909,107 +8680,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiResponse_list_Plan__"];
-                };
-            };
-        };
-    };
-    read_test_mailbox_api_v1_test_mailbox_get: {
-        parameters: {
-            query: {
-                /** @description The address the emails were sent to */
-                to: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_TestMailbox_"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    clear_test_mailbox_api_v1_test_mailbox_delete: {
-        parameters: {
-            query: {
-                /** @description The address to clear */
-                to: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiResponse_TestMailboxCleared_"];
-                };
-            };
-            /** @description Not logged in: missing, invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Validation error: the request body or parameters are invalid (see details) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

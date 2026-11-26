@@ -1,8 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { LuBriefcase, LuCompass, LuSparkles } from 'react-icons/lu';
+import { Alert } from '../components/Alert';
 import { Card } from '../components/Card';
 import { CreditsStrip } from '../components/CreditsStrip';
-import { PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
+import { LINK_CLASS, PRIMARY_ACTION, SECONDARY_ACTION } from '../components/Button';
+import { recruiterQueries } from '../lib/api/queries';
+import { invitationTasks } from '../lib/tasks/buildTasks';
 import { useCurrentUser, type UserType } from '../lib/user';
 import { firstNameOf } from '../lib/format';
 
@@ -100,6 +104,22 @@ const AreaHome = ({ area }: { area: Area }) => (
   </div>
 );
 
+// Invitations are in-app only, so a waiting one is pointed out here; Tasks lists them (and shows
+// a failed load with a retry)
+const InvitationsNotice = () => {
+  const { data } = useQuery(recruiterQueries.receivedInvitations());
+  const open = data ? invitationTasks(data).length : 0;
+  if (open === 0) return null;
+
+  return (
+    <Alert title={open === 1 ? 'You have a test invitation' : `You have ${open} test invitations`}>
+      <Link to="/tasks" className={LINK_CLASS}>
+        See your invitations
+      </Link>
+    </Alert>
+  );
+};
+
 export const Dashboard = () => {
   const { name, userType } = useCurrentUser();
   const firstName = firstNameOf(name);
@@ -117,6 +137,7 @@ export const Dashboard = () => {
         )}
       </div>
 
+      <InvitationsNotice />
       {(userType === 'self-test' || userType === 'recruiter') && <CreditsStrip />}
       {userType === 'beginner' ? <BeginnerHome /> : <AreaHome area={AREAS[userType]} />}
     </div>

@@ -47,11 +47,6 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: 'Account',
     questions: [
       {
-        question: 'I did not get the confirmation email.',
-        answer:
-          'Check your spam folder, then ask for a new link from the “Check your email” page or from Settings.',
-      },
-      {
         question: 'How do I change my password?',
         answer: 'Go to Settings and use “Change password”. You need your current password.',
       },

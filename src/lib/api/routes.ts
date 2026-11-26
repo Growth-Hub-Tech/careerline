@@ -12,10 +12,7 @@ export const API_ROUTES = {
     me: '/accounts/me',
     password: '/accounts/me/password',
     passwordReset: '/accounts/password-reset/confirm',
-    verifyEmail: '/accounts/verify-email',
-    resendVerification: '/accounts/verify-email/resend',
   },
-  contact: '/contact',
   beginner: {
     intake: '/beginner-path/intake',
     recommendations: '/beginner-path/recommendations',
@@ -75,6 +72,7 @@ export const API_ROUTES = {
   },
   invitations: {
     list: '/invitations',
+    received: '/invitations/received',
     revoke: (invitationId: number) => `/invitations/${invitationId}/revoke`,
     byToken: (token: string) => `/invitations/token/${segment(token)}`,
     accept: (token: string) => `/invitations/token/${segment(token)}/accept`,

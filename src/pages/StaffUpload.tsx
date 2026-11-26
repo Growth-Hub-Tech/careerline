@@ -131,8 +131,9 @@ export const StaffUpload = () => {
       <header className="flex flex-col gap-3">
         <h1 className="page-title">Upload staff list</h1>
         <p className="max-w-[65ch] text-[15px] text-slate-600">
-          Fill in one row per person: name, work email, department and role. We check every row
-          before anything is uploaded.
+          Fill in one row per person: name, work email, department and role. Use the email each
+          person signs in to CareerLine with: an audit only invites people with an account. We check
+          every row before anything is uploaded.
         </p>
         <a
           href={TEMPLATE_HREF}

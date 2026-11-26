@@ -1,6 +1,6 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPatch, apiPost } from '..';
-import { queryClient, STALE_TIME } from '../queryClient';
+import { STALE_TIME } from '../queryClient';
 import { queryKeys } from '../queryKeys';
 import { API_ROUTES } from '../routes';
 import type { Account, AccountUpdate, Acknowledgement, ChangePasswordRequest } from '../types';
@@ -11,25 +11,6 @@ export const accountQueries = {
       queryKey: queryKeys.account,
       queryFn: ({ signal }) => apiGet<Account>(API_ROUTES.accounts.me, { signal }),
       staleTime: STALE_TIME.record,
-    }),
-
-  // A POST with a single-use token: cached for good, so a second render (React's StrictMode, a
-  // remount) never sends it twice. A confirmed email shows on the account.
-  verifyEmail: (token: string) =>
-    queryOptions({
-      queryKey: queryKeys.verifyEmail(token),
-      queryFn: async () => {
-        const reply = await apiPost<Acknowledgement>(
-          API_ROUTES.accounts.verifyEmail,
-          { token },
-          { auth: false },
-        );
-        void queryClient.invalidateQueries({ queryKey: queryKeys.account });
-        return reply;
-      },
-      staleTime: Infinity,
-      gcTime: Infinity,
-      retry: false,
     }),
 };
 
@@ -47,11 +28,6 @@ export const useChangePassword = () =>
   useMutation({
     mutationFn: (request: ChangePasswordRequest) =>
       apiPost<Acknowledgement>(API_ROUTES.accounts.password, request),
-  });
-
-export const useResendVerification = () =>
-  useMutation({
-    mutationFn: () => apiPost<Acknowledgement>(API_ROUTES.accounts.resendVerification),
   });
 
 export const useResetPassword = () =>

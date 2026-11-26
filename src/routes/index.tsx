@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom';
+import { Navigate, type RouteObject } from 'react-router-dom';
 import { MainLayout } from './MainLayout/MainLayout.tsx';
 import { NoFooterLayout } from './NoFooterLayout/NoFooterLayout.tsx';
 import { AppLayout } from './AppLayout/AppLayout.tsx';
@@ -19,7 +19,6 @@ import {
   TestStart,
   TestAttempt,
   Invitation,
-  Quote,
   AudiencePage,
   HowItWorks,
   Help,
@@ -69,7 +68,8 @@ export const getRoutes = (): RouteObject[] => [
           { path: '/', element: <Home /> },
           { path: '/contact', element: <Contact /> },
           { path: '/pricing', element: <Pricing /> },
-          { path: '/quote', element: <Quote /> },
+          // the quote form is gone: the contact page has the team's details
+          { path: '/quote', element: <Navigate to="/contact" replace /> },
           { path: '/how-it-works', element: <HowItWorks /> },
           { path: '/help', element: <Help /> },
           { path: '/privacy', element: <PrivacyPolicy /> },

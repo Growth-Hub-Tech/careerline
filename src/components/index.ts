@@ -7,7 +7,6 @@ export * from './SignIn';
 export * from './ResetPassword';
 export * from './GetStarted';
 export * from './SignUp';
-export * from './VerifyEmail';
 export * from './CompleteProfile';
 export * from './Button';
 export * from './Checkbox';

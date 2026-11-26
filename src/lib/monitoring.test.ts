@@ -7,7 +7,6 @@ vi.mock('@sentry/react', () => ({ init: vi.fn() }));
 describe('scrubUrl', () => {
   it.each([
     ['https://careerline.ng/reset-password?token=secret', 'https://careerline.ng/reset-password'],
-    ['https://careerline.ng/verify-email?token=secret#top', 'https://careerline.ng/verify-email'],
     ['https://careerline.ng/invitations/secret', 'https://careerline.ng/invitations/:token'],
     [
       'https://api.example.ng/api/v1/invitations/token/secret/accept',
@@ -58,8 +57,8 @@ describe('startErrorMonitoring', () => {
     expect(event.request?.url).toBe('https://careerline.ng/reset-password');
     const crumb = options.beforeBreadcrumb?.({
       category: 'navigation',
-      data: { from: '/invitations/secret', to: '/verify-email?token=secret' },
+      data: { from: '/invitations/secret', to: '/dashboard' },
     });
-    expect(crumb?.data).toEqual({ from: '/invitations/:token', to: '/verify-email' });
+    expect(crumb?.data).toEqual({ from: '/invitations/:token', to: '/dashboard' });
   });
 });

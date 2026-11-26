@@ -32,7 +32,7 @@ export const CompleteProfile = () => {
     try {
       const { fullName, phone, password } = values;
       await registerAccount.mutateAsync({ email, fullName, phone, password });
-      navigate(AUTH_PATHS.verifyEmail);
+      navigate(AUTH_PATHS.getStarted);
     } catch (error) {
       if (!applyFieldErrors(error, ['fullName', 'phone', 'password'], setError)) {
         setFormError(describeAuthError(error));
